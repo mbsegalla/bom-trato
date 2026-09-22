@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Eye, EyeOff, LoaderCircle } from 'lucide-react';
+import { ArrowRight, Check, Circle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
@@ -13,9 +13,22 @@ import { Label } from '@/components/ui/label';
 import { registerUser } from '../services/auth.service';
 import type { RegisterFormProps } from '../types/auth.types';
 
+function getPasswordRequirements(password: string) {
+  const length = Array.from(password).length;
+
+  return [
+    { label: 'De 12 a 128 caracteres', isSatisfied: length >= 12 && length <= 128 },
+    { label: 'Pelo menos uma letra maiúscula', isSatisfied: /\p{Lu}/u.test(password) },
+    { label: 'Pelo menos um caractere especial, como !, @ ou #', isSatisfied: /[\p{P}\p{S}]/u.test(password) },
+  ];
+}
+
 export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const router = useRouter();
   const submittingRef = useRef(false);
+
+  const [passwordValue, setPasswordValue] = useState('');
+  const passwordRequirements = getPasswordRequirements(passwordValue);
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -52,6 +65,11 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
       return;
     }
 
+    if (!getPasswordRequirements(password).every((requirement) => requirement.isSatisfied)) {
+      setError('A senha deve ter de 12 a 128 caracteres, uma letra maiúscula e um caractere especial.');
+      return;
+    }
+
     if (password !== passwordConfirmation) {
       setError('As senhas não coincidem.');
       return;
@@ -73,6 +91,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
       }
 
       form.reset();
+      setPasswordValue('');
       const params = new URLSearchParams();
 
       if (selectedPlan) {
@@ -169,6 +188,8 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
               <Input
                 id="register-password"
                 name="password"
+                onChange={(event) => setPasswordValue(event.currentTarget.value)}
+                aria-describedby="register-password-requirements"
                 type={passwordVisible ? 'text' : 'password'}
                 autoComplete="new-password"
                 required
@@ -191,6 +212,26 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
                 )}
               </Button>
             </div>
+            <ul id="register-password-requirements" className="space-y-1.5 pt-1 text-xs leading-relaxed">
+              {passwordRequirements.map(({ label, isSatisfied }) => (
+                <li
+                  key={label}
+                  className={
+                    isSatisfied ? 'flex items-start gap-2 text-primary' : 'flex items-start gap-2 text-muted-foreground'
+                  }
+                >
+                  {isSatisfied ? (
+                    <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                  ) : (
+                    <Circle aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+                  )}
+                  <span>
+                    <span className="sr-only">{isSatisfied ? 'Atendido: ' : 'Pendente: '}</span>
+                    {label}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
 
           <div className="space-y-2">

@@ -17,7 +17,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <Link
             href="/"
             aria-label="Bom Trato — página inicial"
-            className="inline-flex min-h-11 items-center rounded-md text-2xl font-semibold tracking-tight text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            className="inline-flex min-h-11 cursor-pointer items-center rounded-md text-2xl font-semibold tracking-tight text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
             bom trato.
           </Link>

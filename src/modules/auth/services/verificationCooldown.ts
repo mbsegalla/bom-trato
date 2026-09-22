@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'bom-trato:verification-cooldown-until';
 const CHANGE_EVENT = 'bom-trato:verification-cooldown-change';
 
-export const VERIFICATION_COOLDOWN_SECONDS = 60;
+export const VERIFICATION_COOLDOWN_SECONDS = 180;
 
 let memoryUntil = 0;
 
@@ -17,7 +17,7 @@ function getCooldownUntil(): number {
       memoryUntil = Math.max(memoryUntil, stored);
     }
   } catch {
-    // Storage can be disabled. The API remains responsible for enforcement.
+    console.error('Failed to read verification cooldown from localStorage');
   }
 
   return memoryUntil;
@@ -32,12 +32,16 @@ export function startVerificationCooldown(seconds = VERIFICATION_COOLDOWN_SECOND
     return;
   }
 
-  memoryUntil = Math.max(getCooldownUntil(), Date.now() + Math.ceil(seconds) * 1000);
+  memoryUntil = Math.max(
+    getCooldownUntil(),
+    Date.now() + Math.max(VERIFICATION_COOLDOWN_SECONDS, Math.ceil(seconds)) * 1000,
+  );
 
   try {
     // Only a timestamp: no email, token, or other account information.
     window.localStorage.setItem(STORAGE_KEY, String(memoryUntil));
   } catch {
+    console.error('Failed to write verification cooldown to localStorage');
     // Continue with the in-memory deadline when storage is unavailable.
   }
 
@@ -46,6 +50,7 @@ export function startVerificationCooldown(seconds = VERIFICATION_COOLDOWN_SECOND
 
 export function subscribeToVerificationCooldown(onChange: () => void): () => void {
   const timer = window.setInterval(onChange, 1000);
+
   const onStorage = (event: StorageEvent) => {
     if (event.key === STORAGE_KEY || event.key === null) {
       onChange();

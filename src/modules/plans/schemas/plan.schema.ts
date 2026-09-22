@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
+
 export const planPriceSchema = z.object({
   id: z.uuid(),
   amountInCents: z.number().int().nonnegative(),
@@ -18,8 +20,4 @@ export const planSchema = z.object({
   prices: z.array(planPriceSchema),
 });
 
-export const planListResponseSchema = z.object({
-  statusCode: z.literal(200),
-  success: z.literal(true),
-  data: z.array(planSchema),
-});
+export const planListResponseSchema = apiResponseSchema(z.array(planSchema));

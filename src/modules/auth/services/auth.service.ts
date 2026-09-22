@@ -69,7 +69,7 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfResult.data.data.csrfToken,
+        'X-CSRF-Token': csrfResult.data.csrfToken,
       },
       body: JSON.stringify(input),
       signal: AbortSignal.timeout(timeoutMs),
