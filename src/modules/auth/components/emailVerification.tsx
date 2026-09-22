@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleCheck, LoaderCircle, MailCheck } from 'lucide-react';
+import { CircleCheck, Clock3, LoaderCircle, MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { ComponentProps } from 'react';
 import { useRef, useState, useSyncExternalStore } from 'react';
@@ -45,6 +45,7 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
   const [operation, setOperation] = useState<EmailVerificationOperation | null>(null);
   const [verified, setVerified] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resendRateLimited, setResendRateLimited] = useState(false);
   const [resendRequested, setResendRequested] = useState(false);
   const [showResend, setShowResend] = useState(false);
 
@@ -69,6 +70,7 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
     busyRef.current = true;
     setOperation('verify');
     setError(null);
+    setResendRateLimited(false);
 
     try {
       const result = await verifyEmail(token);
@@ -91,7 +93,7 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
   const handleResend: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (busyRef.current) {
+    if (busyRef.current || remainingSeconds > 0) {
       return;
     }
 
@@ -102,12 +104,14 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
     busyRef.current = true;
     setOperation('resend');
     setError(null);
+    setResendRateLimited(false);
     setResendRequested(false);
 
     try {
       const result = await resendVerificationEmail(email);
 
       if (!result.success) {
+        setResendRateLimited(result.rateLimited === true);
         setError(result.message);
         return;
       }
@@ -163,13 +167,25 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
         </Link>
       ) : (
         <>
-          {error && (
+          {error && !resendRateLimited && (
             <p
               role="alert"
               className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
             >
               {error}
             </p>
+          )}
+
+          {remainingSeconds > 0 && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
+              <Clock3 aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
+              <div>
+                <p className="font-medium">Aguarde para solicitar outro e-mail</p>
+                <p className="mt-1 text-muted-foreground">
+                  Por segurança, aguarde alguns minutos antes de solicitar um novo envio.
+                </p>
+              </div>
+            </div>
           )}
 
           {token && (
@@ -193,7 +209,7 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
           {!token || showResend ? (
             <form onSubmit={handleResend} className="mt-8 border-t pt-6">
               <fieldset disabled={busy} className="space-y-4">
-                <legend className="mb-3 font-semibold">Solicitar novo e-mail</legend>
+                <legend className="mb-3 font-semibold">Reenviar e-mail de confirmação</legend>
 
                 <div className="space-y-2">
                   <Label htmlFor="verification-email">E-mail do cadastro</Label>

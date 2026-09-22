@@ -37,7 +37,7 @@ export async function listPlans(): Promise<PlanListResult> {
 
     return {
       success: true,
-      plans: result.data.data,
+      plans: result.data,
     };
   } catch {
     return {

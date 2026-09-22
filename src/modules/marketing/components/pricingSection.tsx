@@ -105,6 +105,7 @@ export function PricingSection({ result }: PricingSectionProps) {
                       type="button"
                       variant={activeInterval === period.value ? 'default' : 'ghost'}
                       aria-pressed={activeInterval === period.value}
+                      className="cursor-pointer"
                       onClick={() => setSelectedInterval(period.value)}
                     >
                       {period.label}

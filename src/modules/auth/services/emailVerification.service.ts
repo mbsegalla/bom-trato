@@ -6,6 +6,11 @@ import {
   resendVerificationEmailSchema,
 } from '../schemas/auth.schema';
 import type { EmailVerificationOperation, EmailVerificationResult } from '../types/auth.types';
+import {
+  getVerificationCooldownSeconds,
+  readRetryAfterSeconds,
+  startVerificationCooldown,
+} from './verificationCooldown';
 
 function responseError(status: number, operation: EmailVerificationOperation): string {
   if (status === 429) {
@@ -47,8 +52,13 @@ async function sendRequest(
     });
 
     if (!csrfResponse.ok) {
+      if (operation === 'resend' && csrfResponse.status === 429) {
+        startVerificationCooldown(readRetryAfterSeconds(csrfResponse));
+      }
+
       return {
         success: false,
+        rateLimited: csrfResponse.status === 429,
         message:
           csrfResponse.status === 429
             ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
@@ -77,16 +87,21 @@ async function sendRequest(
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfResult.data.data.csrfToken,
+        'X-CSRF-Token': csrfResult.data.csrfToken,
       },
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(timeoutMs),
     });
 
     if (!response.ok) {
+      if (operation === 'resend' && response.status === 429) {
+        startVerificationCooldown(readRetryAfterSeconds(response));
+      }
+
       return {
         success: false,
         message: responseError(response.status, operation),
+        rateLimited: response.status === 429,
       };
     }
 
@@ -129,6 +144,20 @@ export async function resendVerificationEmail(email: string): Promise<EmailVerif
       message: 'Informe um endereço de e-mail válido.',
     };
   }
+
+  const remainingSeconds = getVerificationCooldownSeconds();
+
+  if (remainingSeconds > 0) {
+    return {
+      success: false,
+      message: `Aguarde ${remainingSeconds}s antes de solicitar outro e-mail.`,
+      rateLimited: true,
+    };
+  }
+
+  // Reserve before the first await to prevent rapid duplicate submissions.
+  // Keep the deadline after network failures: the API may have accepted the request.
+  startVerificationCooldown();
 
   return sendRequest('resend', {
     email: result.data,
