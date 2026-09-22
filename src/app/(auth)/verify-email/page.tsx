@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function VerifyEmailPage() {
-  return <EmailVerification />;
+interface VerifyEmailPageProps {
+  searchParams: Promise<{ planPriceId?: string | string[] }>;
+}
+
+export default async function VerifyEmailPage({ searchParams }: VerifyEmailPageProps) {
+  const { planPriceId } = await searchParams;
+
+  return <EmailVerification planPriceId={typeof planPriceId === 'string' ? planPriceId : undefined} />;
 }

@@ -2,6 +2,7 @@ import { getApiConfig } from '@/config/api.config';
 
 import { csrfResponseSchema } from '../schemas/auth.schema';
 import type { RegisterInput, RegisterResult } from '../types/auth.types';
+import { readRetryAfterSeconds, startVerificationCooldown } from './verificationCooldown';
 
 function getRegistrationErrorMessage(status: number): string {
   switch (status) {
@@ -75,11 +76,17 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        startVerificationCooldown(readRetryAfterSeconds(response));
+      }
+
       return {
         success: false,
         message: getRegistrationErrorMessage(response.status),
       };
     }
+
+    startVerificationCooldown();
 
     return {
       success: true,

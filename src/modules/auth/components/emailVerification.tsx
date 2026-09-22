@@ -9,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { useVerificationCooldown } from '../hooks/useVerificationCooldown';
 import { emailVerificationTokenSchema } from '../schemas/auth.schema';
 import { resendVerificationEmail, verifyEmail } from '../services/emailVerification.service';
 import type { EmailVerificationOperation } from '../types/auth.types';
 import { EmailVerificationSkeleton } from './emailVerificationSkeleton';
+import { ResendVerificationButton } from './resendVerificationButton';
 
 function subscribeToHash(onChange: () => void) {
   window.addEventListener('hashchange', onChange);
@@ -32,8 +34,11 @@ function getServerHashSnapshot(): null {
   return null;
 }
 
-export function EmailVerification() {
+export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
+  const loginHref = planPriceId ? { pathname: '/login', query: { planPriceId } } : '/login';
   const hash = useSyncExternalStore(subscribeToHash, getHashSnapshot, getServerHashSnapshot);
+
+  const remainingSeconds = useVerificationCooldown();
 
   const busyRef = useRef(false);
 
@@ -53,11 +58,10 @@ export function EmailVerification() {
   const tokenResult = emailVerificationTokenSchema.safeParse(tokens.length === 1 ? tokens[0] : undefined);
 
   const token = tokenResult.success ? tokenResult.data : null;
+  const invalidLink = hash.length > 1 && !token;
   const busy = operation !== null;
 
   async function handleVerify() {
-    console.log('handleVerify called with token:', token); // Log the token for debugging
-
     if (!token || busyRef.current) {
       return;
     }
@@ -68,8 +72,6 @@ export function EmailVerification() {
 
     try {
       const result = await verifyEmail(token);
-
-      console.log('Verification result:', result); // Log the verification result for debugging
 
       if (!result.success) {
         setError(result.message);
@@ -132,7 +134,13 @@ export function EmailVerification() {
 
       <div role="status">
         <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight">
-          {verified ? 'E-mail confirmado!' : token ? 'Confirme seu e-mail' : 'Precisamos de um novo link'}
+          {verified
+            ? 'E-mail confirmado!'
+            : token
+              ? 'Confirme seu e-mail'
+              : invalidLink
+                ? 'Precisamos de um novo link'
+                : 'Confira seu e-mail'}
         </h1>
 
         <p className="mt-4 leading-relaxed text-muted-foreground">
@@ -140,13 +148,15 @@ export function EmailVerification() {
             ? 'Tudo certo com seu e-mail. Entre na sua conta para continuar.'
             : token
               ? 'Clique no botão abaixo para confirmar o endereço de e-mail da sua conta.'
-              : 'O link está incompleto ou tem um formato inválido. Solicite outro e-mail para continuar.'}
+              : invalidLink
+                ? 'O link está incompleto ou tem um formato inválido. Solicite outro e-mail para continuar.'
+                : 'Abra o link enviado para o e-mail do cadastro. Se não encontrar a mensagem, confira a pasta de spam ou informe seu e-mail abaixo para solicitar outro envio.'}
         </p>
       </div>
 
       {verified ? (
         <Link
-          href="/login"
+          href={loginHref}
           className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
           Entrar na minha conta
@@ -202,16 +212,11 @@ export function EmailVerification() {
                   />
                 </div>
 
-                <Button type="submit" variant="outline" disabled={busy} className="min-h-12 w-full rounded-xl">
-                  {operation === 'resend' ? (
-                    <>
-                      <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
-                      Solicitando...
-                    </>
-                  ) : (
-                    'Enviar novo link'
-                  )}
-                </Button>
+                <ResendVerificationButton
+                  isSending={operation === 'resend'}
+                  remainingSeconds={remainingSeconds}
+                  disabled={busy}
+                />
               </fieldset>
 
               {resendRequested && (
@@ -235,7 +240,7 @@ export function EmailVerification() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Já confirmou seu e-mail?{' '}
-            <Link href="/login" className="font-medium text-primary underline underline-offset-4">
+            <Link href={loginHref} className="font-medium text-primary underline underline-offset-4">
               Entrar
             </Link>
           </p>
