@@ -100,6 +100,15 @@ export function LoginForm() {
       </div>
 
       <p className="text-center text-sm text-muted-foreground">
+        <Link
+          href="/verify-email"
+          className="inline-flex min-h-11 items-center rounded-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        >
+          Não recebeu o e-mail de confirmação?
+        </Link>
+      </p>
+
+      <p className="text-center text-sm text-muted-foreground">
         Ainda não tem conta?{' '}
         <Link
           href="/register"

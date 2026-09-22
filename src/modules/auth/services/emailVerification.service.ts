@@ -108,8 +108,6 @@ async function sendRequest(
 export async function verifyEmail(token: string): Promise<EmailVerificationResult> {
   const result = emailVerificationTokenSchema.safeParse(token);
 
-  console.log('Token validation result:', result); // Log the token validation result for debugging
-
   if (!result.success) {
     return {
       success: false,

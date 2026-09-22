@@ -31,6 +31,7 @@ export type EmailVerificationResult =
   | {
       success: false;
       message: string;
+      rateLimited?: boolean;
     };
 
 export type EmailVerificationOperation = 'verify' | 'resend';

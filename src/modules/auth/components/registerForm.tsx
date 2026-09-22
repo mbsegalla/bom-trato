@@ -1,7 +1,8 @@
 'use client';
 
-import { ArrowRight, Eye, EyeOff, LoaderCircle, MailCheck } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
@@ -11,14 +12,13 @@ import { Label } from '@/components/ui/label';
 
 import { registerUser } from '../services/auth.service';
 import type { RegisterFormProps } from '../types/auth.types';
-import { ResendVerificationButton } from './resendVerificationButton';
 
 export function RegisterForm({ selectedPlan }: RegisterFormProps) {
+  const router = useRouter();
   const submittingRef = useRef(false);
 
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loginHref = selectedPlan
@@ -73,52 +73,19 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
       }
 
       form.reset();
-      setRegisteredEmail(email);
+      const params = new URLSearchParams();
+
+      if (selectedPlan) {
+        params.set('planPriceId', selectedPlan.price.id);
+      }
+
+      const query = params.toString();
+      router.replace(query ? `/verify-email?${query}` : '/verify-email');
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
-
-  if (registeredEmail !== null) {
-    return (
-      <div className="mx-auto w-full max-w-md">
-        <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-          <MailCheck aria-hidden="true" className="size-7" />
-        </div>
-
-        <div role="status" className="mt-6">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight">Confira seu e-mail</h1>
-
-          <p className="mt-4 leading-relaxed text-muted-foreground">
-            Solicitação de cadastro recebida. Confira sua caixa de entrada para verificar o e-mail e continuar.
-          </p>
-        </div>
-
-        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Se não encontrar a mensagem, confira a pasta de spam ou solicite um novo envio abaixo.
-        </p>
-
-        {selectedPlan && (
-          <p className="mt-6 rounded-xl border bg-card p-4 text-sm leading-relaxed">
-            Plano escolhido: <strong className="font-semibold">{selectedPlan.name}</strong>. Nenhuma cobrança foi
-            realizada nesta etapa.
-          </p>
-        )}
-
-        <div className="mt-8">
-          <ResendVerificationButton email={registeredEmail} />
-        </div>
-
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Já confirmei meu e-mail —{' '}
-          <Link href={loginHref} className="font-medium text-primary underline underline-offset-4">
-            Entrar
-          </Link>
-        </p>
-      </div>
-    );
-  }
 
   return (
     <div className="mx-auto w-full max-w-md">
