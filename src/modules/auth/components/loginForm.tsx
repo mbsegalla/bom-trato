@@ -103,7 +103,7 @@ export function LoginForm() {
         Ainda não tem conta?{' '}
         <Link
           href="/register"
-          className="inline-flex min-h-11 items-center rounded-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          className="inline-flex min-h-11 cursor-pointer items-center rounded-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
           Criar conta
         </Link>

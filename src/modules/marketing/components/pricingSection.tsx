@@ -183,7 +183,7 @@ export function PricingSection({ result }: PricingSectionProps) {
                       {price ? (
                         <MarketingLink
                           href={{
-                            pathname: '/cadastro',
+                            pathname: '/register',
                             query: {
                               planPriceId: price.id,
                             },
