@@ -74,6 +74,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
         name,
         email,
         password,
+        selectedPlanPriceId: selectedPlan?.price.id ?? null,
       });
 
       if (!result.success) {
