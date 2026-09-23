@@ -143,7 +143,7 @@ export function LoginForm() {
           </p>
         )}
 
-        <Button type="submit" disabled={isSubmitting} className="min-h-12 w-full rounded-xl">
+        <Button type="submit" disabled={isSubmitting} className="min-h-12 w-full cursor-pointer rounded-xl">
           {isSubmitting ? (
             <>
               <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />

@@ -208,7 +208,7 @@ export function ForgotPasswordForm() {
                 maxLength={254}
                 placeholder="voce@empresa.com"
                 required
-                className="h-12 rounded-xl pl-11"
+                className="h-12 rounded-xl bg-card pl-11 text-base md:text-base"
               />
             </div>
           </div>

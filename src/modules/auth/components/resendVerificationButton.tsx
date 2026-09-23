@@ -21,7 +21,7 @@ export function ResendVerificationButton({
       type="submit"
       variant="outline"
       disabled={disabled || isSending || remainingSeconds > 0}
-      className="min-h-12 w-full rounded-xl"
+      className="min-h-12 w-full cursor-pointer rounded-xl"
     >
       {isSending ? (
         <>

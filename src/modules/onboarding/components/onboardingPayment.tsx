@@ -3,7 +3,7 @@
 import { CheckoutElementsProvider, PaymentElement, useCheckoutElements } from '@stripe/react-stripe-js/checkout';
 import { loadStripe } from '@stripe/stripe-js';
 import { LoaderCircle, LockKeyhole, RotateCcw } from 'lucide-react';
-import type { FormEvent } from 'react';
+import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,6 @@ interface OnboardingPaymentProps {
 
 interface CheckoutLoaderProps extends OnboardingPaymentProps {
   onRetry(): void;
-}
-
-interface PaymentFormProps {
-  organizationId: string;
 }
 
 const stripePromise = loadStripe(getStripeConfig().publishableKey);
@@ -78,7 +74,7 @@ function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoader
           {error}
         </p>
 
-        <Button type="button" variant="outline" onClick={onRetry} className="min-h-12 w-full rounded-xl">
+        <Button type="button" variant="outline" onClick={onRetry} className="min-h-12 w-full cursor-pointer rounded-xl">
           <RotateCcw aria-hidden="true" className="size-4" />
           Tentar novamente
         </Button>
@@ -113,21 +109,21 @@ function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoader
         },
       }}
     >
-      <PaymentForm organizationId={organizationId} />
+      <PaymentForm />
     </CheckoutElementsProvider>
   );
 }
 
-function PaymentForm({ organizationId }: PaymentFormProps) {
+function PaymentForm() {
   const checkoutResult = useCheckoutElements();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (checkoutResult.type !== 'success' || !checkoutResult.checkout.canConfirm || isSubmitting) {
+    if (checkoutResult.type !== 'success' || isSubmitting) {
       return;
     }
 
@@ -135,22 +131,38 @@ function PaymentForm({ organizationId }: PaymentFormProps) {
     setError(null);
 
     try {
-      const returnUrl = new URL('/billing/return', window.location.origin);
+      const validationResult = await checkoutResult.checkout.validateElements();
 
-      returnUrl.searchParams.set('organizationId', organizationId);
+      if (validationResult.type === 'error') {
+        setError(validationResult.error.message || 'Revise os dados do pagamento.');
 
-      const result = await checkoutResult.checkout.confirm({
-        returnUrl: returnUrl.toString(),
-      });
+        return;
+      }
+
+      const result = await checkoutResult.checkout.confirm();
 
       if (result.type === 'error') {
+        console.error('Stripe checkout confirmation error:', result.error);
+
         setError(result.error.message ?? 'Não foi possível confirmar o pagamento.');
       }
-    } catch {
-      setError('Não foi possível confirmar o pagamento. Tente novamente.');
+    } catch (cause: unknown) {
+      console.error('Stripe checkout confirmation failed:', cause);
+
+      setError(cause instanceof Error ? cause.message : 'Não foi possível confirmar o pagamento. Tente novamente.');
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  if (checkoutResult.type === 'loading') {
+    return (
+      <div aria-busy="true" className="flex min-h-40 flex-col items-center justify-center">
+        <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
+
+        <p className="mt-3 text-sm text-muted-foreground">Carregando formulário de pagamento...</p>
+      </div>
+    );
   }
 
   if (checkoutResult.type === 'error') {
@@ -159,7 +171,7 @@ function PaymentForm({ organizationId }: PaymentFormProps) {
         role="alert"
         className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
       >
-        Não foi possível carregar o formulário de pagamento.
+        {checkoutResult.error.message || 'Não foi possível carregar o formulário de pagamento.'}
       </p>
     );
   }
@@ -177,11 +189,7 @@ function PaymentForm({ organizationId }: PaymentFormProps) {
         </p>
       )}
 
-      <Button
-        type="submit"
-        disabled={checkoutResult.type !== 'success' || !checkoutResult.checkout.canConfirm || isSubmitting}
-        className="min-h-12 w-full rounded-xl"
-      >
+      <Button type="submit" disabled={isSubmitting} className="min-h-12 w-full rounded-xl">
         {isSubmitting ? (
           <>
             <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
@@ -196,7 +204,7 @@ function PaymentForm({ organizationId }: PaymentFormProps) {
       </Button>
 
       <p className="text-center text-xs leading-relaxed text-muted-foreground">
-        Seus dados de pagamento são processados com segurança pela Stripe.
+        Pagamento processado com segurança pela Stripe.
       </p>
     </form>
   );

@@ -25,6 +25,8 @@ export type OnboardingState = z.infer<typeof onboardingStateSchema>;
 
 let bootstrapFlight: Promise<OnboardingState> | null = null;
 
+const stateFlights = new Map<string, Promise<OnboardingState>>();
+
 async function readOnboardingState(response: Response): Promise<OnboardingState> {
   if (response.status === 401) {
     throw new SessionError('Entre para continuar.', 401);
@@ -73,12 +75,36 @@ export function bootstrapOnboarding(): Promise<OnboardingState> {
   return request;
 }
 
-export async function getOnboarding(organizationId?: string): Promise<OnboardingState> {
+async function requestOnboardingState(organizationId?: string): Promise<OnboardingState> {
   const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : '';
 
   const response = await authenticatedFetch(`/api/onboarding${query}`);
 
   return readOnboardingState(response);
+}
+
+export function getOnboarding(organizationId?: string): Promise<OnboardingState> {
+  const key = organizationId ?? '__default__';
+
+  const existing = stateFlights.get(key);
+
+  if (existing) {
+    return existing;
+  }
+
+  const request = requestOnboardingState(organizationId);
+
+  stateFlights.set(key, request);
+
+  const cleanup = () => {
+    if (stateFlights.get(key) === request) {
+      stateFlights.delete(key);
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
 }
 
 export async function selectOnboardingPlan(organizationId: string, planPriceId: string): Promise<OnboardingState> {
