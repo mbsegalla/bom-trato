@@ -1,96 +1,96 @@
 'use client';
 
-import { CircleCheck, Clock3, LoaderCircle, MailCheck } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { useVerificationCooldown } from '../hooks/useVerificationCooldown';
-import { emailVerificationTokenSchema } from '../schemas/auth.schema';
-import { resendVerificationEmail, verifyEmail } from '../services/emailVerification.service';
-import type { EmailVerificationOperation } from '../types/auth.types';
-import { EmailVerificationSkeleton } from './emailVerificationSkeleton';
+import { resendVerificationEmail } from '../services/emailVerification.service';
+import { verifyEmailOnce } from '../services/session.service';
 import { ResendVerificationButton } from './resendVerificationButton';
 
-function subscribeToHash(onChange: () => void) {
-  window.addEventListener('hashchange', onChange);
-  window.addEventListener('popstate', onChange);
-
-  return () => {
-    window.removeEventListener('hashchange', onChange);
-    window.removeEventListener('popstate', onChange);
-  };
-}
-
-function getHashSnapshot(): string {
-  return window.location.hash;
-}
-
-function getServerHashSnapshot(): null {
-  return null;
-}
+type Stage = 'loading' | 'waiting' | 'verifying' | 'error' | 'recovered';
 
 export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
-  const loginHref = planPriceId ? { pathname: '/login', query: { planPriceId } } : '/login';
-  const hash = useSyncExternalStore(subscribeToHash, getHashSnapshot, getServerHashSnapshot);
-
+  const router = useRouter();
   const remainingSeconds = useVerificationCooldown();
 
+  const [stage, setStage] = useState<Stage>('loading');
+  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [sending, setSending] = useState(false);
+  const [retry, setRetry] = useState(0);
+  const [hasToken, setHasToken] = useState(false);
+
+  const tokenRef = useRef<string | null>(null);
   const busyRef = useRef(false);
 
-  const [operation, setOperation] = useState<EmailVerificationOperation | null>(null);
-  const [verified, setVerified] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [resendRateLimited, setResendRateLimited] = useState(false);
-  const [resendRequested, setResendRequested] = useState(false);
-  const [showResend, setShowResend] = useState(false);
+  const loginHref = planPriceId ? `/login?planPriceId=${encodeURIComponent(planPriceId)}` : '/login';
 
-  if (hash === null) {
-    return <EmailVerificationSkeleton />;
-  }
+  useEffect(() => {
+    let active = true;
 
-  const params = new URLSearchParams(hash.slice(1));
-  const tokens = params.getAll('token');
+    const tokens = new URLSearchParams(window.location.hash.slice(1)).getAll('token');
 
-  const tokenResult = emailVerificationTokenSchema.safeParse(tokens.length === 1 ? tokens[0] : undefined);
+    const token = tokenRef.current ?? (tokens.length === 1 ? tokens[0] : null);
 
-  const token = tokenResult.success ? tokenResult.data : null;
-  const invalidLink = hash.length > 1 && !token;
-  const busy = operation !== null;
+    tokenRef.current = token;
+    setHasToken(token !== null);
 
-  async function handleVerify() {
-    if (!token || busyRef.current) {
+    if (!token) {
+      setStage(window.location.hash ? 'error' : 'waiting');
+      setMessage(
+        window.location.hash ? 'O link é inválido. Solicite outro e-mail.' : 'Abra o link recebido por e-mail.',
+      );
+
       return;
     }
 
-    busyRef.current = true;
-    setOperation('verify');
-    setError(null);
-    setResendRateLimited(false);
+    setStage('verifying');
+    setMessage('Confirmando seu e-mail…');
 
-    try {
-      const result = await verifyEmail(token);
+    void verifyEmailOnce(token, retry > 0)
+      .then((result) => {
+        if (!active) {
+          return;
+        }
 
-      if (!result.success) {
-        setError(result.message);
-        setShowResend(true);
-        return;
-      }
+        window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`);
 
-      window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`);
+        if (result.kind === 'recovered') {
+          setEmail(result.email);
+          setStage('recovered');
 
-      setVerified(true);
-    } finally {
-      busyRef.current = false;
-      setOperation(null);
-    }
-  }
+          setMessage('Não recebemos a resposta da confirmação, mas encontramos uma sessão autenticada.');
 
-  const handleResend: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
+          return;
+        }
+
+        router.replace('/onboarding');
+      })
+      .catch((error: unknown) => {
+        if (!active) {
+          return;
+        }
+
+        setStage('error');
+
+        setMessage(error instanceof Error ? error.message : 'Não foi possível confirmar. Tente novamente.');
+      });
+
+    // Keep the request running during Strict Mode cleanup.
+    // The next effect execution subscribes to the same promise.
+    return () => {
+      active = false;
+    };
+  }, [router, retry]);
+
+  const resend: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
     if (busyRef.current || remainingSeconds > 0) {
@@ -98,170 +98,80 @@ export function EmailVerification({ planPriceId }: { planPriceId?: string }) {
     }
 
     const form = event.currentTarget;
-    const formData = new FormData(form);
-    const email = String(formData.get('email') ?? '');
 
     busyRef.current = true;
-    setOperation('resend');
-    setError(null);
-    setResendRateLimited(false);
-    setResendRequested(false);
+    setSending(true);
+    setMessage('');
 
     try {
-      const result = await resendVerificationEmail(email);
+      const result = await resendVerificationEmail(String(new FormData(form).get('email') ?? ''));
 
-      if (!result.success) {
-        setResendRateLimited(result.rateLimited === true);
-        setError(result.message);
-        return;
+      setMessage(
+        result.success
+          ? 'Se houver uma conta pendente, enviaremos outro e-mail. Confira também o spam.'
+          : result.message,
+      );
+
+      if (result.success) {
+        form.reset();
       }
-
-      form.reset();
-      setResendRequested(true);
     } finally {
       busyRef.current = false;
-      setOperation(null);
+      setSending(false);
     }
   };
 
+  const busy = stage === 'loading' || stage === 'verifying';
+
   return (
-    <div aria-busy={busy} className="mx-auto w-full max-w-md">
-      <div className="flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-        {verified ? (
-          <CircleCheck aria-hidden="true" className="size-7" />
-        ) : (
-          <MailCheck aria-hidden="true" className="size-7" />
-        )}
-      </div>
+    <section className="mx-auto w-full max-w-md space-y-6" aria-busy={busy}>
+      <h1 className="font-heading text-3xl font-semibold">
+        {busy ? 'Confirmando seu e-mail…' : stage === 'recovered' ? 'Continuar com sua conta' : 'Confirmação de e-mail'}
+      </h1>
 
-      <p className="mt-6 text-xs font-semibold tracking-[0.16em] text-primary">SUA CONTA NO BOM TRATO</p>
+      <p role={stage === 'error' ? 'alert' : 'status'}>{message || 'Aguarde um instante…'}</p>
 
-      <div role="status">
-        <h1 className="mt-3 font-heading text-3xl font-semibold tracking-tight">
-          {verified
-            ? 'E-mail confirmado!'
-            : token
-              ? 'Confirme seu e-mail'
-              : invalidLink
-                ? 'Precisamos de um novo link'
-                : 'Confira seu e-mail'}
-        </h1>
-
-        <p className="mt-4 leading-relaxed text-muted-foreground">
-          {verified
-            ? 'Tudo certo com seu e-mail. Entre na sua conta para continuar.'
-            : token
-              ? 'Clique no botão abaixo para confirmar o endereço de e-mail da sua conta.'
-              : invalidLink
-                ? 'O link está incompleto ou tem um formato inválido. Solicite outro e-mail para continuar.'
-                : 'Abra o link enviado para o e-mail do cadastro. Se não encontrar a mensagem, confira a pasta de spam ou informe seu e-mail abaixo para solicitar outro envio.'}
-        </p>
-      </div>
-
-      {verified ? (
-        <Link
-          href={loginHref}
-          className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-        >
-          Entrar na minha conta
-        </Link>
-      ) : (
+      {stage === 'recovered' && (
         <>
-          {error && !resendRateLimited && (
-            <p
-              role="alert"
-              className="mt-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
-            >
-              {error}
-            </p>
-          )}
-
-          {remainingSeconds > 0 && (
-            <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
-              <Clock3 aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
-              <div>
-                <p className="font-medium">Aguarde para solicitar outro e-mail</p>
-                <p className="mt-1 text-muted-foreground">
-                  Por segurança, aguarde alguns minutos antes de solicitar um novo envio.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {token && (
-            <Button
-              type="button"
-              disabled={busy}
-              onClick={handleVerify}
-              className="mt-8 min-h-12 w-full cursor-pointer rounded-xl"
-            >
-              {operation === 'verify' ? (
-                <>
-                  <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
-                  Confirmando...
-                </>
-              ) : (
-                'Confirmar meu e-mail'
-              )}
-            </Button>
-          )}
-
-          {!token || showResend ? (
-            <form onSubmit={handleResend} className="mt-8 border-t pt-6">
-              <fieldset disabled={busy} className="space-y-4">
-                <legend className="mb-3 font-semibold">Reenviar e-mail de confirmação</legend>
-
-                <div className="space-y-2">
-                  <Label htmlFor="verification-email">E-mail do cadastro</Label>
-
-                  <Input
-                    id="verification-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    maxLength={254}
-                    required
-                    placeholder="voce@empresa.com"
-                    className="h-12 rounded-xl"
-                  />
-                </div>
-
-                <ResendVerificationButton
-                  isSending={operation === 'resend'}
-                  remainingSeconds={remainingSeconds}
-                  disabled={busy}
-                />
-              </fieldset>
-
-              {resendRequested && (
-                <p role="status" className="mt-4 rounded-xl bg-primary/5 p-4 text-sm">
-                  Se houver uma conta pendente de verificação para esse endereço, você receberá um novo e-mail. Confira
-                  também a pasta de spam.
-                </p>
-              )}
-            </form>
-          ) : (
-            <Button
-              type="button"
-              variant="link"
-              disabled={busy}
-              onClick={() => setShowResend(true)}
-              className="mt-4 w-full cursor-pointer"
-            >
-              Preciso de outro link
-            </Button>
-          )}
-
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            Já confirmou seu e-mail?{' '}
-            <Link href={loginHref} className="font-medium text-primary underline underline-offset-4">
-              Entrar
-            </Link>
+          <p>
+            Sessão de <strong>{email}</strong>.
           </p>
+
+          <Button onClick={() => router.replace('/onboarding')}>Continuar com esta conta</Button>
+
+          <Link className="block underline" href={loginHref}>
+            Entrar com outra conta
+          </Link>
         </>
       )}
-    </div>
+
+      {stage === 'error' && hasToken && (
+        <Button disabled={sending} onClick={() => setRetry((value) => value + 1)}>
+          Tentar novamente
+        </Button>
+      )}
+
+      {!busy && stage !== 'recovered' && (
+        <form onSubmit={resend} className="space-y-4">
+          <Label htmlFor="verification-email">E-mail do cadastro</Label>
+
+          <Input
+            id="verification-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            maxLength={254}
+            required
+            disabled={sending}
+          />
+
+          <ResendVerificationButton isSending={sending} remainingSeconds={remainingSeconds} />
+
+          <Link className="block underline" href={loginHref}>
+            Já confirmou? Entrar
+          </Link>
+        </form>
+      )}
+    </section>
   );
 }

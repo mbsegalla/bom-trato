@@ -4,6 +4,7 @@ export interface RegisterInput {
   name: string;
   email: string;
   password: string;
+  selectedPlanPriceId?: string | null;
 }
 
 export interface RegistrationPlan {
