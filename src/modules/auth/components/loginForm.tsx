@@ -1,119 +1,172 @@
 'use client';
 
-import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff, LoaderCircle, LockKeyhole, Mail } from 'lucide-react';
 import Link from 'next/link';
-import type { SubmitEvent } from 'react';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import type { ComponentProps } from 'react';
+import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-export function LoginForm() {
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+import { login, SessionError } from '../services/session.service';
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+export function LoginForm() {
+  const router = useRouter();
+
+  const submittingRef = useRef(false);
+
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    setMessage('Esta página ainda está em demonstração. A integração com a API será adicionada em seguida.');
-  }
+    if (submittingRef.current) {
+      return;
+    }
+
+    const data = new FormData(event.currentTarget);
+
+    const email = String(data.get('email') ?? '').trim();
+
+    const password = String(data.get('password') ?? '');
+
+    if (!email || !password) {
+      setError('Informe seu e-mail e sua senha.');
+
+      return;
+    }
+
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      await login(email, password);
+
+      router.replace('/onboarding');
+    } catch (cause: unknown) {
+      setError(cause instanceof SessionError ? cause.message : 'Não foi possível entrar. Tente novamente.');
+    } finally {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <form onSubmit={handleSubmit} onChange={() => setMessage(null)} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="login-email">E-mail</Label>
+    <form
+      onSubmit={handleSubmit}
+      aria-busy={isSubmitting}
+      aria-describedby={error ? 'login-error' : undefined}
+      className="space-y-6"
+    >
+      <fieldset disabled={isSubmitting} className="space-y-5">
+        <div className="space-y-2">
+          <Label htmlFor="login-email">E-mail</Label>
 
-        <div className="relative">
-          <Mail
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <div className="relative">
+            <Mail
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+            />
 
-          <Input
-            id="login-email"
-            name="email"
-            type="email"
-            autoComplete="username"
-            autoCapitalize="none"
-            spellCheck={false}
-            placeholder="voce@empresa.com"
-            required
-            className="h-12 bg-card pl-11 text-base md:text-base dark:bg-card"
-          />
+            <Input
+              id="login-email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              placeholder="voce@empresa.com"
+              required
+              className="h-12 rounded-xl bg-card pl-11 text-base md:text-base"
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="login-password">Senha</Label>
+        <div className="space-y-2">
+          <Label htmlFor="login-password">Senha</Label>
 
-        <div className="relative">
-          <LockKeyhole
-            aria-hidden="true"
-            className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <div className="relative">
+            <LockKeyhole
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+            />
 
-          <Input
-            id="login-password"
-            name="password"
-            type={passwordVisible ? 'text' : 'password'}
-            autoComplete="current-password"
-            placeholder="Digite sua senha"
-            required
-            className="h-12 bg-card pr-12 pl-11 text-base md:text-base dark:bg-card"
-          />
+            <Input
+              id="login-password"
+              name="password"
+              type={passwordVisible ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder="Digite sua senha"
+              required
+              className="h-12 rounded-xl bg-card pr-12 pl-11 text-base md:text-base"
+            />
 
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
-            aria-controls="login-password"
-            onClick={() => setPasswordVisible((visible) => !visible)}
-            className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2 cursor-pointer text-muted-foreground"
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
+              aria-controls="login-password"
+              onClick={() => setPasswordVisible((value) => !value)}
+              className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2"
+            >
+              {passwordVisible ? (
+                <EyeOff aria-hidden="true" className="size-4" />
+              ) : (
+                <Eye aria-hidden="true" className="size-4" />
+              )}
+            </Button>
+          </div>
+
+          <div className="text-right">
+            <Link
+              href="/forgot-password"
+              className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
+        </div>
+
+        {error && (
+          <p
+            id="login-error"
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm leading-relaxed text-destructive"
           >
-            {passwordVisible ? (
-              <EyeOff aria-hidden="true" className="size-4" />
-            ) : (
-              <Eye aria-hidden="true" className="size-4" />
-            )}
-          </Button>
-        </div>
+            {error}
+          </p>
+        )}
 
-        <div className="text-right">
-          <Link
-            href="/forgot-password"
-            className="inline-flex min-h-11 items-center rounded-sm text-sm text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-          >
-            Esqueci minha senha
-          </Link>
-        </div>
-      </div>
-
-      <Button type="submit" className="h-12 w-full cursor-pointer gap-3 text-sm font-medium">
-        Entrar
-        <ArrowRight aria-hidden="true" className="size-4" />
-      </Button>
-
-      <div aria-live="polite" aria-atomic="true">
-        {message && <p className="rounded-lg bg-info-surface p-4 text-sm leading-relaxed text-info">{message}</p>}
-      </div>
+        <Button type="submit" disabled={isSubmitting} className="min-h-12 w-full rounded-xl">
+          {isSubmitting ? (
+            <>
+              <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
+              Entrando...
+            </>
+          ) : (
+            <>
+              Entrar
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </>
+          )}
+        </Button>
+      </fieldset>
 
       <p className="text-center text-sm text-muted-foreground">
-        <Link
-          href="/verify-email"
-          className="inline-flex min-h-11 items-center rounded-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-        >
+        <Link href="/verify-email" className="font-medium text-primary underline underline-offset-4">
           Não recebeu o e-mail de confirmação?
         </Link>
       </p>
 
       <p className="text-center text-sm text-muted-foreground">
         Ainda não tem conta?{' '}
-        <Link
-          href="/register"
-          className="inline-flex min-h-11 cursor-pointer items-center rounded-sm font-medium text-primary underline underline-offset-4 hover:text-primary/80 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-        >
+        <Link href="/register" className="font-medium text-primary underline underline-offset-4">
           Criar conta
         </Link>
       </p>

@@ -1,5 +1,3 @@
-import 'server-only';
-
 import { getApiConfig } from '@/config/api.config';
 
 import { planListResponseSchema } from '../schemas/plan.schema';

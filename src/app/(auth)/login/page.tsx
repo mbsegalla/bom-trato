@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 
+import { AuthPageHeader } from '@/modules/auth/components/authPageHeader';
 import { LoginForm } from '@/modules/auth/components/loginForm';
 
 export const metadata: Metadata = {
@@ -10,15 +11,15 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <>
-      <div className="mb-9">
-        <p className="mb-3 text-xs font-medium tracking-widest text-primary uppercase">Bem-vindo de volta</p>
+      <AuthPageHeader
+        eyebrow="Bem-vindo de volta"
+        title="Entre no seu espaço"
+        description="Vamos cuidar dos próximos bons tratos?"
+      />
 
-        <h1 className="text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">Entre no seu espaço</h1>
-
-        <p className="mt-3 text-base leading-relaxed text-muted-foreground">Vamos cuidar dos próximos bons tratos?</p>
+      <div className="mt-8">
+        <LoginForm />
       </div>
-
-      <LoginForm />
     </>
   );
 }

@@ -1,59 +1,36 @@
 'use client';
 
+import { CircleCheck, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { ComponentProps } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { SessionError } from '@/modules/auth/services/session.service';
 
-import { createBusiness, getOnboarding, type OnboardingState } from '../services/onboarding.service';
-
-const titles = {
-  CREATE_BUSINESS: 'Cadastre seu negócio',
-  SELECT_PLAN: 'Escolha seu plano',
-  PAYMENT: 'Continue para o pagamento',
-  PAYMENT_PENDING: 'Aguardando confirmação do pagamento',
-  BILLING_REQUIRED: 'Regularize sua assinatura',
-  BILLING_REVIEW: 'Sua assinatura precisa de revisão',
-  APP: 'Sua conta está pronta',
-  CONTACT_OWNER: 'Fale com o responsável pelo negócio',
-};
+import { bootstrapOnboarding, getOnboarding, type OnboardingState } from '../services/onboarding.service';
+import { OnboardingBusinessForm } from './onboardingBusinessForm';
+import { OnboardingPayment } from './onboardingPayment';
+import { OnboardingPlanSelection } from './onboardingPlanSelection';
 
 export function OnboardingContent() {
   const router = useRouter();
 
   const [state, setState] = useState<OnboardingState | null>(null);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [reload, setReload] = useState(0);
-
-  const saving = useRef(false);
-
-  const creation = useRef<{
-    name: string;
-    key: string;
-    id?: string;
-  } | null>(null);
-
-  const selectedOrganization = useRef<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     let active = true;
 
-    void getOnboarding(selectedOrganization.current)
+    void bootstrapOnboarding()
       .then((result) => {
         if (!active) {
           return;
         }
 
         setState(result);
-        setError('');
-
-        selectedOrganization.current = result.organizationId ?? undefined;
+        setError(null);
       })
       .catch((cause: unknown) => {
         if (!active) {
@@ -65,107 +42,240 @@ export function OnboardingContent() {
           return;
         }
 
-        setError('Não foi possível carregar sua conta. Tente novamente.');
+        setError(cause instanceof Error ? cause.message : 'Não foi possível preparar sua conta.');
       });
 
     return () => {
       active = false;
     };
-  }, [router, reload]);
+  }, [router]);
 
-  const submit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
-    event.preventDefault();
-
-    if (saving.current) {
+  async function refreshOnboarding(): Promise<void> {
+    if (!state?.organizationId || refreshing) {
       return;
     }
 
-    const name = String(new FormData(event.currentTarget).get('name') ?? '').trim();
-
-    if (name.length < 2 || name.length > 100) {
-      setError('Informe um nome entre 2 e 100 caracteres.');
-      return;
-    }
-
-    if (creation.current && creation.current.name !== name) {
-      setError('Primeiro tente novamente com o mesmo nome para confirmar o resultado do envio anterior.');
-      return;
-    }
-
-    creation.current ??= {
-      name,
-      key: crypto.randomUUID(),
-    };
-
-    saving.current = true;
-    setBusy(true);
-    setError('');
+    setRefreshing(true);
+    setError(null);
 
     try {
-      const attempt = creation.current;
+      const nextState = await getOnboarding(state.organizationId);
 
-      attempt.id ??= await createBusiness(attempt.name, attempt.key);
-
-      selectedOrganization.current = attempt.id;
-
-      setState(await getOnboarding(attempt.id));
+      setState(nextState);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível continuar.');
+      if (cause instanceof SessionError && cause.status === 401) {
+        router.replace('/login');
+        return;
+      }
+
+      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar sua conta.');
     } finally {
-      saving.current = false;
-      setBusy(false);
+      setRefreshing(false);
     }
-  };
+  }
+
+  if (!state && !error) {
+    return (
+      <div
+        aria-busy="true"
+        className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center text-center"
+      >
+        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
+
+        <p className="mt-4 text-sm text-muted-foreground">Preparando seu próximo passo...</p>
+      </div>
+    );
+  }
+
+  if (!state) {
+    return (
+      <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-7">
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">Não conseguimos continuar</h1>
+
+        <p role="alert" className="mt-4 text-sm leading-relaxed text-destructive">
+          {error}
+        </p>
+
+        <Button type="button" className="mt-6 min-h-12 rounded-xl" onClick={() => window.location.reload()}>
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
+  const progress =
+    state.step === 'CREATE_BUSINESS' || state.step === 'APP'
+      ? 3
+      : state.step === 'PAYMENT' ||
+          state.step === 'PAYMENT_PENDING' ||
+          state.step === 'BILLING_REQUIRED' ||
+          state.step === 'BILLING_REVIEW'
+        ? 2
+        : 1;
 
   return (
-    <section className="mx-auto w-full max-w-md space-y-6" aria-busy={busy}>
-      <h1 className="font-heading text-3xl font-semibold">{state ? titles[state.step] : 'Carregando sua conta…'}</h1>
+    <div className="mx-auto max-w-3xl">
+      <header className="mb-10">
+        <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">Configuração da conta</p>
+
+        <div className="mt-5 grid grid-cols-3 gap-3 text-xs">
+          {['Conta', 'Pagamento', 'Seu negócio'].map((label, index) => {
+            const step = index + 1;
+
+            return (
+              <div
+                key={label}
+                className={
+                  step <= progress
+                    ? 'border-t-2 border-primary pt-3 font-medium text-foreground'
+                    : 'border-t-2 border-border pt-3 text-muted-foreground'
+                }
+              >
+                {label}
+              </div>
+            );
+          })}
+        </div>
+      </header>
 
       {error && (
-        <>
-          <p role="alert">{error}</p>
-
-          <Button disabled={busy} onClick={() => setReload((value) => value + 1)}>
-            Consultar novamente
-          </Button>
-        </>
+        <p
+          role="alert"
+          className="mb-6 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+        >
+          {error}
+        </p>
       )}
 
-      {state?.step === 'CREATE_BUSINESS' && (
-        <form onSubmit={submit} className="space-y-4">
-          <Label htmlFor="business-name">Nome do negócio</Label>
+      <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        {state.step === 'PROVISIONING' && (
+          <div className="text-center">
+            <LoaderCircle aria-hidden="true" className="mx-auto size-7 animate-spin text-primary" />
 
-          <Input id="business-name" name="name" minLength={2} maxLength={100} required disabled={busy} />
+            <p className="mt-4 text-muted-foreground">Preparando sua conta...</p>
+          </div>
+        )}
 
-          <Button type="submit" disabled={busy}>
-            {busy ? 'Salvando…' : 'Cadastrar negócio'}
-          </Button>
-        </form>
-      )}
+        {state.step === 'SELECT_PLAN' && state.organizationId && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Escolha seu plano</h1>
 
-      {state?.step === 'PAYMENT_PENDING' && (
-        <>
-          <p>Estamos aguardando a confirmação. Não é necessário iniciar outra compra.</p>
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              Escolha a opção que acompanha o momento do seu negócio.
+            </p>
 
-          <Button onClick={() => setReload((value) => value + 1)}>Verificar pagamento</Button>
-        </>
-      )}
+            <div className="mt-8">
+              <OnboardingPlanSelection organizationId={state.organizationId} onSelected={setState} />
+            </div>
+          </>
+        )}
 
-      {state?.step === 'SELECT_PLAN' && <p>Seu negócio está cadastrado. Escolha um plano para continuar.</p>}
+        {state.step === 'PAYMENT' && state.organizationId && state.selectedPlanPriceId && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Conclua sua assinatura</h1>
 
-      {state?.step === 'PAYMENT' && <p>Seu negócio está cadastrado. O próximo passo é concluir o pagamento.</p>}
+            <p className="mt-3 leading-relaxed text-muted-foreground">Finalize o pagamento para liberar sua conta.</p>
 
-      {state?.step === 'APP' && <p>Sua assinatura permite acesso ao sistema.</p>}
+            <div className="mt-8">
+              <OnboardingPayment organizationId={state.organizationId} planPriceId={state.selectedPlanPriceId} />
+            </div>
+          </>
+        )}
 
-      {(state?.step === 'BILLING_REQUIRED' || state?.step === 'BILLING_REVIEW') && (
-        <p>É necessário verificar a assinatura existente antes de continuar.</p>
-      )}
+        {state.step === 'PAYMENT_PENDING' && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Confirmando seu pagamento</h1>
 
-      {state?.step === 'CONTACT_OWNER' && <p>Peça ao responsável que verifique a assinatura deste negócio.</p>}
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              Recebemos o retorno da Stripe e estamos aguardando a confirmação da assinatura. Não inicie outro
+              pagamento.
+            </p>
 
-      <Link className="block underline" href="/">
-        Voltar ao início
-      </Link>
-    </section>
+            <Button
+              type="button"
+              disabled={refreshing}
+              onClick={() => void refreshOnboarding()}
+              className="mt-7 min-h-12 rounded-xl"
+            >
+              {refreshing ? (
+                <>
+                  <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+                  Verificando...
+                </>
+              ) : (
+                'Verificar pagamento'
+              )}
+            </Button>
+          </>
+        )}
+
+        {state.step === 'CREATE_BUSINESS' && state.organizationId && (
+          <>
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-success-surface text-success">
+              <CircleCheck aria-hidden="true" className="size-7" />
+            </div>
+
+            <h1 className="mt-6 font-heading text-3xl font-semibold tracking-tight">Pagamento confirmado</h1>
+
+            <p className="mt-3 leading-relaxed text-muted-foreground">Agora conte como devemos chamar o seu negócio.</p>
+
+            <div className="mt-8">
+              <OnboardingBusinessForm organizationId={state.organizationId} onCompleted={setState} />
+            </div>
+          </>
+        )}
+
+        {state.step === 'APP' && (
+          <>
+            <div className="flex size-14 items-center justify-center rounded-2xl bg-success-surface text-success">
+              <CircleCheck aria-hidden="true" className="size-7" />
+            </div>
+
+            <h1 className="mt-6 font-heading text-3xl font-semibold tracking-tight">Tudo pronto</h1>
+
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              Sua conta está configurada e sua assinatura está ativa.
+            </p>
+
+            <Link
+              href="/"
+              className="mt-7 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              Continuar
+            </Link>
+          </>
+        )}
+
+        {state.step === 'BILLING_REQUIRED' && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Precisamos revisar sua assinatura</h1>
+
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              Existe uma assinatura que precisa ser regularizada antes de continuar.
+            </p>
+          </>
+        )}
+
+        {state.step === 'BILLING_REVIEW' && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Estamos revisando sua assinatura</h1>
+
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              Encontramos uma situação de cobrança que precisa ser reconciliada antes de continuar.
+            </p>
+          </>
+        )}
+
+        {state.step === 'CONTACT_OWNER' && (
+          <>
+            <h1 className="font-heading text-3xl font-semibold tracking-tight">Fale com o responsável</h1>
+
+            <p className="mt-3 leading-relaxed text-muted-foreground">
+              O responsável pelo negócio precisa concluir esta etapa.
+            </p>
+          </>
+        )}
+      </section>
+    </div>
   );
 }

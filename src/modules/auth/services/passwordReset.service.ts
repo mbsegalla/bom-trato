@@ -1,7 +1,7 @@
 import { getApiConfig } from '@/config/api.config';
 
 import { startPasswordResetCooldown } from '../helpers/passwordResetCooldown';
-import { readRetryAfterSeconds } from '../helpers/verificationCooldown';
+import { readRetryAfterSeconds } from '../helpers/requestCooldown';
 import { csrfResponseSchema, emailSchema, passwordResetTokenSchema } from '../schemas/auth.schema';
 import type { ForgotPasswordResult, ResetPasswordResult } from '../types/auth.types';
 
@@ -81,7 +81,6 @@ function getResetPasswordError(status: number): Omit<Extract<ResetPasswordResult
       return {
         message: 'Não foi possível validar a solicitação. Tente novamente.',
       };
-
     case 429:
       return {
         message: 'Muitas tentativas em pouco tempo. Aguarde antes de tentar novamente.',
