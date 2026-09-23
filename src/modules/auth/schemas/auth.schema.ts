@@ -8,6 +8,12 @@ export const csrfResponseSchema = apiResponseSchema(
   }),
 );
 
-export const emailVerificationTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
+export const emailSchema = z.string().trim().email().max(254);
 
-export const resendVerificationEmailSchema = z.string().trim().email().max(254);
+export const actionTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/);
+
+export const emailVerificationTokenSchema = actionTokenSchema;
+
+export const passwordResetTokenSchema = actionTokenSchema;
+
+export const resendVerificationEmailSchema = emailSchema;

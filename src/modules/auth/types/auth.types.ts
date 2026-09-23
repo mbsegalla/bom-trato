@@ -35,3 +35,24 @@ export type EmailVerificationResult =
     };
 
 export type EmailVerificationOperation = 'verify' | 'resend';
+
+export type ForgotPasswordResult =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      message: string;
+      rateLimited?: boolean;
+    };
+
+export type ResetPasswordResult =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      message: string;
+      invalidToken?: boolean;
+      rateLimited?: boolean;
+    };

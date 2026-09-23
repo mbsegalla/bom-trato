@@ -1,8 +1,9 @@
 import { getApiConfig } from '@/config/api.config';
 
+import { readRetryAfterSeconds } from '../helpers/requestCooldown';
+import { startVerificationCooldown } from '../helpers/verificationCooldown';
 import { csrfResponseSchema } from '../schemas/auth.schema';
 import type { RegisterInput, RegisterResult } from '../types/auth.types';
-import { readRetryAfterSeconds, startVerificationCooldown } from './verificationCooldown';
 
 function getRegistrationErrorMessage(status: number): string {
   switch (status) {

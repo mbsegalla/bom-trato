@@ -12,16 +12,7 @@ import { Label } from '@/components/ui/label';
 
 import { registerUser } from '../services/auth.service';
 import type { RegisterFormProps } from '../types/auth.types';
-
-function getPasswordRequirements(password: string) {
-  const length = Array.from(password).length;
-
-  return [
-    { label: 'De 12 a 128 caracteres', isSatisfied: length >= 12 && length <= 128 },
-    { label: 'Pelo menos uma letra maiúscula', isSatisfied: /\p{Lu}/u.test(password) },
-    { label: 'Pelo menos um caractere especial, como !, @ ou #', isSatisfied: /[\p{P}\p{S}]/u.test(password) },
-  ];
-}
+import { getPasswordRequirements, isPasswordValid } from '../utils/passwordPolicy';
 
 export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const router = useRouter();
@@ -65,7 +56,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
       return;
     }
 
-    if (!getPasswordRequirements(password).every((requirement) => requirement.isSatisfied)) {
+    if (!isPasswordValid(password)) {
       setError('A senha deve ter de 12 a 128 caracteres, uma letra maiúscula e um caractere especial.');
       return;
     }
