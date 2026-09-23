@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-import { getVerificationCooldownSeconds, subscribeToVerificationCooldown } from '../services/verificationCooldown';
+import { getVerificationCooldownSeconds, subscribeToVerificationCooldown } from '../helpers/verificationCooldown';
 
 function getServerSnapshot(): number {
   return 0;

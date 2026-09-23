@@ -1,16 +1,13 @@
 import { getApiConfig } from '@/config/api.config';
 
+import { readRetryAfterSeconds } from '../helpers/requestCooldown';
+import { getVerificationCooldownSeconds, startVerificationCooldown } from '../helpers/verificationCooldown';
 import {
   csrfResponseSchema,
   emailVerificationTokenSchema,
   resendVerificationEmailSchema,
 } from '../schemas/auth.schema';
 import type { EmailVerificationOperation, EmailVerificationResult } from '../types/auth.types';
-import {
-  getVerificationCooldownSeconds,
-  readRetryAfterSeconds,
-  startVerificationCooldown,
-} from './verificationCooldown';
 
 function responseError(status: number, operation: EmailVerificationOperation): string {
   if (status === 429) {
