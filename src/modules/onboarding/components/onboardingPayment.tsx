@@ -1,0 +1,203 @@
+'use client';
+
+import { CheckoutElementsProvider, PaymentElement, useCheckoutElements } from '@stripe/react-stripe-js/checkout';
+import { loadStripe } from '@stripe/stripe-js';
+import { LoaderCircle, LockKeyhole, RotateCcw } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { getStripeConfig } from '@/config/stripe.config';
+import { startCheckout } from '@/modules/billing/services/checkout.service';
+
+interface OnboardingPaymentProps {
+  organizationId: string;
+  planPriceId: string;
+}
+
+interface CheckoutLoaderProps extends OnboardingPaymentProps {
+  onRetry(): void;
+}
+
+interface PaymentFormProps {
+  organizationId: string;
+}
+
+const stripePromise = loadStripe(getStripeConfig().publishableKey);
+
+export function OnboardingPayment({ organizationId, planPriceId }: OnboardingPaymentProps) {
+  const [retryKey, setRetryKey] = useState(0);
+
+  return (
+    <CheckoutLoader
+      key={`${organizationId}:${planPriceId}:${retryKey}`}
+      organizationId={organizationId}
+      planPriceId={planPriceId}
+      onRetry={() => {
+        setRetryKey((value) => value + 1);
+      }}
+    />
+  );
+}
+
+function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoaderProps) {
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    void startCheckout(organizationId, planPriceId)
+      .then((result) => {
+        if (!active) {
+          return;
+        }
+
+        setClientSecret(result.clientSecret);
+      })
+      .catch((cause: unknown) => {
+        if (!active) {
+          return;
+        }
+
+        setError(cause instanceof Error ? cause.message : 'Não foi possível iniciar o pagamento.');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [organizationId, planPriceId]);
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <p
+          role="alert"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+        >
+          {error}
+        </p>
+
+        <Button type="button" variant="outline" onClick={onRetry} className="min-h-12 w-full rounded-xl">
+          <RotateCcw aria-hidden="true" className="size-4" />
+          Tentar novamente
+        </Button>
+      </div>
+    );
+  }
+
+  if (!clientSecret) {
+    return (
+      <div aria-busy="true" className="flex min-h-40 flex-col items-center justify-center">
+        <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
+
+        <p className="mt-3 text-sm text-muted-foreground">Preparando pagamento...</p>
+      </div>
+    );
+  }
+
+  return (
+    <CheckoutElementsProvider
+      stripe={stripePromise}
+      options={{
+        clientSecret,
+        elementsOptions: {
+          appearance: {
+            theme: 'stripe',
+            variables: {
+              colorPrimary: '#205c49',
+              borderRadius: '10px',
+              fontFamily: 'Montserrat, Arial, sans-serif',
+            },
+          },
+        },
+      }}
+    >
+      <PaymentForm organizationId={organizationId} />
+    </CheckoutElementsProvider>
+  );
+}
+
+function PaymentForm({ organizationId }: PaymentFormProps) {
+  const checkoutResult = useCheckoutElements();
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+
+    if (checkoutResult.type !== 'success' || !checkoutResult.checkout.canConfirm || isSubmitting) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      const returnUrl = new URL('/billing/return', window.location.origin);
+
+      returnUrl.searchParams.set('organizationId', organizationId);
+
+      const result = await checkoutResult.checkout.confirm({
+        returnUrl: returnUrl.toString(),
+      });
+
+      if (result.type === 'error') {
+        setError(result.error.message ?? 'Não foi possível confirmar o pagamento.');
+      }
+    } catch {
+      setError('Não foi possível confirmar o pagamento. Tente novamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  if (checkoutResult.type === 'error') {
+    return (
+      <p
+        role="alert"
+        className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+      >
+        Não foi possível carregar o formulário de pagamento.
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+
+      {error && (
+        <p
+          role="alert"
+          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+        >
+          {error}
+        </p>
+      )}
+
+      <Button
+        type="submit"
+        disabled={checkoutResult.type !== 'success' || !checkoutResult.checkout.canConfirm || isSubmitting}
+        className="min-h-12 w-full rounded-xl"
+      >
+        {isSubmitting ? (
+          <>
+            <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+            Confirmando...
+          </>
+        ) : (
+          <>
+            <LockKeyhole aria-hidden="true" className="size-4" />
+            Concluir assinatura
+          </>
+        )}
+      </Button>
+
+      <p className="text-center text-xs leading-relaxed text-muted-foreground">
+        Seus dados de pagamento são processados com segurança pela Stripe.
+      </p>
+    </form>
+  );
+}

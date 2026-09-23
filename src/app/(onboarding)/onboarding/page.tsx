@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { OnboardingContent } from '@/modules/onboarding/components/onboardingContent';
 
 export const metadata: Metadata = {
-  title: 'Continuar cadastro | Bom Trato',
+  title: 'Configurar conta',
   robots: {
     index: false,
     follow: false,

@@ -15,7 +15,7 @@ const quotes = [
   },
   {
     customer: 'Dayane Caetano',
-    service: 'Fotográfia de casamento',
+    service: 'Fotografia de casamento',
     amount: 'R$ 2.350',
     status: 'Enviado',
   },

@@ -3,36 +3,29 @@ import { z } from 'zod';
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
-const stateSchema = apiResponseSchema(
+const onboardingStateSchema = apiResponseSchema(
   z.object({
     step: z.enum([
-      'CREATE_BUSINESS',
+      'PROVISIONING',
       'SELECT_PLAN',
       'PAYMENT',
       'PAYMENT_PENDING',
       'BILLING_REQUIRED',
       'BILLING_REVIEW',
+      'CREATE_BUSINESS',
       'APP',
       'CONTACT_OWNER',
     ]),
-    organizationId: z.string().uuid().nullable(),
-    selectedPlanPriceId: z.string().uuid().nullable(),
+    organizationId: z.uuid().nullable(),
+    selectedPlanPriceId: z.uuid().nullable(),
   }),
 );
 
-const organizationSchema = apiResponseSchema(
-  z.object({
-    id: z.string().uuid(),
-  }),
-);
+export type OnboardingState = z.infer<typeof onboardingStateSchema>;
 
-export type OnboardingState = z.infer<typeof stateSchema>;
+let bootstrapFlight: Promise<OnboardingState> | null = null;
 
-export async function getOnboarding(organizationId?: string): Promise<OnboardingState> {
-  const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : '';
-
-  const response = await authenticatedFetch(`/api/onboarding${query}`);
-
+async function readOnboardingState(response: Response): Promise<OnboardingState> {
   if (response.status === 401) {
     throw new SessionError('Entre para continuar.', 401);
   }
@@ -42,39 +35,78 @@ export async function getOnboarding(organizationId?: string): Promise<Onboarding
   }
 
   const payload: unknown = await response.json();
-  const parsed = stateSchema.safeParse(payload);
+
+  const parsed = onboardingStateSchema.safeParse(payload);
 
   if (!parsed.success) {
-    throw new Error('Não foi possível ler a próxima etapa. Tente novamente.');
+    throw new Error('Não foi possível interpretar a próxima etapa.');
   }
 
   return parsed.data;
 }
 
-export async function createBusiness(name: string, key: string): Promise<string> {
-  const response = await authenticatedFetch('/api/organizations', {
+async function requestBootstrap(): Promise<OnboardingState> {
+  const response = await authenticatedFetch('/api/onboarding/bootstrap', {
+    method: 'POST',
+  });
+
+  return readOnboardingState(response);
+}
+
+export function bootstrapOnboarding(): Promise<OnboardingState> {
+  if (bootstrapFlight) {
+    return bootstrapFlight;
+  }
+
+  const request = requestBootstrap();
+
+  bootstrapFlight = request;
+
+  const cleanup = () => {
+    if (bootstrapFlight === request) {
+      bootstrapFlight = null;
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
+}
+
+export async function getOnboarding(organizationId?: string): Promise<OnboardingState> {
+  const query = organizationId ? `?organizationId=${encodeURIComponent(organizationId)}` : '';
+
+  const response = await authenticatedFetch(`/api/onboarding${query}`);
+
+  return readOnboardingState(response);
+}
+
+export async function selectOnboardingPlan(organizationId: string, planPriceId: string): Promise<OnboardingState> {
+  const response = await authenticatedFetch('/api/onboarding/plan', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Idempotency-Key': key,
     },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify({
+      organizationId,
+      planPriceId,
+    }),
   });
 
-  if (response.status === 401) {
-    throw new SessionError('Entre para continuar.', 401);
-  }
+  return readOnboardingState(response);
+}
 
-  if (!response.ok) {
-    throw new Error('Não foi possível criar o negócio. Confira o nome e tente novamente.');
-  }
+export async function completeBusinessSetup(organizationId: string, name: string): Promise<OnboardingState> {
+  const response = await authenticatedFetch('/api/onboarding/business', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      organizationId,
+      name,
+    }),
+  });
 
-  const payload: unknown = await response.json();
-  const parsed = organizationSchema.safeParse(payload);
-
-  if (!parsed.success) {
-    throw new Error('Não conseguimos confirmar o cadastro. Consulte sua conta antes de tentar novamente.');
-  }
-
-  return parsed.data.id;
+  return readOnboardingState(response);
 }

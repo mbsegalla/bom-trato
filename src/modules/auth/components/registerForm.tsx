@@ -25,14 +25,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loginHref = selectedPlan
-    ? {
-        pathname: '/login',
-        query: {
-          planPriceId: selectedPlan.price.id,
-        },
-      }
-    : '/login';
+  const loginHref = '/login';
 
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
@@ -84,14 +77,8 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
 
       form.reset();
       setPasswordValue('');
-      const params = new URLSearchParams();
 
-      if (selectedPlan) {
-        params.set('planPriceId', selectedPlan.price.id);
-      }
-
-      const query = params.toString();
-      router.replace(query ? `/verify-email?${query}` : '/verify-email');
+      router.replace('/verify-email');
     } finally {
       submittingRef.current = false;
       setIsSubmitting(false);

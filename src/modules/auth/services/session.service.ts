@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { getApiConfig } from '@/config/api.config';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
-import { csrfResponseSchema, emailVerificationTokenSchema } from '../schemas/auth.schema';
+import { emailVerificationTokenSchema } from '../schemas/auth.schema';
+import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
 const sessionSchema = apiResponseSchema(
   z.object({
@@ -16,14 +17,21 @@ const sessionSchema = apiResponseSchema(
 
 const meSchema = apiResponseSchema(
   z.object({
+    id: z.uuid(),
+    name: z.string().min(1),
     email: z.string().email(),
     emailVerified: z.boolean(),
+    selectedPlanPriceId: z.uuid().nullable(),
   }),
 );
 
-type Session = z.infer<typeof sessionSchema> & {
+type SessionPayload = z.infer<typeof sessionSchema>;
+
+type Session = SessionPayload & {
   expiresAt: number;
 };
+
+export type AuthUser = z.infer<typeof meSchema>;
 
 export type VerificationOutcome =
   | {
@@ -34,8 +42,12 @@ export type VerificationOutcome =
       email: string;
     };
 
+type SessionOperation = 'login' | 'refresh' | 'verify';
+
 let session: Session | null = null;
+
 let refreshFlight: Promise<Session> | null = null;
+
 let mutationQueue: Promise<unknown> = Promise.resolve();
 
 let verification: {
@@ -50,6 +62,8 @@ export class SessionError extends Error {
     readonly uncertain = false,
   ) {
     super(message);
+
+    this.name = 'SessionError';
   }
 }
 
@@ -61,24 +75,56 @@ function serialized<T>(operation: () => Promise<T>): Promise<T> {
   return pending;
 }
 
-async function requestSession(path: string, body?: object): Promise<Session> {
-  const { baseUrl, timeoutMs } = getApiConfig();
-
-  const csrfResponse = await fetch(new URL('/api/auth/csrf', baseUrl), {
-    credentials: 'include',
-    cache: 'no-store',
-    signal: AbortSignal.timeout(timeoutMs),
-  });
-
-  if (!csrfResponse.ok) {
-    throw new SessionError('Não foi possível iniciar a autenticação. Tente novamente.', csrfResponse.status);
+function sessionErrorMessage(status: number, operation: SessionOperation): string {
+  if (status === 429) {
+    return 'Muitas tentativas. Aguarde antes de tentar novamente.';
   }
 
-  const csrfPayload: unknown = await csrfResponse.json();
-  const csrfResult = csrfResponseSchema.safeParse(csrfPayload);
+  if (operation === 'login') {
+    if (status === 401) {
+      return 'E-mail ou senha inválidos.';
+    }
 
-  if (!csrfResult.success) {
-    throw new SessionError('Resposta de autenticação inválida.');
+    if (status === 403) {
+      return 'Confirme seu e-mail antes de entrar.';
+    }
+
+    return 'Não foi possível entrar. Tente novamente.';
+  }
+
+  if (operation === 'verify') {
+    if (status === 400 || status === 401 || status === 410) {
+      return 'O link é inválido, expirou ou já foi utilizado.';
+    }
+
+    return 'Não foi possível confirmar seu e-mail. Tente novamente.';
+  }
+
+  if (status === 401) {
+    return 'Sua sessão expirou. Entre novamente.';
+  }
+
+  return 'Não foi possível restaurar sua sessão.';
+}
+
+async function requestSession(path: string, operation: SessionOperation, body?: object): Promise<Session> {
+  const { baseUrl, timeoutMs } = getApiConfig();
+
+  let csrfToken: string;
+
+  try {
+    csrfToken = await requestCsrfToken();
+  } catch (error: unknown) {
+    if (error instanceof CsrfRequestError) {
+      throw new SessionError(
+        error.status === 429
+          ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
+          : 'Não foi possível iniciar a autenticação. Tente novamente.',
+        error.status,
+      );
+    }
+
+    throw error;
   }
 
   let response: Response;
@@ -89,8 +135,9 @@ async function requestSession(path: string, body?: object): Promise<Session> {
       credentials: 'include',
       cache: 'no-store',
       headers: {
+        Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfResult.data.csrfToken,
+        'X-CSRF-Token': csrfToken,
       },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(timeoutMs),
@@ -100,14 +147,7 @@ async function requestSession(path: string, body?: object): Promise<Session> {
   }
 
   if (!response.ok) {
-    const message =
-      response.status === 429
-        ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
-        : response.status === 401 || response.status === 400 || response.status === 410
-          ? 'O link é inválido, expirou ou já foi utilizado. Tente entrar na sua conta.'
-          : 'Não foi possível autenticar. Tente novamente.';
-
-    throw new SessionError(message, response.status, response.status >= 500);
+    throw new SessionError(sessionErrorMessage(response.status, operation), response.status, response.status >= 500);
   }
 
   const payload: unknown = await response.json().catch(() => null);
@@ -126,14 +166,24 @@ async function requestSession(path: string, body?: object): Promise<Session> {
   return session;
 }
 
+export function login(email: string, password: string): Promise<void> {
+  return serialized(async () => {
+    await requestSession('/api/auth/login', 'login', {
+      email,
+      password,
+    });
+  });
+}
+
 export function restoreSession(): Promise<Session> {
   if (refreshFlight) {
     return refreshFlight;
   }
 
-  refreshFlight = serialized(() => requestSession('/api/auth/refresh'))
+  refreshFlight = serialized(() => requestSession('/api/auth/refresh', 'refresh'))
     .catch((error: unknown) => {
       session = null;
+
       throw error;
     })
     .finally(() => {
@@ -146,13 +196,12 @@ export function restoreSession(): Promise<Session> {
 export async function authenticatedFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const { baseUrl, timeoutMs } = getApiConfig();
 
-  const current = session && session.expiresAt > Date.now() + 15000 ? session : await restoreSession();
+  const current = session && session.expiresAt > Date.now() + 15_000 ? session : await restoreSession();
 
   const send = (value: Session) => {
     const headers = new Headers(init.headers);
 
     headers.set('Authorization', `Bearer ${value.accessToken}`);
-
     headers.set('X-CSRF-Token', value.csrfToken);
 
     return fetch(new URL(path, baseUrl), {
@@ -175,9 +224,27 @@ export async function authenticatedFetch(path: string, init: RequestInit = {}): 
   return send(renewed);
 }
 
+export async function getCurrentUser(): Promise<AuthUser> {
+  const response = await authenticatedFetch('/api/auth/me');
+
+  if (!response.ok) {
+    throw new SessionError('Não foi possível carregar sua conta.', response.status);
+  }
+
+  const payload: unknown = await response.json();
+
+  const parsed = meSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new SessionError('Não foi possível ler sua conta.');
+  }
+
+  return parsed.data;
+}
+
 async function confirm(token: string): Promise<VerificationOutcome> {
   try {
-    await serialized(() => requestSession('/api/auth/verify-email', { token }));
+    await serialized(() => requestSession('/api/auth/verify-email', 'verify', { token }));
 
     return {
       kind: 'confirmed',
@@ -190,21 +257,12 @@ async function confirm(token: string): Promise<VerificationOutcome> {
     try {
       await restoreSession();
 
-      const response = await authenticatedFetch('/api/auth/me');
-
-      if (!response.ok) {
-        throw error;
-      }
-
-      const payload: unknown = await response.json();
-      const user = meSchema.parse(payload);
+      const user = await getCurrentUser();
 
       if (!user.emailVerified) {
         throw error;
       }
 
-      // A recovered cookie may belong to an earlier account.
-      // Identify it before allowing the user to continue.
       return {
         kind: 'recovered',
         email: user.email,

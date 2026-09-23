@@ -1,4 +1,5 @@
 import type { PlanPrice } from '@/modules/plans/types/plan.types';
+import type { ServiceResult } from '@/shared/types/serviceResult';
 
 export interface RegisterInput {
   name: string;
@@ -12,48 +13,17 @@ export interface RegistrationPlan {
   price: PlanPrice;
 }
 
-export type RegisterResult =
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      message: string;
-    };
-
 export interface RegisterFormProps {
   selectedPlan?: RegistrationPlan;
 }
 
-export type EmailVerificationResult =
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      message: string;
-      rateLimited?: boolean;
-    };
+export type RegisterResult = ServiceResult;
 
-export type EmailVerificationOperation = 'verify' | 'resend';
+export type ResendVerificationResult = ServiceResult<Record<never, never>, { rateLimited?: boolean }>;
 
-export type ForgotPasswordResult =
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      message: string;
-      rateLimited?: boolean;
-    };
+export type ForgotPasswordResult = ServiceResult<Record<never, never>, { rateLimited?: boolean }>;
 
-export type ResetPasswordResult =
-  | {
-      success: true;
-    }
-  | {
-      success: false;
-      message: string;
-      invalidToken?: boolean;
-      rateLimited?: boolean;
-    };
+export type ResetPasswordResult = ServiceResult<
+  Record<never, never>,
+  { invalidToken?: boolean; rateLimited?: boolean }
+>;
