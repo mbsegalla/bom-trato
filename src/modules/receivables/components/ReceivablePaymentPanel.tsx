@@ -173,11 +173,11 @@ export function ReceivablePaymentPanel({ receivable, onClose, onSaved }: Receiva
             </div>
 
             <footer className="flex justify-end gap-3 border-t border-border px-6 py-5">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} className="cursor-pointer">
                 Cancelar
               </Button>
 
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting} className="cursor-pointer">
                 {submitting && <LoaderCircle className="size-4 animate-spin" />}
                 Registrar pagamento
               </Button>

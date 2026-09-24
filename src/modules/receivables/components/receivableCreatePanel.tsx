@@ -114,7 +114,7 @@ export function ReceivableCreatePanel({
                 Cancelar
               </Button>
 
-              <Button type="submit" disabled={submitting}>
+              <Button type="submit" disabled={submitting} className="cursor-pointer">
                 {submitting && <LoaderCircle className="size-4 animate-spin" />}
                 Criar recebível
               </Button>
