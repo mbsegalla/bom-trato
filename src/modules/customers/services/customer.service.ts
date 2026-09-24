@@ -9,7 +9,7 @@ import type {
   CustomerPage,
 } from '../types/customer.types';
 
-const DEFAULT_PAGE_LIMIT = 20;
+const DEFAULT_PAGE_LIMIT = 5;
 
 const customerListFlights = new Map<string, Promise<CustomerPage>>();
 const customerOverviewFlights = new Map<string, Promise<CustomerOverview>>();
