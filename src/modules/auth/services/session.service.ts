@@ -217,6 +217,18 @@ export async function getCurrentUser(): Promise<AuthUser> {
   return parsed.data;
 }
 
+export async function logout(): Promise<void> {
+  const response = await authenticatedFetch('/api/auth/logout', {
+    method: 'POST',
+  });
+
+  if (!response.ok && response.status !== 401) {
+    throw new SessionError('Não foi possível encerrar sua sessão.', response.status);
+  }
+
+  session = null;
+}
+
 async function confirm(token: string): Promise<VerificationOutcome> {
   try {
     await serialized(() => requestSession('/api/auth/verify-email', 'verify', { token }));

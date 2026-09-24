@@ -47,7 +47,7 @@ export function LoginForm() {
     try {
       await login(email, password);
 
-      router.replace('/onboarding');
+      router.replace('/dashboard');
     } catch (cause: unknown) {
       setError(cause instanceof SessionError ? cause.message : 'Não foi possível entrar. Tente novamente.');
     } finally {
@@ -113,7 +113,7 @@ export function LoginForm() {
               aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
               aria-controls="login-password"
               onClick={() => setPasswordVisible((value) => !value)}
-              className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2"
+              className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2 cursor-pointer"
             >
               {passwordVisible ? (
                 <EyeOff aria-hidden="true" className="size-4" />
