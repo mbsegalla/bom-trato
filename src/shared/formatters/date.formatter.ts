@@ -8,6 +8,12 @@ const shortDateFormatter = new Intl.DateTimeFormat('pt-BR', {
   month: '2-digit',
 });
 
+const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+
 const longDateFormatter = new Intl.DateTimeFormat('pt-BR', {
   weekday: 'long',
   day: '2-digit',
@@ -28,6 +34,14 @@ export function formatShortDate(date: Date | null, fallback = 'Sem data'): strin
   }
 
   return shortDateFormatter.format(date);
+}
+
+export function formatDate(date: Date | null, fallback = 'Sem data'): string {
+  if (date === null) {
+    return fallback;
+  }
+
+  return dateFormatter.format(date);
 }
 
 export function formatLongDate(date: Date): string {

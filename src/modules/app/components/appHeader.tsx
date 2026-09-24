@@ -32,12 +32,16 @@ function initials(name: string): string {
     .join('');
 }
 
+function pageName(pathname: string): string {
+  const match = Object.entries(pageNames).find(([path]) => pathname === path || pathname.startsWith(`${path}/`));
+
+  return match?.[1] ?? 'Bom Trato';
+}
+
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
   const pathname = usePathname();
 
   const { user } = useApp();
-
-  const pageName = pageNames[pathname] ?? 'Bom Trato';
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
@@ -59,7 +63,7 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
 
             <span className="hidden text-border sm:inline">/</span>
 
-            <span className="truncate font-medium">{pageName}</span>
+            <span className="truncate font-medium">{pageName(pathname)}</span>
           </div>
         </div>
 
