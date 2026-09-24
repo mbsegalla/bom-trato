@@ -243,10 +243,10 @@ export function OnboardingContent() {
             </p>
 
             <Link
-              href="/"
+              href="/dashboard"
               className="mt-7 inline-flex min-h-12 items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              Continuar
+              Ir para o Bom Trato
             </Link>
           </>
         )}
