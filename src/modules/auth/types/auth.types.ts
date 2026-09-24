@@ -1,5 +1,9 @@
+import type { z } from 'zod';
+
 import type { PlanPrice } from '@/modules/plans/types/plan.types';
 import type { ServiceResult } from '@/shared/types/serviceResult';
+
+import type { currentUserResponseSchema, sessionResponseSchema } from '../schemas/auth.schema';
 
 export interface RegisterInput {
   name: string;
@@ -16,6 +20,10 @@ export interface RegistrationPlan {
 export interface RegisterFormProps {
   selectedPlan?: RegistrationPlan;
 }
+
+export type SessionResponse = z.infer<typeof sessionResponseSchema>;
+
+export type AuthUser = z.infer<typeof currentUserResponseSchema>;
 
 export type RegisterResult = ServiceResult;
 

@@ -1,27 +1,7 @@
-import { z } from 'zod';
-
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
-import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
-const onboardingStateSchema = apiResponseSchema(
-  z.object({
-    step: z.enum([
-      'PROVISIONING',
-      'SELECT_PLAN',
-      'PAYMENT',
-      'PAYMENT_PENDING',
-      'BILLING_REQUIRED',
-      'BILLING_REVIEW',
-      'CREATE_BUSINESS',
-      'APP',
-      'CONTACT_OWNER',
-    ]),
-    organizationId: z.uuid().nullable(),
-    selectedPlanPriceId: z.uuid().nullable(),
-  }),
-);
-
-export type OnboardingState = z.infer<typeof onboardingStateSchema>;
+import { onboardingStateSchema } from '../schemas/onboarding.schema';
+import type { OnboardingState } from '../types/onboarding.types';
 
 let bootstrapFlight: Promise<OnboardingState> | null = null;
 

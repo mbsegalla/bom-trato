@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { listPlans } from '@/modules/plans/services/plan.service';
 import type { Plan, PlanPrice } from '@/modules/plans/types/plan.types';
 
-import { type OnboardingState, selectOnboardingPlan } from '../services/onboarding.service';
+import { selectOnboardingPlan } from '../services/onboarding.service';
+import type { OnboardingState } from '../types/onboarding.types';
 
 interface OnboardingPlanSelectionProps {
   organizationId: string;

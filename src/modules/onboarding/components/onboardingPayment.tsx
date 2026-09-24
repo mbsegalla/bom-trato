@@ -3,6 +3,7 @@
 import { CheckoutElementsProvider, PaymentElement, useCheckoutElements } from '@stripe/react-stripe-js/checkout';
 import { loadStripe } from '@stripe/stripe-js';
 import { LoaderCircle, LockKeyhole, RotateCcw } from 'lucide-react';
+import Image from 'next/image';
 import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
@@ -203,9 +204,28 @@ function PaymentForm() {
         )}
       </Button>
 
-      <p className="text-center text-xs leading-relaxed text-muted-foreground">
-        Pagamento processado com segurança pela Stripe.
-      </p>
+      <div className="flex flex-col items-center gap-3">
+        <p className="flex items-center gap-2 text-center text-xs text-muted-foreground">
+          <LockKeyhole aria-hidden="true" className="size-3.5" />
+          Pagamento processado com segurança pela Stripe.
+        </p>
+
+        <a
+          href="https://stripe.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Saiba mais sobre a Stripe"
+          className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        >
+          <Image
+            src="/stripe/powered-by-stripe.svg"
+            alt="Powered by Stripe"
+            width={104}
+            height={24}
+            className="h-6 w-auto"
+          />
+        </a>
+      </div>
     </form>
   );
 }

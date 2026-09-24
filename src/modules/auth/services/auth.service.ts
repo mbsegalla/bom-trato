@@ -2,8 +2,8 @@ import { getApiConfig } from '@/config/api.config';
 
 import { readRetryAfterSeconds } from '../helpers/requestCooldown';
 import { startVerificationCooldown } from '../helpers/verificationCooldown';
-import { csrfResponseSchema } from '../schemas/auth.schema';
 import type { RegisterInput, RegisterResult } from '../types/auth.types';
+import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
 function getRegistrationErrorMessage(status: number): string {
   switch (status) {
@@ -31,35 +31,7 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
   try {
     const { baseUrl, timeoutMs } = getApiConfig();
 
-    const csrfResponse = await fetch(new URL('/api/auth/csrf', baseUrl), {
-      method: 'GET',
-      credentials: 'include',
-      cache: 'no-store',
-      headers: {
-        Accept: 'application/json',
-      },
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-
-    if (!csrfResponse.ok) {
-      return {
-        success: false,
-        message:
-          csrfResponse.status === 429
-            ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
-            : 'Não foi possível iniciar o cadastro. Tente novamente.',
-      };
-    }
-
-    const csrfPayload: unknown = await csrfResponse.json();
-    const csrfResult = csrfResponseSchema.safeParse(csrfPayload);
-
-    if (!csrfResult.success) {
-      return {
-        success: false,
-        message: 'O cadastro está temporariamente indisponível.',
-      };
-    }
+    const csrfToken = await requestCsrfToken();
 
     registrationStarted = true;
 
@@ -70,7 +42,7 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfResult.data.csrfToken,
+        'X-CSRF-Token': csrfToken,
       },
       body: JSON.stringify(input),
       signal: AbortSignal.timeout(timeoutMs),
@@ -92,7 +64,21 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
     return {
       success: true,
     };
-  } catch {
+  } catch (error: unknown) {
+    if (error instanceof CsrfRequestError) {
+      if (error.status === 429 && error.response) {
+        startVerificationCooldown(readRetryAfterSeconds(error.response));
+      }
+
+      return {
+        success: false,
+        message:
+          error.status === 429
+            ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
+            : 'Não foi possível iniciar o cadastro. Tente novamente.',
+      };
+    }
+
     return {
       success: false,
       message: registrationStarted

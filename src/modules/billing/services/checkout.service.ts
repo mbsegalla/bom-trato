@@ -1,13 +1,8 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 
-import { checkoutResponseSchema } from '../schemas/checkout.schema';
+import { type CheckoutResponse, checkoutResponseSchema } from '../schemas/checkout.schema';
 
-export interface CheckoutResult {
-  attemptId: string;
-  clientSecret: string;
-}
-
-const checkoutFlights = new Map<string, Promise<CheckoutResult>>();
+const checkoutFlights = new Map<string, Promise<CheckoutResponse>>();
 
 function getCheckoutErrorMessage(status: number): string {
   switch (status) {
@@ -34,7 +29,7 @@ function getCheckoutErrorMessage(status: number): string {
   }
 }
 
-async function requestCheckout(organizationId: string, planPriceId: string): Promise<CheckoutResult> {
+async function requestCheckout(organizationId: string, planPriceId: string): Promise<CheckoutResponse> {
   const response = await authenticatedFetch(
     `/api/organizations/${encodeURIComponent(organizationId)}/billing/checkout`,
     {
@@ -67,7 +62,7 @@ async function requestCheckout(organizationId: string, planPriceId: string): Pro
   return parsed.data;
 }
 
-export function startCheckout(organizationId: string, planPriceId: string): Promise<CheckoutResult> {
+export function startCheckout(organizationId: string, planPriceId: string): Promise<CheckoutResponse> {
   const key = `${organizationId}:${planPriceId}`;
 
   const existingFlight = checkoutFlights.get(key);

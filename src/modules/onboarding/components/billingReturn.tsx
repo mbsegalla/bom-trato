@@ -3,14 +3,12 @@
 import { CircleAlert, LoaderCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import { SessionError } from '@/modules/auth/services/session.service';
 
+import { onboardingOrganizationIdSchema } from '../schemas/onboarding.schema';
 import { getOnboarding } from '../services/onboarding.service';
-
-const organizationIdSchema = z.uuid();
 
 const POLL_INTERVAL_MS = 1500;
 const MAX_ATTEMPTS = 20;
@@ -21,11 +19,10 @@ export function BillingReturn() {
   const searchParams = useSearchParams();
 
   const [message, setMessage] = useState('Estamos confirmando sua assinatura com a Stripe.');
-
   const [timedOut, setTimedOut] = useState(false);
 
   const organizationId = useMemo(() => {
-    const result = organizationIdSchema.safeParse(searchParams.get('organizationId'));
+    const result = onboardingOrganizationIdSchema.safeParse(searchParams.get('organizationId'));
 
     return result.success ? result.data : null;
   }, [searchParams]);

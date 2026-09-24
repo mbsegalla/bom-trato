@@ -1,37 +1,12 @@
-import { z } from 'zod';
-
 import { getApiConfig } from '@/config/api.config';
-import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
-import { emailVerificationTokenSchema } from '../schemas/auth.schema';
+import { currentUserResponseSchema, emailVerificationTokenSchema, sessionResponseSchema } from '../schemas/auth.schema';
+import type { AuthUser, SessionResponse } from '../types/auth.types';
 import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
-const sessionSchema = apiResponseSchema(
-  z.object({
-    accessToken: z.string().min(1),
-    expiresIn: z.number().positive(),
-    tokenType: z.literal('Bearer'),
-    csrfToken: z.string().min(1),
-  }),
-);
-
-const meSchema = apiResponseSchema(
-  z.object({
-    id: z.uuid(),
-    name: z.string().min(1),
-    email: z.string().email(),
-    emailVerified: z.boolean(),
-    selectedPlanPriceId: z.uuid().nullable(),
-  }),
-);
-
-type SessionPayload = z.infer<typeof sessionSchema>;
-
-type Session = SessionPayload & {
+type Session = SessionResponse & {
   expiresAt: number;
 };
-
-export type AuthUser = z.infer<typeof meSchema>;
 
 export type VerificationOutcome =
   | {
@@ -152,7 +127,7 @@ async function requestSession(path: string, operation: SessionOperation, body?: 
 
   const payload: unknown = await response.json().catch(() => null);
 
-  const parsed = sessionSchema.safeParse(payload);
+  const parsed = sessionResponseSchema.safeParse(payload);
 
   if (!parsed.success) {
     throw new SessionError('Não conseguimos ler a sessão retornada.', 0, true);
@@ -233,7 +208,7 @@ export async function getCurrentUser(): Promise<AuthUser> {
 
   const payload: unknown = await response.json();
 
-  const parsed = meSchema.safeParse(payload);
+  const parsed = currentUserResponseSchema.safeParse(payload);
 
   if (!parsed.success) {
     throw new SessionError('Não foi possível ler sua conta.');
