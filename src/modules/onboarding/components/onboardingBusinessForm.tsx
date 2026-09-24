@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
-import { completeBusinessSetup, type OnboardingState } from '../services/onboarding.service';
+import { completeBusinessSetup } from '../services/onboarding.service';
+import type { OnboardingState } from '../types/onboarding.types';
 
 interface OnboardingBusinessFormProps {
   organizationId: string;
@@ -89,7 +90,7 @@ export function OnboardingBusinessForm({ organizationId, onCompleted }: Onboardi
         </p>
       )}
 
-      <Button type="submit" disabled={submitting} className="min-h-12 w-full rounded-xl">
+      <Button type="submit" disabled={submitting} className="min-h-12 w-full cursor-pointer rounded-xl">
         {submitting ? (
           <>
             <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />

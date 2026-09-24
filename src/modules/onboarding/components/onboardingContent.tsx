@@ -8,7 +8,8 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SessionError } from '@/modules/auth/services/session.service';
 
-import { bootstrapOnboarding, getOnboarding, type OnboardingState } from '../services/onboarding.service';
+import { bootstrapOnboarding, getOnboarding } from '../services/onboarding.service';
+import type { OnboardingState } from '../types/onboarding.types';
 import { OnboardingBusinessForm } from './onboardingBusinessForm';
 import { OnboardingPayment } from './onboardingPayment';
 import { OnboardingPlanSelection } from './onboardingPlanSelection';
@@ -96,7 +97,11 @@ export function OnboardingContent() {
           {error}
         </p>
 
-        <Button type="button" className="mt-6 min-h-12 rounded-xl" onClick={() => window.location.reload()}>
+        <Button
+          type="button"
+          className="mt-6 min-h-12 cursor-pointer rounded-xl"
+          onClick={() => window.location.reload()}
+        >
           Tentar novamente
         </Button>
       </div>
