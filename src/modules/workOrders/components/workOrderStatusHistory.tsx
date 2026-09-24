@@ -1,0 +1,105 @@
+'use client';
+
+import { History, LoaderCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { SessionError } from '@/modules/auth/services/session.service';
+import { formatDateTime } from '@/shared/formatters/date.formatter';
+
+import { getWorkOrderStatusLabel } from '../constants/workOrder.constants';
+import { getWorkOrderStatusHistory } from '../services/workOrder.service';
+import type { WorkOrderStatusHistory as WorkOrderStatusHistoryItem } from '../types/workOrder.types';
+
+interface WorkOrderStatusHistoryProps {
+  organizationId: string;
+  workOrderId: string;
+  version: number;
+}
+
+interface HistoryState {
+  requestKey: string;
+  data: WorkOrderStatusHistoryItem[];
+}
+
+export function WorkOrderStatusHistory({ organizationId, workOrderId, version }: WorkOrderStatusHistoryProps) {
+  const router = useRouter();
+
+  const [state, setState] = useState<HistoryState | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const requestKey = `${organizationId}:${workOrderId}:${version}`;
+
+  useEffect(() => {
+    let active = true;
+
+    void getWorkOrderStatusHistory(organizationId, workOrderId, version)
+      .then((result) => {
+        if (!active) {
+          return;
+        }
+
+        setError(null);
+
+        setState({
+          requestKey,
+          data: result,
+        });
+      })
+      .catch((cause: unknown) => {
+        if (!active) {
+          return;
+        }
+
+        if (cause instanceof SessionError && cause.status === 401) {
+          router.replace('/login');
+          return;
+        }
+
+        setError(cause instanceof Error ? cause.message : 'Não foi possível carregar o histórico.');
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [organizationId, requestKey, router, version, workOrderId]);
+
+  const history = state?.requestKey === requestKey ? state.data : null;
+
+  return (
+    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex items-center gap-3">
+        <History aria-hidden="true" className="size-5 text-primary" />
+
+        <h2 className="font-heading text-lg font-semibold">Histórico de status</h2>
+      </div>
+
+      {error ? (
+        <p className="mt-5 text-sm text-destructive">{error}</p>
+      ) : !history ? (
+        <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
+          <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+          Carregando histórico...
+        </div>
+      ) : (
+        <div className="mt-5 space-y-4">
+          {history.map((entry) => (
+            <div key={entry.id} className="border-l-2 border-border pl-4">
+              <p className="text-sm font-medium">
+                {entry.fromStatus === null
+                  ? `Criada como ${getWorkOrderStatusLabel(entry.toStatus)}`
+                  : `${getWorkOrderStatusLabel(entry.fromStatus)} → ${getWorkOrderStatusLabel(entry.toStatus)}`}
+              </p>
+
+              {entry.reason && <p className="mt-1 text-sm text-muted-foreground">{entry.reason}</p>}
+
+              <p className="mt-1 text-xs text-muted-foreground">
+                {formatDateTime(entry.createdAt)} · versão {entry.version}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

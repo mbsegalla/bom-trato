@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { getServiceUnitLabel } from '@/modules/serviceCatalog/constants/catalogService.constants';
+import { QuoteWorkOrderAction } from '@/modules/workOrders/components/quoteWorkOrderAction';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate, formatDateTime } from '@/shared/formatters/date.formatter';
 import { formatQuantity } from '@/shared/formatters/quantity.formatter';
@@ -277,6 +278,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     );
   }
 
+  const approved = quote.status === 'APPROVED';
   const draft = quote.status === 'DRAFT';
   const sent = quote.status === 'SENT';
   const expired = isQuoteExpired(quote.status, quote.validUntil);
@@ -318,6 +320,8 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
             )}
             PDF
           </Button>
+
+          {approved && <QuoteWorkOrderAction organizationId={organizationId} quoteId={quote.id} />}
 
           {draft && (
             <>
