@@ -1,9 +1,10 @@
 'use client';
 
-import { CalendarClock, ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
+import { CalendarClock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { HistoryRowsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { SessionError } from '@/modules/auth/services/session.service';
 import type { OrganizationMember } from '@/modules/organizations/types/organization.types';
@@ -93,10 +94,7 @@ export function WorkOrderScheduleHistory({
       {error ? (
         <p className="mt-5 text-sm text-destructive">{error}</p>
       ) : !data ? (
-        <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
-          <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-          Carregando histórico...
-        </div>
+        <HistoryRowsSkeleton label="Carregando histórico de agenda" />
       ) : data.items.length === 0 ? (
         <p className="mt-5 text-sm text-muted-foreground">Nenhuma alteração de agenda registrada.</p>
       ) : (

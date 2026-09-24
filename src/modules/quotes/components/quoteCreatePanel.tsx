@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import { InlineOptionsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -199,10 +200,7 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
                 {customerError && <p className="text-sm text-destructive">{customerError}</p>}
 
                 {!customers ? (
-                  <div className="flex h-12 items-center gap-2 text-sm text-muted-foreground">
-                    <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-                    Carregando clientes...
-                  </div>
+                  <InlineOptionsSkeleton />
                 ) : customers.length === 0 ? (
                   <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
                     Nenhum cliente ativo encontrado.{' '}

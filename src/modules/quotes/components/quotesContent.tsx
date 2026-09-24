@@ -1,10 +1,11 @@
 'use client';
 
-import { ChevronLeft, ChevronRight, FileText, LoaderCircle, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { ListContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
@@ -140,11 +141,7 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
             </Button>
           </div>
         ) : !data ? (
-          <div className="flex min-h-72 flex-col items-center justify-center">
-            <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
-
-            <p className="mt-3 text-sm text-muted-foreground">Carregando orçamentos...</p>
-          </div>
+          <ListContentSkeleton columns={6} rows={6} label="Carregando orçamentos" />
         ) : data.items.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-muted text-primary">

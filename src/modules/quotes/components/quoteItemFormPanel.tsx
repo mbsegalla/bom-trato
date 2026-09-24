@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useEffect, useRef, useState } from 'react';
 
+import { InlineOptionsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -279,7 +280,7 @@ export function QuoteItemFormPanel({ quote, item, onClose, onSaved }: QuoteItemF
                     <Label htmlFor="quote-catalog-service">Serviço *</Label>
 
                     {!services ? (
-                      <p className="text-sm text-muted-foreground">Carregando catálogo...</p>
+                      <InlineOptionsSkeleton />
                     ) : services.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Nenhum serviço ativo encontrado.</p>
                     ) : (

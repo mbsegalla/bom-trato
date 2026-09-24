@@ -1,9 +1,10 @@
 'use client';
 
-import { History, LoaderCircle } from 'lucide-react';
+import { History } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { HistoryRowsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
 
@@ -77,10 +78,7 @@ export function QuoteStatusHistory({ organizationId, quoteId, quoteVersion }: Qu
       {error ? (
         <p className="mt-5 text-sm text-destructive">{error}</p>
       ) : !history ? (
-        <div className="mt-5 flex items-center gap-2 text-sm text-muted-foreground">
-          <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-          Carregando histórico...
-        </div>
+        <HistoryRowsSkeleton label="Carregando histórico do orçamento" />
       ) : (
         <div className="mt-5 space-y-4">
           {history.map((entry) => (

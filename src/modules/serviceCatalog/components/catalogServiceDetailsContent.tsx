@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
@@ -158,7 +159,7 @@ function OrganizationCatalogServiceDetails({
     return (
       <div className="mx-auto max-w-7xl">
         <Link
-          href="/services"
+          href="/services-catalog"
           className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
         >
           <ArrowLeft aria-hidden="true" className="size-4" />
@@ -184,19 +185,13 @@ function OrganizationCatalogServiceDetails({
   }
 
   if (!service) {
-    return (
-      <div aria-busy="true" className="flex min-h-[55vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando serviço...</p>
-      </div>
-    );
+    return <DetailContentSkeleton label="Carregando serviço" />;
   }
 
   return (
     <div className="mx-auto max-w-7xl">
       <Link
-        href="/services"
+        href="/services-catalog"
         className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
       >
         <ArrowLeft aria-hidden="true" className="size-4" />

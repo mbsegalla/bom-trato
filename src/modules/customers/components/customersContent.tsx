@@ -1,22 +1,12 @@
 'use client';
 
-import {
-  Archive,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  LoaderCircle,
-  Mail,
-  Phone,
-  Plus,
-  Search,
-  Users,
-} from 'lucide-react';
+import { Archive, ArrowRight, ChevronLeft, ChevronRight, Mail, Phone, Plus, Search, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
+import { ListContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/modules/app/components/appProvider';
@@ -239,11 +229,7 @@ function OrganizationCustomersContent({ organizationId }: { organizationId: stri
             </Button>
           </div>
         ) : !data ? (
-          <div aria-busy="true" className="flex min-h-72 flex-col items-center justify-center">
-            <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
-
-            <p className="mt-3 text-sm text-muted-foreground">Carregando clientes...</p>
-          </div>
+          <ListContentSkeleton columns={5} rows={6} label="Carregando clientes" />
         ) : data.items.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-muted text-primary">

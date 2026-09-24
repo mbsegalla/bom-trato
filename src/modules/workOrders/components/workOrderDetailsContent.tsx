@@ -7,7 +7,6 @@ import {
   CircleAlert,
   CircleCheck,
   ClipboardList,
-  LoaderCircle,
   MapPin,
   Pencil,
   Play,
@@ -19,6 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { ConfirmationDialog } from '@/components/ui/confirmationDialog';
 import { useApp } from '@/modules/app/components/appProvider';
@@ -184,13 +184,7 @@ function OrganizationWorkOrderDetails({
   }
 
   if (!state) {
-    return (
-      <div className="flex min-h-[55vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando ordem de serviço...</p>
-      </div>
-    );
+    return <DetailContentSkeleton label="Carregando ordem de serviço" />;
   }
 
   const { workOrder, members } = state;

@@ -8,7 +8,6 @@ import {
   CircleCheck,
   Clock3,
   FileText,
-  LoaderCircle,
   Plus,
   WalletCards,
   Wrench,
@@ -25,6 +24,7 @@ import { formatShortDate, formatTime } from '@/shared/formatters/date.formatter'
 
 import { getDashboard } from '../services/dashboard.service';
 import type { DashboardData } from '../types/dashboard.types';
+import { DashboardSkeleton } from './dashboardSkeleton';
 
 interface DashboardState {
   organizationId: string;
@@ -107,13 +107,7 @@ export function DashboardContent() {
   }
 
   if (!data) {
-    return (
-      <div aria-busy="true" className="flex min-h-[50vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Organizando sua visão geral...</p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   const attentionItems = [

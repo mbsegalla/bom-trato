@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { ConfirmationDialog } from '@/components/ui/confirmationDialog';
 import { Input } from '@/components/ui/input';
@@ -269,13 +270,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
   }
 
   if (!quote) {
-    return (
-      <div className="flex min-h-[55vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando orçamento...</p>
-      </div>
-    );
+    return <DetailContentSkeleton label="Carregando orçamento" />;
   }
 
   const approved = quote.status === 'APPROVED';

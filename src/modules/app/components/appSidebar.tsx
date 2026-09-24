@@ -42,7 +42,7 @@ const navigation = [
   },
   {
     label: 'Catálogo de serviços',
-    href: '/services',
+    href: '/services-catalog',
     icon: Wrench,
   },
   {

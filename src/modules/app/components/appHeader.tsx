@@ -15,7 +15,7 @@ interface AppHeaderProps {
 const pageNames: Record<string, string> = {
   '/dashboard': 'Visão geral',
   '/customers': 'Clientes',
-  '/services': 'Catálogo de serviços',
+  '/services-catalog': 'Catálogo de serviços',
   '/quotes': 'Orçamentos',
   '/work-orders': 'Ordens de serviço',
   '/schedule': 'Agendamentos',

@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
@@ -180,14 +181,8 @@ function OrganizationCustomerDetails({ organizationId, customerId }: { organizat
     );
   }
 
-  if (!overview) {
-    return (
-      <div aria-busy="true" className="flex min-h-[55vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando cliente...</p>
-      </div>
-    );
+  if (!overview || !overview.customer) {
+    return <DetailContentSkeleton label="Carregando cliente" />;
   }
 
   const { customer, summary } = overview;
