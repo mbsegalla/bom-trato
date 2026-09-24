@@ -6,7 +6,8 @@ import { useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Plan, PlanListResult, PlanPrice, PricingInterval } from '@/modules/plans/types/plan.types';
+import type { Plan, PlanListResult, PricingInterval } from '@/modules/plans/types/plan.types';
+import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 
 import { MarketingLink } from './marketingLink';
 
@@ -21,13 +22,6 @@ const billingPeriods: {
   { value: 'MONTH', label: 'Mensal' },
   { value: 'YEAR', label: 'Anual' },
 ];
-
-function formatPrice(price: PlanPrice): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: price.currency.toUpperCase(),
-  }).format(price.amountInCents / 100);
-}
 
 function getPlanFeatures(plan: Plan): string[] {
   return [
@@ -159,7 +153,9 @@ export function PricingSection({ result }: PricingSectionProps) {
                     <div className="mt-7">
                       {price ? (
                         <p>
-                          <span className="text-4xl font-semibold tracking-tight">{formatPrice(price)}</span>
+                          <span className="text-4xl font-semibold tracking-tight">
+                            {formatBrlCurrency(price.amountInCents)}
+                          </span>
 
                           <span className="ml-2 text-sm text-muted-foreground">
                             / {activeInterval === 'YEAR' ? 'ano' : 'mês'}

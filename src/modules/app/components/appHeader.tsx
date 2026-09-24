@@ -4,6 +4,7 @@ import { Bell, CalendarDays, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import { formatLongDate } from '@/shared/formatters/date.formatter';
 
 import { useApp } from './appProvider';
 
@@ -29,14 +30,6 @@ function initials(name: string): string {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase())
     .join('');
-}
-
-function currentDate(): string {
-  return new Intl.DateTimeFormat('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-  }).format(new Date());
 }
 
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
@@ -74,7 +67,7 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
           <div className="hidden items-center gap-2 text-sm text-muted-foreground md:flex">
             <CalendarDays aria-hidden="true" className="size-4" />
 
-            <span className="capitalize">{currentDate()}</span>
+            <span className="capitalize">{formatLongDate(new Date())}</span>
           </div>
 
           <Button type="button" variant="ghost" size="icon" aria-label="Notificações" className="cursor-pointer">
