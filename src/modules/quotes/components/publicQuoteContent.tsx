@@ -11,6 +11,7 @@ import { formatQuantity } from '@/shared/formatters/quantity.formatter';
 
 import { decidePublicQuote, downloadPublicQuotePdf, resolvePublicQuote } from '../services/quote.service';
 import type { PublicQuote } from '../types/quote.types';
+import { PublicQuoteSkeleton } from './publicQuoteSkeleton';
 import { QuoteStatusBadge } from './quoteStatusBadge';
 
 export function PublicQuoteContent() {
@@ -116,13 +117,7 @@ export function PublicQuoteContent() {
   }
 
   if (!quote) {
-    return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-background">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando orçamento...</p>
-      </main>
-    );
+    return <PublicQuoteSkeleton />;
   }
 
   return (

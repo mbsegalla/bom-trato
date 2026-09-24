@@ -1,11 +1,12 @@
 'use client';
 
-import { Archive, ArrowRight, ChevronLeft, ChevronRight, LoaderCircle, Plus, Search, Wrench } from 'lucide-react';
+import { Archive, ArrowRight, ChevronLeft, ChevronRight, Plus, Search, Wrench } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useEffect, useState } from 'react';
 
+import { ListContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/modules/app/components/appProvider';
@@ -230,11 +231,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
             </Button>
           </div>
         ) : !data ? (
-          <div aria-busy="true" className="flex min-h-72 flex-col items-center justify-center">
-            <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
-
-            <p className="mt-3 text-sm text-muted-foreground">Carregando catálogo...</p>
-          </div>
+          <ListContentSkeleton columns={6} rows={6} label="Carregando catálogo de serviços" />
         ) : data.items.length === 0 ? (
           <div className="px-6 py-14 text-center">
             <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-muted text-primary">
@@ -294,7 +291,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
                     <tr key={service.id} className="transition-colors hover:bg-muted/30">
                       <td className="px-6 py-4">
                         <Link
-                          href={`/services/${service.id}`}
+                          href={`/services-catalog/${service.id}`}
                           className="font-medium hover:text-primary hover:underline"
                         >
                           {service.name}
@@ -325,7 +322,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
 
                       <td className="px-6 py-4 text-right">
                         <Link
-                          href={`/services/${service.id}`}
+                          href={`/services-catalog/${service.id}`}
                           aria-label={`Abrir ${service.name}`}
                           className="inline-flex size-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >

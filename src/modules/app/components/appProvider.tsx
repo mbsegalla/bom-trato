@@ -1,6 +1,5 @@
 'use client';
 
-import { LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -11,6 +10,7 @@ import { getOnboarding } from '@/modules/onboarding/services/onboarding.service'
 import { listJoinedOrganizations } from '@/modules/organizations/services/organization.service';
 import type { JoinedOrganization } from '@/modules/organizations/types/organization.types';
 
+import { AppBootstrapSkeleton } from './appBootstrapSkeleton';
 import { AppShell } from './appShell';
 
 const ACTIVE_ORGANIZATION_KEY = 'bom-trato:active-organization';
@@ -175,27 +175,7 @@ export function AppProvider({ children }: AppProviderProps) {
   }
 
   if (!user || !activeOrganization) {
-    return (
-      <div
-        aria-busy="true"
-        className="flex min-h-dvh flex-col items-center justify-center bg-background text-foreground"
-      >
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex size-10 items-center justify-center rounded-xl bg-brand text-xl font-bold tracking-tighter text-brand-foreground"
-          >
-            bt
-          </span>
-
-          <span className="text-xl font-bold tracking-tight">bom trato.</span>
-        </div>
-
-        <LoaderCircle aria-hidden="true" className="mt-8 size-6 animate-spin text-primary" />
-
-        <p className="mt-3 text-sm text-muted-foreground">Preparando seu espaço...</p>
-      </div>
-    );
+    return <AppBootstrapSkeleton />;
   }
 
   return (

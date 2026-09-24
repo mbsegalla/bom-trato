@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { SessionError } from '@/modules/auth/services/session.service';
 
 import { bootstrapOnboarding, getOnboarding } from '../services/onboarding.service';
 import type { OnboardingState } from '../types/onboarding.types';
 import { OnboardingBusinessForm } from './onboardingBusinessForm';
+import { OnboardingContentSkeleton } from './onboardingContentSkeleton';
 import { OnboardingPayment } from './onboardingPayment';
 import { OnboardingPlanSelection } from './onboardingPlanSelection';
 
@@ -76,16 +78,7 @@ export function OnboardingContent() {
   }
 
   if (!state && !error) {
-    return (
-      <div
-        aria-busy="true"
-        className="mx-auto flex min-h-[50vh] max-w-lg flex-col items-center justify-center text-center"
-      >
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Preparando seu próximo passo...</p>
-      </div>
-    );
+    return <OnboardingContentSkeleton />;
   }
 
   if (!state) {
@@ -154,10 +147,11 @@ export function OnboardingContent() {
 
       <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         {state.step === 'PROVISIONING' && (
-          <div className="text-center">
-            <LoaderCircle aria-hidden="true" className="mx-auto size-7 animate-spin text-primary" />
-
-            <p className="mt-4 text-muted-foreground">Preparando sua conta...</p>
+          <div aria-busy="true" aria-label="Preparando sua conta" className="space-y-4">
+            <Skeleton className="size-14 rounded-2xl motion-reduce:animate-none" />
+            <Skeleton className="h-9 w-72 max-w-full motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-full motion-reduce:animate-none" />
+            <Skeleton className="h-4 w-4/5 motion-reduce:animate-none" />
           </div>
         )}
 

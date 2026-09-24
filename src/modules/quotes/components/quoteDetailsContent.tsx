@@ -18,12 +18,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { ConfirmationDialog } from '@/components/ui/confirmationDialog';
 import { Input } from '@/components/ui/input';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { getServiceUnitLabel } from '@/modules/serviceCatalog/constants/catalogService.constants';
+import { QuoteWorkOrderAction } from '@/modules/workOrders/components/quoteWorkOrderAction';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate, formatDateTime } from '@/shared/formatters/date.formatter';
 import { formatQuantity } from '@/shared/formatters/quantity.formatter';
@@ -268,15 +270,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
   }
 
   if (!quote) {
-    return (
-      <div className="flex min-h-[55vh] flex-col items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-7 animate-spin text-primary" />
-
-        <p className="mt-4 text-sm text-muted-foreground">Carregando orçamento...</p>
-      </div>
-    );
+    return <DetailContentSkeleton label="Carregando orçamento" />;
   }
 
+  const approved = quote.status === 'APPROVED';
   const draft = quote.status === 'DRAFT';
   const sent = quote.status === 'SENT';
   const expired = isQuoteExpired(quote.status, quote.validUntil);
@@ -318,6 +315,8 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
             )}
             PDF
           </Button>
+
+          {approved && <QuoteWorkOrderAction organizationId={organizationId} quoteId={quote.id} />}
 
           {draft && (
             <>

@@ -28,6 +28,15 @@ const longDateFormatter = new Intl.DateTimeFormat('pt-BR', {
   month: 'long',
 });
 
+const monthYearFormatter = new Intl.DateTimeFormat('pt-BR', {
+  month: 'long',
+  year: 'numeric',
+});
+
+const weekdayFormatter = new Intl.DateTimeFormat('pt-BR', {
+  weekday: 'long',
+});
+
 export function formatTime(date: Date | null, fallback = 'A definir'): string {
   if (date === null) {
     return fallback;
@@ -62,6 +71,14 @@ export function formatDateTime(date: Date | null, fallback = 'Sem data'): string
 
 export function formatLongDate(date: Date): string {
   return longDateFormatter.format(date);
+}
+
+export function formatMonthYear(date: Date): string {
+  return monthYearFormatter.format(date);
+}
+
+export function formatWeekday(date: Date): string {
+  return weekdayFormatter.format(date);
 }
 
 export function formatDateTimeLocalInput(date: Date | null): string {
