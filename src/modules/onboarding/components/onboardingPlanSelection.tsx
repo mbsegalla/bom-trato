@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { listPlans } from '@/modules/plans/services/plan.service';
 import type { Plan, PlanPrice } from '@/modules/plans/types/plan.types';
+import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 
 import { selectOnboardingPlan } from '../services/onboarding.service';
 import type { OnboardingState } from '../types/onboarding.types';
@@ -20,13 +21,6 @@ function getPreferredPrice(plan: Plan): PlanPrice | undefined {
     plan.prices.find((price) => price.interval === 'MONTH' && price.intervalCount === 1) ??
     plan.prices.find((price) => price.intervalCount === 1)
   );
-}
-
-function formatPrice(price: PlanPrice): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: price.currency.toUpperCase(),
-  }).format(price.amountInCents / 100);
 }
 
 export function OnboardingPlanSelection({ organizationId, onSelected }: OnboardingPlanSelectionProps) {
@@ -129,7 +123,7 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{plan.description}</p>
 
               <p className="mt-5">
-                <span className="text-3xl font-semibold tracking-tight">{formatPrice(price)}</span>
+                <span className="text-3xl font-semibold tracking-tight">{formatBrlCurrency(price.amountInCents)}</span>
 
                 <span className="ml-2 text-sm text-muted-foreground">
                   / {price.interval === 'YEAR' ? 'ano' : 'mês'}
