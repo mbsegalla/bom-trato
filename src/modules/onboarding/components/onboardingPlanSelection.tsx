@@ -124,7 +124,6 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
 
               <p className="mt-5">
                 <span className="text-3xl font-semibold tracking-tight">{formatBrlCurrency(price.amountInCents)}</span>
-
                 <span className="ml-2 text-sm text-muted-foreground">
                   / {price.interval === 'YEAR' ? 'ano' : 'mês'}
                 </span>
@@ -133,7 +132,6 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
               <ul className="mt-5 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-
                   <span>
                     Até {plan.maxUsers} {plan.maxUsers === 1 ? 'usuário' : 'usuários'}
                   </span>
@@ -141,14 +139,12 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
 
                 <li className="flex items-start gap-2">
                   <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-
                   <span>Clientes, orçamentos e serviços organizados</span>
                 </li>
 
                 {plan.teamManagementEnabled && (
                   <li className="flex items-start gap-2">
                     <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-
                     <span>Gestão de equipe</span>
                   </li>
                 )}

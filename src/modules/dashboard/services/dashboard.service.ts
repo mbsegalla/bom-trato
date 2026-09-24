@@ -3,14 +3,14 @@ import { authenticatedFetch, SessionError } from '@/modules/auth/services/sessio
 import { dashboardFinancialSchema, dashboardSummarySchema, dashboardUpcomingSchema } from '../schemas/dashboard.schema';
 import type { DashboardData, DashboardFinancial, DashboardSummary, DashboardUpcoming } from '../types/dashboard.types';
 
+const dashboardFlights = new Map<string, Promise<DashboardData>>();
+
 function currentMonthPeriod(): {
   from: string;
   to: string;
 } {
   const now = new Date();
-
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
-
   const to = new Date(now.getTime() + 1000);
 
   return {
@@ -79,7 +79,7 @@ async function readUpcoming(response: Response): Promise<DashboardUpcoming> {
   return parsed.data;
 }
 
-export async function getDashboard(organizationId: string): Promise<DashboardData> {
+async function requestDashboard(organizationId: string): Promise<DashboardData> {
   const period = currentMonthPeriod();
 
   const query = new URLSearchParams({
@@ -106,4 +106,26 @@ export async function getDashboard(organizationId: string): Promise<DashboardDat
     financial,
     upcoming,
   };
+}
+
+export function getDashboard(organizationId: string): Promise<DashboardData> {
+  const existing = dashboardFlights.get(organizationId);
+
+  if (existing) {
+    return existing;
+  }
+
+  const request = requestDashboard(organizationId);
+
+  dashboardFlights.set(organizationId, request);
+
+  const cleanup = () => {
+    if (dashboardFlights.get(organizationId) === request) {
+      dashboardFlights.delete(organizationId);
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
 }
