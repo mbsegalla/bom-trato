@@ -130,6 +130,7 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
 
   const scheduledCount = data?.items.filter((item) => item.status === 'SCHEDULED').length ?? 0;
   const inProgressCount = data?.items.filter((item) => item.status === 'IN_PROGRESS').length ?? 0;
+
   const lateCount = data?.items.filter((item) => item.late).length ?? 0;
 
   function clearFilters(): void {
