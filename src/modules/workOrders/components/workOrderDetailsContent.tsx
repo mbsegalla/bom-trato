@@ -25,6 +25,7 @@ import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { listOrganizationMembers } from '@/modules/organizations/services/organization.service';
 import type { OrganizationMember } from '@/modules/organizations/types/organization.types';
+import { WorkOrderReceivableAction } from '@/modules/receivables/components/workOrderReceivableAction';
 import { getServiceUnitLabel } from '@/modules/serviceCatalog/constants/catalogService.constants';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate, formatDateTime } from '@/shared/formatters/date.formatter';
@@ -194,7 +195,8 @@ function OrganizationWorkOrderDetails({
   const planningEditable = isWorkOrderPlanningEditable(workOrder.status);
   const ready = workOrder.assignedToId !== null && workOrder.serviceAddress !== null;
   const canStart = planningEditable && ready;
-  const canComplete = workOrder.status === 'IN_PROGRESS';
+  const canProgress = workOrder.status === 'IN_PROGRESS';
+  const canComplete = workOrder.status === 'COMPLETED';
 
   const confirmationContent = getWorkOrderConfirmationContent(confirmation);
 
@@ -248,6 +250,14 @@ function OrganizationWorkOrderDetails({
             </>
           )}
 
+          {canComplete && (
+            <WorkOrderReceivableAction
+              organizationId={organizationId}
+              workOrderId={workOrder.id}
+              title={workOrder.title}
+            />
+          )}
+
           {canStart && (
             <Button type="button" onClick={() => setConfirmation({ kind: 'START' })} className="cursor-pointer">
               <Play aria-hidden="true" className="size-4" />
@@ -255,7 +265,7 @@ function OrganizationWorkOrderDetails({
             </Button>
           )}
 
-          {canComplete && (
+          {canProgress && (
             <Button type="button" onClick={() => setConfirmation({ kind: 'COMPLETE' })} className="cursor-pointer">
               <Check aria-hidden="true" className="size-4" />
               Concluir serviço

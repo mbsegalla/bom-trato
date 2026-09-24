@@ -90,3 +90,9 @@ export function formatDateTimeLocalInput(date: Date | null): string {
 
   return new Date(date.getTime() - offset).toISOString().slice(0, 16);
 }
+
+export function formatDateInput(date: Date): string {
+  const offset = date.getTimezoneOffset() * 60_000;
+
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+}

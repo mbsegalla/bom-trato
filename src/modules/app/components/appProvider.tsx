@@ -7,6 +7,10 @@ import { Button } from '@/components/ui/button';
 import { getCurrentUser, SessionError } from '@/modules/auth/services/session.service';
 import type { AuthUser } from '@/modules/auth/types/auth.types';
 import { getOnboarding } from '@/modules/onboarding/services/onboarding.service';
+import {
+  getStoredActiveOrganizationId,
+  storeActiveOrganizationId,
+} from '@/modules/organizations/services/activeOrganization.storage';
 import { listJoinedOrganizations } from '@/modules/organizations/services/organization.service';
 import type { JoinedOrganization } from '@/modules/organizations/types/organization.types';
 
@@ -64,7 +68,7 @@ export function AppProvider({ children }: AppProviderProps) {
           return;
         }
 
-        const storedOrganizationId = window.localStorage.getItem(ACTIVE_ORGANIZATION_KEY);
+        const storedOrganizationId = getStoredActiveOrganizationId();
 
         const preferredOrganization =
           joinedOrganizations.find((organization) => organization.id === storedOrganizationId) ??
@@ -95,7 +99,7 @@ export function AppProvider({ children }: AppProviderProps) {
           return;
         }
 
-        window.localStorage.setItem(ACTIVE_ORGANIZATION_KEY, availableOrganization.id);
+        storeActiveOrganizationId(availableOrganization.id);
 
         setUser(currentUser);
         setOrganizations(joinedOrganizations);
