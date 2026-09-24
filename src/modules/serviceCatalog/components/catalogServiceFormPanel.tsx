@@ -1,6 +1,6 @@
 'use client';
 
-import { Banknote, LoaderCircle, StickyNote, Tag, X } from 'lucide-react';
+import { LoaderCircle, StickyNote, Tag, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { formatBrlCurrencyInput } from '@/shared/formatters/currency.formatter';
+import { formatBrlCurrencyInput, formatBrlCurrencyInputValue } from '@/shared/formatters/currency.formatter';
 
 import { serviceUnitOptions } from '../constants/catalogService.constants';
 import { catalogServiceFormSchema } from '../schemas/catalogService.schema';
@@ -32,6 +32,7 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
   const submittingRef = useRef(false);
 
   const [submitting, setSubmitting] = useState(false);
+  const [amount, setAmount] = useState(service === undefined ? '' : formatBrlCurrencyInput(service.amountInCents));
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<CatalogServiceFieldErrors>({});
 
@@ -216,10 +217,12 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
                   <Label htmlFor="catalog-service-amount">Valor *</Label>
 
                   <div className="relative">
-                    <Banknote
+                    <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-                    />
+                      className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-sm text-muted-foreground"
+                    >
+                      R$
+                    </span>
 
                     <Input
                       id="catalog-service-amount"
@@ -227,7 +230,9 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
                       type="text"
                       inputMode="decimal"
                       autoComplete="off"
-                      defaultValue={service === undefined ? '' : formatBrlCurrencyInput(service.amountInCents)}
+                      value={amount}
+                      onChange={(event) => setAmount(event.target.value)}
+                      onBlur={() => setAmount((value) => formatBrlCurrencyInputValue(value))}
                       placeholder="0,00"
                       aria-invalid={fieldErrors.amountInCents ? true : undefined}
                       className="h-12 rounded-xl pl-11"

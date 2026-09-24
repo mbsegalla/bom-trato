@@ -15,3 +15,24 @@ export function formatBrlCurrency(amountInCents: number): string {
 export function formatBrlCurrencyInput(amountInCents: number): string {
   return brlCurrencyInputFormatter.format(amountInCents / 100);
 }
+
+export function formatBrlCurrencyInputValue(value: string): string {
+  const normalized = value.trim();
+
+  if (normalized.length === 0) {
+    return '';
+  }
+
+  const amount = Number(
+    normalized
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .replace(/[^\d.]/g, ''),
+  );
+
+  if (!Number.isFinite(amount)) {
+    return value;
+  }
+
+  return brlCurrencyInputFormatter.format(amount);
+}
