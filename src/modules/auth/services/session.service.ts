@@ -23,6 +23,8 @@ let session: Session | null = null;
 
 let refreshFlight: Promise<Session> | null = null;
 
+let currentUserFlight: Promise<AuthUser> | null = null;
+
 let mutationQueue: Promise<unknown> = Promise.resolve();
 
 let verification: {
@@ -199,7 +201,7 @@ export async function authenticatedFetch(path: string, init: RequestInit = {}): 
   return send(renewed);
 }
 
-export async function getCurrentUser(): Promise<AuthUser> {
+async function requestCurrentUser(): Promise<AuthUser> {
   const response = await authenticatedFetch('/api/auth/me');
 
   if (!response.ok) {
@@ -217,6 +219,26 @@ export async function getCurrentUser(): Promise<AuthUser> {
   return parsed.data;
 }
 
+export function getCurrentUser(): Promise<AuthUser> {
+  if (currentUserFlight) {
+    return currentUserFlight;
+  }
+
+  const request = requestCurrentUser();
+
+  currentUserFlight = request;
+
+  const cleanup = () => {
+    if (currentUserFlight === request) {
+      currentUserFlight = null;
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
+}
+
 export async function logout(): Promise<void> {
   const response = await authenticatedFetch('/api/auth/logout', {
     method: 'POST',
@@ -227,6 +249,7 @@ export async function logout(): Promise<void> {
   }
 
   session = null;
+  currentUserFlight = null;
 }
 
 async function confirm(token: string): Promise<VerificationOutcome> {

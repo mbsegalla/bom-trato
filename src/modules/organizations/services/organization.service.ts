@@ -5,7 +5,9 @@ import type { JoinedOrganization } from '../types/organization.types';
 
 const PAGE_LIMIT = 100;
 
-export async function listJoinedOrganizations(): Promise<JoinedOrganization[]> {
+let joinedOrganizationsFlight: Promise<JoinedOrganization[]> | null = null;
+
+async function requestJoinedOrganizations(): Promise<JoinedOrganization[]> {
   const organizations: JoinedOrganization[] = [];
 
   let page = 1;
@@ -37,4 +39,24 @@ export async function listJoinedOrganizations(): Promise<JoinedOrganization[]> {
   }
 
   return organizations;
+}
+
+export function listJoinedOrganizations(): Promise<JoinedOrganization[]> {
+  if (joinedOrganizationsFlight) {
+    return joinedOrganizationsFlight;
+  }
+
+  const request = requestJoinedOrganizations();
+
+  joinedOrganizationsFlight = request;
+
+  const cleanup = () => {
+    if (joinedOrganizationsFlight === request) {
+      joinedOrganizationsFlight = null;
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
 }
