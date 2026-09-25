@@ -182,7 +182,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
                 aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
                 aria-controls="register-password"
                 onClick={() => setPasswordVisible((visible) => !visible)}
-                className="absolute top-1/2 right-1 -translate-y-1/2"
+                className="absolute top-1/2 right-1 size-11 -translate-y-1/2 cursor-pointer active:not-aria-[haspopup]:translate-y-[-50%]"
               >
                 {passwordVisible ? (
                   <EyeOff aria-hidden="true" className="size-4" />
