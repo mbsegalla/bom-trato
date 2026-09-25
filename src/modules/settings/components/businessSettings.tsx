@@ -97,6 +97,22 @@ function OrganizationBusinessSettings({
     };
   }, [organizationId, refreshVersion, requestKey, router]);
 
+  function businessProfileKey(profile: BusinessProfile): string {
+    return JSON.stringify([
+      profile.id,
+      profile.name,
+      profile.email,
+      profile.phone,
+      profile.documentType,
+      profile.document,
+      profile.addressLine1,
+      profile.addressLine2,
+      profile.city,
+      profile.state,
+      profile.postalCode,
+    ]);
+  }
+
   const profile = state?.data ?? null;
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
   const refreshing = state !== null && state.requestKey !== requestKey;
@@ -188,7 +204,7 @@ function OrganizationBusinessSettings({
 
   return (
     <BusinessProfileForm
-      key={`${organizationId}:${profile.id}:${profile.documentType ?? 'none'}:${profile.document ?? 'none'}`}
+      key={`${organizationId}:${businessProfileKey(profile)}`}
       profile={profile}
       owner={owner}
       saving={saving}

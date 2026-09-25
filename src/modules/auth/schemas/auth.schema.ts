@@ -36,3 +36,14 @@ export const currentUserResponseSchema = apiResponseSchema(
     selectedPlanPriceId: z.uuid().nullable(),
   }),
 );
+
+export const authSessionSchema = z.object({
+  id: z.uuid(),
+  createdAt: z.coerce.date(),
+  lastRefreshedAt: z.coerce.date(),
+  absoluteExpiresAt: z.coerce.date(),
+  userAgent: z.string().nullable(),
+  current: z.boolean(),
+});
+
+export const authSessionsResponseSchema = apiResponseSchema(z.array(authSessionSchema));
