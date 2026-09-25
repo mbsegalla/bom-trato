@@ -13,7 +13,13 @@ interface SettingsPageProps {
 export default async function SettingsPage({ searchParams }: SettingsPageProps) {
   const { tab } = await searchParams;
 
-  const initialTab: SettingsTab = tab === 'billing' ? 'billing' : 'team';
+  let initialTab: SettingsTab = 'business';
+
+  if (tab === 'team') {
+    initialTab = 'team';
+  } else if (tab === 'billing') {
+    initialTab = 'billing';
+  }
 
   return <SettingsContent initialTab={initialTab} />;
 }

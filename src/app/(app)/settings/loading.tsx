@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { TeamSettingsSkeleton } from '@/modules/settings/components/teamSettingsSkeleton';
+import { BusinessSettingsSkeleton } from '@/modules/settings/components/businessSettingsSkeleton';
 
 export default function SettingsLoading() {
   return (
@@ -10,11 +10,12 @@ export default function SettingsLoading() {
 
       <div className="mt-8 flex gap-2">
         <Skeleton className="h-10 w-28 rounded-xl motion-reduce:animate-none" />
+        <Skeleton className="h-10 w-24 rounded-xl motion-reduce:animate-none" />
         <Skeleton className="h-10 w-32 rounded-xl motion-reduce:animate-none" />
       </div>
 
       <div className="mt-6">
-        <TeamSettingsSkeleton />
+        <BusinessSettingsSkeleton />
       </div>
     </div>
   );
