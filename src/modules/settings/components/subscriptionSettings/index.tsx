@@ -21,7 +21,6 @@ import {
   resumeBillingSubscription,
 } from '../../services/billing.service';
 import type { BillingData } from '../../types/billing.types';
-import { BillingSettingsSkeleton } from '../billingSettingsSkeleton';
 import { InvoiceList } from '../invoiceList';
 import { PaymentMethodCard } from '../paymentMethodCard';
 import { PaymentMethodPanel } from '../paymentMethodPanel';
@@ -29,6 +28,7 @@ import { PlanChangePanel } from '../planChangePanel';
 import { SubscriptionOverview } from '../subscriptionOverview';
 import { ActivePlanChangeNotice } from './components/activePlanChangeNotice';
 import { BillingPortalCard } from './components/billingPortalCard';
+import { BillingSettingsSkeleton } from './components/billingSettingsSkeleton';
 import { MemberBillingNotice } from './components/memberBillingNotice';
 import { MissingSubscriptionNotice } from './components/missingSubscriptionNotice';
 import { findCurrentPlan } from './helpers/subscriptionSettings.helper';
@@ -159,7 +159,7 @@ function OrganizationSubscriptionSettings({ organizationId, owner }: { organizat
   }
 
   if (!data && !error) {
-    <BillingSettingsSkeleton />;
+    return <BillingSettingsSkeleton />;
   }
 
   if (!data && error) {

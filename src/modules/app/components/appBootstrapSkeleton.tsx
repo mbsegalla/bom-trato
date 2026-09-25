@@ -48,18 +48,7 @@ export function AppBootstrapSkeleton() {
             </div>
           </header>
 
-          <main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-            <Skeleton className="h-10 w-64 motion-reduce:animate-none" />
-            <Skeleton className="mt-3 h-4 w-96 max-w-full motion-reduce:animate-none" />
-
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {Array.from({ length: 4 }, (_, index) => (
-                <Skeleton key={index} className="h-28 rounded-2xl motion-reduce:animate-none" />
-              ))}
-            </div>
-
-            <Skeleton className="mt-6 h-96 rounded-2xl motion-reduce:animate-none" />
-          </main>
+          <main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10" />
         </div>
       </div>
     </div>

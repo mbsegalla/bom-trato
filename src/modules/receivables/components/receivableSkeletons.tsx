@@ -100,22 +100,3 @@ export function ReceivablePaymentsSkeleton() {
     </div>
   );
 }
-
-export function ReceivablesPageSkeleton() {
-  return (
-    <div className="mx-auto max-w-7xl">
-      <Skeleton className="h-10 w-56 motion-reduce:animate-none" />
-      <Skeleton className="mt-3 h-4 w-96 max-w-full motion-reduce:animate-none" />
-
-      <div className="mt-8">
-        <ReceivableSummarySkeleton />
-      </div>
-
-      <Skeleton className="mt-6 h-14 rounded-2xl motion-reduce:animate-none" />
-
-      <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-card">
-        <ReceivableListSkeleton />
-      </div>
-    </div>
-  );
-}
