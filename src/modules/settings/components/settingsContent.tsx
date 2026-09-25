@@ -1,14 +1,15 @@
 'use client';
 
-import { CreditCard, Users } from 'lucide-react';
+import { Building2, CreditCard, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 
+import { BusinessSettings } from './businessSettings';
 import { SubscriptionSettings } from './subscriptionSettings';
 import { TeamSettings } from './teamSettings';
 
-export type SettingsTab = 'team' | 'billing';
+export type SettingsTab = 'business' | 'team' | 'billing';
 
 interface SettingsContentProps {
   initialTab: SettingsTab;
@@ -32,10 +33,20 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Configurações</h1>
 
-        <p className="mt-2 text-muted-foreground">Gerencie o acesso, equipe e assinatura do seu negócio.</p>
+        <p className="mt-2 text-muted-foreground">Gerencie seu negócio, equipe e assinatura.</p>
       </div>
 
-      <div className="mt-8 flex gap-1 rounded-xl border border-border bg-card p-1">
+      <div className="mt-8 flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">
+        <Button
+          type="button"
+          variant={tab === 'business' ? 'default' : 'ghost'}
+          onClick={() => changeTab('business')}
+          className="cursor-pointer rounded-lg"
+        >
+          <Building2 className="size-4" />
+          Negócio
+        </Button>
+
         <Button
           type="button"
           variant={tab === 'team' ? 'default' : 'ghost'}
@@ -57,7 +68,11 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         </Button>
       </div>
 
-      <div className="mt-6">{tab === 'team' ? <TeamSettings /> : <SubscriptionSettings />}</div>
+      <div className="mt-6">
+        {tab === 'business' && <BusinessSettings />}
+        {tab === 'team' && <TeamSettings />}
+        {tab === 'billing' && <SubscriptionSettings />}
+      </div>
     </div>
   );
 }

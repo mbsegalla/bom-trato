@@ -17,14 +17,13 @@ import type { JoinedOrganization } from '@/modules/organizations/types/organizat
 import { AppBootstrapSkeleton } from './appBootstrapSkeleton';
 import { AppShell } from './appShell';
 
-const ACTIVE_ORGANIZATION_KEY = 'bom-trato:active-organization';
-
 interface AppContextValue {
   user: AuthUser;
   organizations: JoinedOrganization[];
   activeOrganization: JoinedOrganization;
   switchingOrganization: boolean;
   switchOrganization(organizationId: string): Promise<void>;
+  updateActiveOrganizationName(name: string): void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -146,7 +145,7 @@ export function AppProvider({ children }: AppProviderProps) {
         return;
       }
 
-      window.localStorage.setItem(ACTIVE_ORGANIZATION_KEY, organization.id);
+      storeActiveOrganizationId(organization.id);
 
       setActiveOrganization(organization);
 
@@ -154,6 +153,32 @@ export function AppProvider({ children }: AppProviderProps) {
     } finally {
       setSwitchingOrganization(false);
     }
+  }
+
+  function updateActiveOrganizationName(name: string): void {
+    if (!activeOrganization) {
+      return;
+    }
+
+    setOrganizations((current) =>
+      current.map((organization) =>
+        organization.id === activeOrganization.id
+          ? {
+              ...organization,
+              name,
+            }
+          : organization,
+      ),
+    );
+
+    setActiveOrganization((current) =>
+      current
+        ? {
+            ...current,
+            name,
+          }
+        : current,
+    );
   }
 
   if (error) {
@@ -190,6 +215,7 @@ export function AppProvider({ children }: AppProviderProps) {
         activeOrganization,
         switchingOrganization,
         switchOrganization,
+        updateActiveOrganizationName,
       }}
     >
       <AppShell>{children}</AppShell>
