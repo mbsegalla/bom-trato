@@ -31,7 +31,6 @@ export function LoginForm() {
     const data = new FormData(event.currentTarget);
 
     const email = String(data.get('email') ?? '').trim();
-
     const password = String(data.get('password') ?? '');
 
     if (!email || !password) {
@@ -113,7 +112,7 @@ export function LoginForm() {
               aria-label={passwordVisible ? 'Ocultar senha' : 'Mostrar senha'}
               aria-controls="login-password"
               onClick={() => setPasswordVisible((value) => !value)}
-              className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2 cursor-pointer"
+              className="absolute top-1/2 right-0.5 size-11 -translate-y-1/2 cursor-pointer active:not-aria-[haspopup]:translate-y-[-50%]"
             >
               {passwordVisible ? (
                 <EyeOff aria-hidden="true" className="size-4" />

@@ -21,6 +21,7 @@ const pageNames: Record<string, string> = {
   '/schedule': 'Agendamentos',
   '/receivables': 'Recebíveis',
   '/settings': 'Configurações',
+  '/billing': 'Faturamento',
 };
 
 function initials(name: string): string {

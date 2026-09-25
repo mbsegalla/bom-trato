@@ -45,6 +45,10 @@ async function readCustomer(response: Response, fallback: string): Promise<Custo
     throw new SessionError('Sua sessão expirou. Entre novamente.', 401);
   }
 
+  if (response.status === 409) {
+    throw new SessionError('Já existe um cliente com este e-mail.', 409);
+  }
+
   if (!response.ok) {
     throw new Error(getCustomerErrorMessage(response.status, fallback));
   }

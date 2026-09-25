@@ -1,11 +1,19 @@
 import type { Metadata } from 'next';
 
-import { SettingsContent } from '@/modules/settings/components/settingsContent';
+import { SettingsContent, type SettingsTab } from '@/modules/settings/components/settingsContent';
 
 export const metadata: Metadata = {
   title: 'Configurações',
 };
 
-export default function SettingsPage() {
-  return <SettingsContent />;
+interface SettingsPageProps {
+  searchParams: Promise<{ tab?: string | string[] }>;
+}
+
+export default async function SettingsPage({ searchParams }: SettingsPageProps) {
+  const { tab } = await searchParams;
+
+  const initialTab: SettingsTab = tab === 'billing' ? 'billing' : 'team';
+
+  return <SettingsContent initialTab={initialTab} />;
 }

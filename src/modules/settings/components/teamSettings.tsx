@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { listOrganizationMembers } from '@/modules/organizations/services/organization.service';
+import { formatUserUsage, hasUnlimitedUsers } from '@/shared/formatters/userLimit.formatter';
 
 import { getTeamEntitlements, listOrganizationInvitations } from '../services/team.service';
 import type { TeamData } from '../types/team.types';
@@ -182,7 +183,7 @@ function OrganizationTeamSettings({
                 <h2 className="font-heading text-xl font-semibold">Equipe</h2>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {entitlements.memberCount} de {entitlements.maxUsers || '—'} usuários
+                  {formatUserUsage(entitlements.memberCount, entitlements.maxUsers)}
                 </p>
               </div>
             </div>
@@ -204,7 +205,7 @@ function OrganizationTeamSettings({
           )}
         </div>
 
-        {entitlements.maxUsers > 0 && (
+        {entitlements.maxUsers > 0 && !hasUnlimitedUsers(entitlements.maxUsers) && (
           <div className="mt-6">
             <div
               role="progressbar"
