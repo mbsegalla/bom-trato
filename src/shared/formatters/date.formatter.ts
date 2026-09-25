@@ -96,3 +96,35 @@ export function formatDateInput(date: Date): string {
 
   return new Date(date.getTime() - offset).toISOString().slice(0, 10);
 }
+
+const relativeTimeFormatter = new Intl.RelativeTimeFormat('pt-BR', {
+  numeric: 'auto',
+});
+
+export function formatRelativeDateTime(date: Date, now = new Date()): string {
+  const seconds = Math.round((date.getTime() - now.getTime()) / 1000);
+
+  if (Math.abs(seconds) < 60) {
+    return relativeTimeFormatter.format(seconds, 'second');
+  }
+
+  const minutes = Math.round(seconds / 60);
+
+  if (Math.abs(minutes) < 60) {
+    return relativeTimeFormatter.format(minutes, 'minute');
+  }
+
+  const hours = Math.round(minutes / 60);
+
+  if (Math.abs(hours) < 24) {
+    return relativeTimeFormatter.format(hours, 'hour');
+  }
+
+  const days = Math.round(hours / 24);
+
+  if (Math.abs(days) < 7) {
+    return relativeTimeFormatter.format(days, 'day');
+  }
+
+  return formatDateTime(date);
+}
