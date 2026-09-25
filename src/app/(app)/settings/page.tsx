@@ -19,6 +19,8 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     initialTab = 'team';
   } else if (tab === 'billing') {
     initialTab = 'billing';
+  } else if (tab === 'security') {
+    initialTab = 'security';
   }
 
   return <SettingsContent initialTab={initialTab} />;

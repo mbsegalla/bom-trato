@@ -1,7 +1,12 @@
 import { getApiConfig } from '@/config/api.config';
 
-import { currentUserResponseSchema, emailVerificationTokenSchema, sessionResponseSchema } from '../schemas/auth.schema';
-import type { AuthUser, SessionResponse } from '../types/auth.types';
+import {
+  authSessionsResponseSchema,
+  currentUserResponseSchema,
+  emailVerificationTokenSchema,
+  sessionResponseSchema,
+} from '../schemas/auth.schema';
+import type { AuthSession, AuthUser, SessionResponse } from '../types/auth.types';
 import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
 type Session = SessionResponse & {
@@ -24,6 +29,8 @@ let session: Session | null = null;
 let refreshFlight: Promise<Session> | null = null;
 
 let currentUserFlight: Promise<AuthUser> | null = null;
+
+let sessionsFlight: Promise<AuthSession[]> | null = null;
 
 let mutationQueue: Promise<unknown> = Promise.resolve();
 
@@ -239,6 +246,79 @@ export function getCurrentUser(): Promise<AuthUser> {
   return request;
 }
 
+async function requestSessions(): Promise<AuthSession[]> {
+  const response = await authenticatedFetch('/api/auth/sessions');
+
+  if (!response.ok) {
+    throw new SessionError('Não foi possível carregar suas sessões.', response.status);
+  }
+
+  const payload: unknown = await response.json();
+
+  const parsed = authSessionsResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new SessionError('Não foi possível interpretar suas sessões.');
+  }
+
+  return parsed.data;
+}
+
+export function listSessions(): Promise<AuthSession[]> {
+  if (sessionsFlight) {
+    return sessionsFlight;
+  }
+
+  const request = requestSessions();
+
+  sessionsFlight = request;
+
+  const cleanup = () => {
+    if (sessionsFlight === request) {
+      sessionsFlight = null;
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
+}
+
+function clearLocalSession(): void {
+  session = null;
+  refreshFlight = null;
+  currentUserFlight = null;
+  sessionsFlight = null;
+}
+
+export async function revokeSession(sessionId: string, current: boolean): Promise<void> {
+  const response = await authenticatedFetch(`/api/auth/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok && response.status !== 401) {
+    throw new SessionError('Não foi possível encerrar esta sessão.', response.status);
+  }
+
+  sessionsFlight = null;
+
+  if (current) {
+    clearLocalSession();
+  }
+}
+
+export async function logoutAll(): Promise<void> {
+  const response = await authenticatedFetch('/api/auth/logout-all', {
+    method: 'POST',
+  });
+
+  if (!response.ok && response.status !== 401) {
+    throw new SessionError('Não foi possível encerrar todas as sessões.', response.status);
+  }
+
+  clearLocalSession();
+}
+
 export async function logout(): Promise<void> {
   const response = await authenticatedFetch('/api/auth/logout', {
     method: 'POST',
@@ -248,8 +328,7 @@ export async function logout(): Promise<void> {
     throw new SessionError('Não foi possível encerrar sua sessão.', response.status);
   }
 
-  session = null;
-  currentUserFlight = null;
+  clearLocalSession();
 }
 
 async function confirm(token: string): Promise<VerificationOutcome> {
