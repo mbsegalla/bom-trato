@@ -3,7 +3,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 export function BillingSettingsSkeleton() {
   return (
     <div aria-busy="true" aria-label="Carregando assinatura" className="space-y-5">
-      <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+      <span role="status" className="sr-only">
+        Carregando assinatura...
+      </span>
+
+      <section aria-hidden="true" className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <Skeleton className="h-6 w-40 motion-reduce:animate-none" />
         <Skeleton className="mt-3 h-4 w-64 motion-reduce:animate-none" />
 
@@ -19,12 +23,12 @@ export function BillingSettingsSkeleton() {
         </div>
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div aria-hidden="true" className="grid gap-5 lg:grid-cols-2">
         <Skeleton className="h-56 rounded-2xl motion-reduce:animate-none" />
         <Skeleton className="h-56 rounded-2xl motion-reduce:animate-none" />
       </div>
 
-      <Skeleton className="h-80 rounded-2xl motion-reduce:animate-none" />
+      <Skeleton aria-hidden="true" className="h-80 rounded-2xl motion-reduce:animate-none" />
     </div>
   );
 }
