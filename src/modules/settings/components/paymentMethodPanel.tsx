@@ -3,6 +3,7 @@
 import { Elements, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { CreditCard, LoaderCircle, LockKeyhole, X } from 'lucide-react';
+import Image from 'next/image';
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
 
@@ -18,6 +19,12 @@ const stripePromise = loadStripe(getStripeConfig().publishableKey);
 interface PaymentMethodPanelProps {
   organizationId: string;
   onClose(): void;
+  onSaved(): void;
+}
+
+interface PaymentMethodFormProps {
+  organizationId: string;
+  update: PaymentMethodUpdate;
   onSaved(): void;
 }
 
@@ -153,12 +160,6 @@ export function PaymentMethodPanel({ organizationId, onClose, onSaved }: Payment
   );
 }
 
-interface PaymentMethodFormProps {
-  organizationId: string;
-  update: PaymentMethodUpdate;
-  onSaved(): void;
-}
-
 function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -227,6 +228,28 @@ function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFor
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <PaymentElement />
+
+      <div className="flex items-center justify-center gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
+        <LockKeyhole aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+
+        <span className="text-xs text-muted-foreground">Pagamento seguro</span>
+
+        <a
+          href="https://stripe.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Saiba mais sobre a Stripe"
+          className="rounded-sm opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        >
+          <Image
+            src="/stripe/powered-by-stripe.svg"
+            alt="Powered by Stripe"
+            width={88}
+            height={20}
+            className="h-5 w-auto"
+          />
+        </a>
+      </div>
 
       {error && (
         <p className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">{error}</p>
