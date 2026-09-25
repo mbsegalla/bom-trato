@@ -1,9 +1,10 @@
 'use client';
 
-import { Bell, CalendarDays, Menu } from 'lucide-react';
+import { CalendarDays, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
+import { NotificationCenter } from '@/modules/notifications/components/notificationCenter';
 import { formatLongDate } from '@/shared/formatters/date.formatter';
 
 import { useApp } from './appProvider';
@@ -42,7 +43,7 @@ function pageName(pathname: string): string {
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
   const pathname = usePathname();
 
-  const { user } = useApp();
+  const { user, activeOrganization } = useApp();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
@@ -75,9 +76,7 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
             <span className="capitalize">{formatLongDate(new Date())}</span>
           </div>
 
-          <Button type="button" variant="ghost" size="icon" aria-label="Notificações" className="cursor-pointer">
-            <Bell aria-hidden="true" className="size-5" />
-          </Button>
+          <NotificationCenter key={activeOrganization.id} organizationId={activeOrganization.id} />
 
           <div
             title={user.name}
