@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { formatBrazilianPhone, formatBrazilianPhoneInput } from '@/shared/formatters/phone.formatter';
 
 import { customerFormSchema } from '../schemas/customer.schema';
 import { createCustomer, updateCustomer } from '../services/customer.service';
@@ -29,6 +30,7 @@ function firstError(errors: string[] | undefined): string | undefined {
 export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }: CustomerFormPanelProps) {
   const submittingRef = useRef(false);
 
+  const [phone, setPhone] = useState(formatBrazilianPhone(customer?.phone));
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<CustomerFieldErrors>({});
@@ -193,10 +195,22 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                     id="customer-phone"
                     name="phone"
                     type="tel"
-                    defaultValue={customer?.phone ?? ''}
+                    inputMode="tel"
+                    value={phone}
                     autoComplete="tel"
-                    maxLength={30}
+                    maxLength={15}
+                    placeholder="(34) 99999-9999"
                     aria-invalid={fieldErrors.phone ? true : undefined}
+                    onChange={(event) => {
+                      setPhone(formatBrazilianPhoneInput(event.currentTarget.value));
+
+                      if (fieldErrors.phone) {
+                        setFieldErrors((current) => ({
+                          ...current,
+                          phone: undefined,
+                        }));
+                      }
+                    }}
                     className="h-12 rounded-xl pl-11"
                   />
                 </div>

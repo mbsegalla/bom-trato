@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import type { CustomerPage } from '@/modules/customers/types/customer.types';
 import { formatDate } from '@/shared/formatters/date.formatter';
+import { formatBrazilianPhone } from '@/shared/formatters/phone.formatter';
 
 interface CustomersTableProps {
   data: CustomerPage;
@@ -50,7 +51,7 @@ export function CustomersTable({ data, page, onPreviousPage, onNextPage }: Custo
                     {customer.phone && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Phone aria-hidden="true" className="size-3.5" />
-                        <span>{customer.phone}</span>
+                        <span>{formatBrazilianPhone(customer.phone)}</span>
                       </div>
                     )}
 
