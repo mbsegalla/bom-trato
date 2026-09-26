@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isValidBrazilianPhone, normalizeBrazilianPhone } from '@/shared/formatters/phone.formatter';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
 function nullableText(value: unknown): unknown {
@@ -17,9 +18,23 @@ const nullableEmailSchema = z.preprocess(
   z.string().email('Informe um e-mail válido.').max(254, 'O e-mail deve ter no máximo 254 caracteres.').nullable(),
 );
 
+function nullablePhone(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  return normalizeBrazilianPhone(normalized);
+}
+
 const nullablePhoneSchema = z.preprocess(
-  nullableText,
-  z.string().max(30, 'O telefone deve ter no máximo 30 caracteres.').nullable(),
+  nullablePhone,
+  z.string().refine(isValidBrazilianPhone, 'Informe um telefone válido com DDD.').nullable(),
 );
 
 const nullableNotesSchema = z.preprocess(

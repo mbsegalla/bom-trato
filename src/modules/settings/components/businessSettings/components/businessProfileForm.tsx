@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { formatBrazilianPhone, formatBrazilianPhoneInput } from '@/shared/formatters/phone.formatter';
 
 import type { BusinessProfile, OrganizationDocumentType } from '../../../types/business.types';
 import {
@@ -34,6 +35,7 @@ export function BusinessProfileForm({
 }: BusinessProfileFormProps) {
   const [documentType, setDocumentType] = useState<OrganizationDocumentType | ''>(profile.documentType ?? '');
   const [documentValue, setDocumentValue] = useState(formatBusinessDocument(profile.documentType, profile.document));
+  const [phoneValue, setPhoneValue] = useState(formatBrazilianPhone(profile.phone));
 
   function changeDocumentType(nextType: OrganizationDocumentType | ''): void {
     setDocumentType(nextType);
@@ -118,15 +120,18 @@ export function BusinessProfileForm({
 
             <div className="space-y-2">
               <Label htmlFor="business-phone">Telefone</Label>
+
               <Input
                 id="business-phone"
                 name="phone"
                 type="tel"
+                inputMode="tel"
                 autoComplete="tel"
-                defaultValue={profile.phone ?? ''}
+                value={phoneValue}
                 readOnly={!owner}
-                maxLength={30}
+                maxLength={15}
                 placeholder="(34) 99999-9999"
+                onChange={(event) => setPhoneValue(formatBrazilianPhoneInput(event.currentTarget.value))}
                 className="h-12 rounded-xl"
               />
             </div>

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { isValidBrazilianPhone, normalizeBrazilianPhone } from '@/shared/formatters/phone.formatter';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
 export const organizationDocumentTypeSchema = z.enum(['CPF', 'CNPJ']);
@@ -38,11 +39,28 @@ function nullableDigits(value: unknown): unknown {
   return normalized || null;
 }
 
+function nullablePhone(value: unknown): unknown {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const normalized = value.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  return normalizeBrazilianPhone(normalized);
+}
+
 export const businessProfileFormSchema = z
   .object({
     name: z.string().trim().min(2, 'Informe um nome com pelo menos 2 caracteres.').max(100),
     email: z.preprocess(nullableText, z.string().email('Informe um e-mail válido.').max(254).nullable()),
-    phone: z.preprocess(nullableText, z.string().max(30, 'O telefone deve ter no máximo 30 caracteres.').nullable()),
+    phone: z.preprocess(
+      nullablePhone,
+      z.string().refine(isValidBrazilianPhone, 'Informe um telefone válido com DDD.').nullable(),
+    ),
     documentType: z.preprocess((value) => (value === '' ? null : value), organizationDocumentTypeSchema.nullable()),
     document: z.preprocess(nullableDigits, z.string().nullable()),
     addressLine1: z.preprocess(
