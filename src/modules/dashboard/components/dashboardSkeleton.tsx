@@ -17,30 +17,44 @@ export function DashboardSkeleton() {
           <Skeleton className="h-12 w-40 rounded-xl motion-reduce:animate-none" />
         </div>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {Array.from({ length: 4 }, (_, index) => (
-            <div key={index} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-              <div className="flex items-center gap-3">
-                <Skeleton className="size-10 rounded-xl motion-reduce:animate-none" />
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {Array.from({ length: 3 }, (_, index) => (
+            <div key={index} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <Skeleton className="size-12 rounded-full motion-reduce:animate-none" />
 
                 <div className="flex-1">
-                  <Skeleton className="h-3 w-24 motion-reduce:animate-none" />
-                  <Skeleton className="mt-2 h-7 w-20 motion-reduce:animate-none" />
+                  <Skeleton className="h-4 w-28 motion-reduce:animate-none" />
+                  <Skeleton className="mt-3 h-7 w-32 motion-reduce:animate-none" />
+                  <Skeleton className="mt-2 h-4 w-40 max-w-full motion-reduce:animate-none" />
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="mt-5 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-5">
+            <div>
+              <Skeleton className="h-6 w-64 max-w-full motion-reduce:animate-none" />
+              <Skeleton className="mt-2 h-4 w-80 max-w-full motion-reduce:animate-none" />
+            </div>
+
+            <div className="hidden sm:block">
+              <Skeleton className="h-3 w-24 motion-reduce:animate-none" />
+              <Skeleton className="mt-2 h-6 w-32 motion-reduce:animate-none" />
+            </div>
+          </div>
+
+          <Skeleton className="mt-8 h-64 rounded-xl motion-reduce:animate-none" />
+        </div>
+
+        <div className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_1fr]">
           <Skeleton className="h-80 rounded-2xl motion-reduce:animate-none" />
           <Skeleton className="h-80 rounded-2xl motion-reduce:animate-none" />
         </div>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-2">
-          <Skeleton className="h-72 rounded-2xl motion-reduce:animate-none" />
-          <Skeleton className="h-72 rounded-2xl motion-reduce:animate-none" />
-        </div>
+        <Skeleton className="mt-5 h-64 rounded-2xl motion-reduce:animate-none" />
       </div>
     </div>
   );

@@ -66,3 +66,18 @@ export const dashboardUpcomingSchema = apiResponseSchema(
     hasMore: z.boolean(),
   }),
 );
+
+export const dashboardFinancialTrendSchema = apiResponseSchema(
+  z.object({
+    generatedAt: z.coerce.date(),
+    currency: z.literal('brl'),
+    period: dashboardPeriodSchema,
+    items: z.array(
+      z.object({
+        periodStart: z.coerce.date(),
+        count: z.number().int().nonnegative(),
+        amountInCents: z.number().int().nonnegative(),
+      }),
+    ),
+  }),
+);

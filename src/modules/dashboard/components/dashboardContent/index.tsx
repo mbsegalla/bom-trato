@@ -13,6 +13,7 @@ import type { DashboardData } from '@/modules/dashboard/types/dashboard.types';
 import { AttentionCard, type DashboardAttentionItem } from './components/attentionCard';
 import { DashboardHeader } from './components/dashboardHeader';
 import { DashboardSummaryCards } from './components/dashboardSummaryCards';
+import { FinancialTrendChart } from './components/financialTrendChart';
 import { OperationalSummary } from './components/operationalSummary';
 import { UpcomingScheduleCard } from './components/upcomingScheduleCard';
 
@@ -122,11 +123,16 @@ export function DashboardContent() {
   return (
     <div className="mx-auto max-w-7xl">
       <DashboardHeader />
+
       <DashboardSummaryCards data={data} />
+
+      <FinancialTrendChart trend={data.financialTrend} />
+
       <div className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_1fr]">
         <UpcomingScheduleCard items={data.upcoming.items} />
         <AttentionCard items={buildAttentionItems(data)} />
       </div>
+
       <OperationalSummary data={data} />
     </div>
   );

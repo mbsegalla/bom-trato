@@ -1,17 +1,36 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 
-import { dashboardFinancialSchema, dashboardSummarySchema, dashboardUpcomingSchema } from '../schemas/dashboard.schema';
-import type { DashboardData, DashboardFinancial, DashboardSummary, DashboardUpcoming } from '../types/dashboard.types';
+import {
+  dashboardFinancialSchema,
+  dashboardFinancialTrendSchema,
+  dashboardSummarySchema,
+  dashboardUpcomingSchema,
+} from '../schemas/dashboard.schema';
+import type {
+  DashboardData,
+  DashboardFinancial,
+  DashboardFinancialTrend,
+  DashboardSummary,
+  DashboardUpcoming,
+} from '../types/dashboard.types';
 
 const dashboardFlights = new Map<string, Promise<DashboardData>>();
 
-function currentMonthPeriod(): {
-  from: string;
-  to: string;
-} {
+function currentMonthPeriod(): { from: string; to: string } {
   const now = new Date();
   const from = new Date(now.getFullYear(), now.getMonth(), 1);
   const to = new Date(now.getTime() + 1000);
+
+  return {
+    from: from.toISOString(),
+    to: to.toISOString(),
+  };
+}
+
+function financialTrendPeriod(): { from: string; to: string } {
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
   return {
     from: from.toISOString(),
@@ -59,6 +78,26 @@ async function readFinancial(response: Response): Promise<DashboardFinancial> {
   return parsed.data;
 }
 
+async function readFinancialTrend(response: Response): Promise<DashboardFinancialTrend> {
+  if (response.status === 401) {
+    throw new SessionError('Sua sessão expirou. Entre novamente.', 401);
+  }
+
+  if (!response.ok) {
+    throw new Error('Não foi possível carregar a evolução dos recebimentos.');
+  }
+
+  const payload: unknown = await response.json();
+
+  const parsed = dashboardFinancialTrendSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error('Não foi possível interpretar a evolução dos recebimentos.');
+  }
+
+  return parsed.data;
+}
+
 async function readUpcoming(response: Response): Promise<DashboardUpcoming> {
   if (response.status === 401) {
     throw new SessionError('Sua sessão expirou. Entre novamente.', 401);
@@ -80,30 +119,40 @@ async function readUpcoming(response: Response): Promise<DashboardUpcoming> {
 }
 
 async function requestDashboard(organizationId: string): Promise<DashboardData> {
-  const period = currentMonthPeriod();
+  const currentPeriod = currentMonthPeriod();
 
-  const query = new URLSearchParams({
-    from: period.from,
-    to: period.to,
+  const trendPeriod = financialTrendPeriod();
+
+  const currentQuery = new URLSearchParams({
+    from: currentPeriod.from,
+    to: currentPeriod.to,
+  });
+
+  const trendQuery = new URLSearchParams({
+    from: trendPeriod.from,
+    to: trendPeriod.to,
   });
 
   const organization = encodeURIComponent(organizationId);
 
-  const [summaryResponse, financialResponse, upcomingResponse] = await Promise.all([
-    authenticatedFetch(`/api/organizations/${organization}/dashboard/summary?${query.toString()}`),
-    authenticatedFetch(`/api/organizations/${organization}/dashboard/financial?${query.toString()}`),
+  const [summaryResponse, financialResponse, financialTrendResponse, upcomingResponse] = await Promise.all([
+    authenticatedFetch(`/api/organizations/${organization}/dashboard/summary?${currentQuery.toString()}`),
+    authenticatedFetch(`/api/organizations/${organization}/dashboard/financial?${currentQuery.toString()}`),
+    authenticatedFetch(`/api/organizations/${organization}/dashboard/financial-trend?${trendQuery.toString()}`),
     authenticatedFetch(`/api/organizations/${organization}/dashboard/upcoming-work-orders?limit=5`),
   ]);
 
-  const [summary, financial, upcoming] = await Promise.all([
+  const [summary, financial, financialTrend, upcoming] = await Promise.all([
     readSummary(summaryResponse),
     readFinancial(financialResponse),
+    readFinancialTrend(financialTrendResponse),
     readUpcoming(upcomingResponse),
   ]);
 
   return {
     summary,
     financial,
+    financialTrend,
     upcoming,
   };
 }
