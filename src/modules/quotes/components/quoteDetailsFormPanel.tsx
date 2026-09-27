@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/datePicker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -132,12 +133,14 @@ export function QuoteDetailsFormPanel({ quote, onClose, onSaved }: QuoteDetailsF
               <div className="space-y-2">
                 <Label htmlFor="edit-quote-valid-until">Validade</Label>
 
-                <Input
+                <DateTimePicker
                   id="edit-quote-valid-until"
                   name="validUntil"
-                  type="datetime-local"
                   defaultValue={formatDateTimeLocalInput(quote.validUntil)}
-                  className="h-12 rounded-xl"
+                  minuteStep={15}
+                  clearable
+                  ariaInvalid={Boolean(fieldErrors.validUntil)}
+                  placeholder="Selecione a validade"
                 />
 
                 {fieldErrors.validUntil && <p className="text-sm text-destructive">{fieldErrors.validUntil}</p>}
