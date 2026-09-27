@@ -9,6 +9,7 @@ export const businessProfileSchema = z.object({
   id: z.uuid(),
   name: z.string().min(2).max(100),
   email: z.string().email().nullable(),
+  logoUrl: z.url().nullable(),
   phone: z.string().nullable(),
   documentType: organizationDocumentTypeSchema.nullable(),
   document: z.string().nullable(),

@@ -10,6 +10,7 @@ import { formatBrazilianPhone, formatBrazilianPhoneInput } from '@/shared/format
 import type { BusinessProfile, OrganizationDocumentType } from '../../../types/business.types';
 import { formatBusinessDocument, formatBusinessDocumentInput } from '../helpers/businessProfileFormatters';
 import { BusinessAddressFields } from './businessAddressFields';
+import { BusinessLogoField } from './businessLogoField';
 
 interface BusinessProfileFormProps {
   profile: BusinessProfile;
@@ -19,6 +20,7 @@ interface BusinessProfileFormProps {
   feedback: string | null;
   saveError: string | null;
   onSubmit: NonNullable<ComponentProps<'form'>['onSubmit']>;
+  onProfileChanged(profile: BusinessProfile): void;
 }
 
 export function BusinessProfileForm({
@@ -29,6 +31,7 @@ export function BusinessProfileForm({
   feedback,
   saveError,
   onSubmit,
+  onProfileChanged,
 }: BusinessProfileFormProps) {
   const [documentType, setDocumentType] = useState<OrganizationDocumentType | ''>(profile.documentType ?? '');
   const [documentValue, setDocumentValue] = useState(formatBusinessDocument(profile.documentType, profile.document));
@@ -41,6 +44,8 @@ export function BusinessProfileForm({
 
   return (
     <form onSubmit={onSubmit} aria-busy={saving || refreshing}>
+      <BusinessLogoField profile={profile} owner={owner} disabled={saving || refreshing} onChanged={onProfileChanged} />
+
       <section
         className={
           refreshing

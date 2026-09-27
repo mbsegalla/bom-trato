@@ -91,6 +91,15 @@ function OrganizationBusinessSettings({
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
   const refreshing = state !== null && state.requestKey !== requestKey;
 
+  function applyProfile(updated: BusinessProfile): void {
+    setState({
+      requestKey,
+      data: updated,
+    });
+
+    onOrganizationNameChanged(updated.name);
+  }
+
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
@@ -124,8 +133,7 @@ function OrganizationBusinessSettings({
     try {
       const updated = await updateBusinessProfile(organizationId, parsed.data);
 
-      setState({ requestKey, data: updated });
-      onOrganizationNameChanged(updated.name);
+      applyProfile(updated);
       setFeedback('Dados do negócio atualizados com sucesso.');
     } catch (cause: unknown) {
       if (cause instanceof SessionError && cause.status === 401) {
@@ -165,6 +173,7 @@ function OrganizationBusinessSettings({
   const profileKey = JSON.stringify([
     profile.id,
     profile.name,
+    profile.logoUrl,
     profile.email,
     profile.phone,
     profile.documentType,
@@ -186,6 +195,7 @@ function OrganizationBusinessSettings({
       feedback={feedback}
       saveError={saveError}
       onSubmit={handleSubmit}
+      onProfileChanged={applyProfile}
     />
   );
 }
