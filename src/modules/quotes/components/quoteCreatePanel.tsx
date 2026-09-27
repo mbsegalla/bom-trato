@@ -1,6 +1,6 @@
 'use client';
 
-import { CalendarDays, FileText, LoaderCircle, Search, StickyNote, UserRound, X } from 'lucide-react';
+import { FileText, LoaderCircle, Search, StickyNote, UserRound, X } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { InlineOptionsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/datePicker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -260,22 +261,21 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
               <div className="space-y-2">
                 <Label htmlFor="quote-valid-until">Validade</Label>
 
-                <div className="relative">
-                  <CalendarDays
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-                  />
+                <DateTimePicker
+                  id="quote-valid-until"
+                  name="validUntil"
+                  defaultValue={defaultValidity}
+                  minuteStep={15}
+                  clearable
+                  ariaInvalid={Boolean(fieldErrors.validUntil)}
+                  placeholder="Selecione a validade"
+                />
 
-                  <Input
-                    id="quote-valid-until"
-                    name="validUntil"
-                    type="datetime-local"
-                    defaultValue={defaultValidity}
-                    className="h-12 rounded-xl pl-11"
-                  />
-                </div>
-
-                {fieldErrors.validUntil && <p className="text-sm text-destructive">{fieldErrors.validUntil}</p>}
+                {fieldErrors.validUntil && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fieldErrors.validUntil}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">

@@ -5,7 +5,7 @@ import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { DateTimePicker } from '@/components/ui/datePicker';
 import { Label } from '@/components/ui/label';
 import { formatDateTimeLocalInput } from '@/shared/formatters/date.formatter';
 
@@ -106,12 +106,13 @@ export function WorkOrderSchedulePanel({ workOrder, onClose, onSaved }: WorkOrde
               <div className="space-y-2">
                 <Label htmlFor="scheduled-start">Início *</Label>
 
-                <Input
+                <DateTimePicker
                   id="scheduled-start"
                   name="scheduledStartAt"
-                  type="datetime-local"
                   defaultValue={formatDateTimeLocalInput(workOrder.scheduledStartAt)}
-                  className="h-12 rounded-xl"
+                  minuteStep={15}
+                  ariaInvalid={Boolean(fieldErrors.scheduledStartAt)}
+                  placeholder="Selecione o início"
                 />
 
                 {fieldErrors.scheduledStartAt && (
@@ -122,12 +123,13 @@ export function WorkOrderSchedulePanel({ workOrder, onClose, onSaved }: WorkOrde
               <div className="space-y-2">
                 <Label htmlFor="scheduled-end">Término *</Label>
 
-                <Input
+                <DateTimePicker
                   id="scheduled-end"
                   name="scheduledEndAt"
-                  type="datetime-local"
                   defaultValue={formatDateTimeLocalInput(workOrder.scheduledEndAt)}
-                  className="h-12 rounded-xl"
+                  minuteStep={15}
+                  ariaInvalid={Boolean(fieldErrors.scheduledEndAt)}
+                  placeholder="Selecione o término"
                 />
 
                 {fieldErrors.scheduledEndAt && <p className="text-sm text-destructive">{fieldErrors.scheduledEndAt}</p>}

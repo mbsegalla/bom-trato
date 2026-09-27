@@ -5,7 +5,7 @@ import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/datePicker';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDateInput } from '@/shared/formatters/date.formatter';
@@ -82,12 +82,11 @@ export function ReceivableEditPanel({ receivable, onClose, onSaved }: Receivable
               <div className="space-y-2">
                 <Label htmlFor="receivable-due-at">Vencimento *</Label>
 
-                <Input
+                <DatePicker
                   id="receivable-due-at"
                   name="dueAt"
-                  type="date"
                   defaultValue={formatDateInput(receivable.dueAt)}
-                  className="h-12 rounded-xl"
+                  placeholder="Selecione o vencimento"
                 />
               </div>
 

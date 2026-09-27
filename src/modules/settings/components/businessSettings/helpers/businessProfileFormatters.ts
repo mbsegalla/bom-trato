@@ -1,7 +1,10 @@
 import type { OrganizationDocumentType } from '../../../types/business.types';
 
 export function formatBusinessDocument(type: OrganizationDocumentType | null, value: string | null): string {
-  if (!value || !type) return '';
+  if (!value || !type) {
+    return '';
+  }
+
   return formatBusinessDocumentInput(type, value);
 }
 
@@ -26,9 +29,4 @@ export function formatBusinessDocumentInput(type: OrganizationDocumentType | '',
   }
 
   return '';
-}
-
-export function formatBusinessPostalCode(value: string | null): string {
-  if (!value) return '';
-  return value.replace(/^(\d{5})(\d{3})$/, '$1-$2');
 }

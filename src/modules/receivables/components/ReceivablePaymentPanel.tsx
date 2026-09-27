@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/datePicker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -147,13 +148,13 @@ export function ReceivablePaymentPanel({ receivable, onClose, onSaved }: Receiva
               <div className="space-y-2">
                 <Label htmlFor="payment-received-at">Recebido em *</Label>
 
-                <Input
+                <DateTimePicker
                   id="payment-received-at"
                   name="receivedAt"
-                  type="datetime-local"
                   defaultValue={formatDateTimeLocalInput(new Date())}
-                  onChange={renewRequestId}
-                  className="h-12 rounded-xl"
+                  minuteStep={5}
+                  onValueChange={renewRequestId}
+                  placeholder="Selecione quando recebeu"
                 />
               </div>
 
