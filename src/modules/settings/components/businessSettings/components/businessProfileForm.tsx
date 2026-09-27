@@ -8,11 +8,8 @@ import { Label } from '@/components/ui/label';
 import { formatBrazilianPhone, formatBrazilianPhoneInput } from '@/shared/formatters/phone.formatter';
 
 import type { BusinessProfile, OrganizationDocumentType } from '../../../types/business.types';
-import {
-  formatBusinessDocument,
-  formatBusinessDocumentInput,
-  formatBusinessPostalCode,
-} from '../helpers/businessProfileFormatters';
+import { formatBusinessDocument, formatBusinessDocumentInput } from '../helpers/businessProfileFormatters';
+import { BusinessAddressFields } from './businessAddressFields';
 
 interface BusinessProfileFormProps {
   profile: BusinessProfile;
@@ -177,74 +174,7 @@ export function BusinessProfileForm({
               />
             </div>
 
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="business-address-line-1">Endereço</Label>
-              <Input
-                id="business-address-line-1"
-                name="addressLine1"
-                autoComplete="street-address"
-                defaultValue={profile.addressLine1 ?? ''}
-                readOnly={!owner}
-                maxLength={150}
-                placeholder="Rua, avenida, número"
-                className="h-12 rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="business-address-line-2">Complemento</Label>
-              <Input
-                id="business-address-line-2"
-                name="addressLine2"
-                defaultValue={profile.addressLine2 ?? ''}
-                readOnly={!owner}
-                maxLength={100}
-                placeholder="Sala, bloco, referência"
-                className="h-12 rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="business-city">Cidade</Label>
-              <Input
-                id="business-city"
-                name="city"
-                autoComplete="address-level2"
-                defaultValue={profile.city ?? ''}
-                readOnly={!owner}
-                maxLength={100}
-                className="h-12 rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="business-state">Estado</Label>
-              <Input
-                id="business-state"
-                name="state"
-                autoComplete="address-level1"
-                defaultValue={profile.state ?? ''}
-                readOnly={!owner}
-                maxLength={2}
-                placeholder="MG"
-                className="h-12 rounded-xl uppercase"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="business-postal-code">CEP</Label>
-              <Input
-                id="business-postal-code"
-                name="postalCode"
-                inputMode="numeric"
-                autoComplete="postal-code"
-                defaultValue={formatBusinessPostalCode(profile.postalCode)}
-                readOnly={!owner}
-                maxLength={9}
-                placeholder="00000-000"
-                className="h-12 rounded-xl"
-              />
-            </div>
+            <BusinessAddressFields profile={profile} owner={owner} />
           </div>
 
           {owner && (

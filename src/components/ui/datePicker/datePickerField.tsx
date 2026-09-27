@@ -159,20 +159,16 @@ export function DatePickerField({
     }
 
     document.addEventListener('pointerdown', handlePointerDown);
-
     document.addEventListener('keydown', handleKeyDown);
 
     window.addEventListener('resize', handleViewportChange);
-
     window.addEventListener('scroll', handleViewportChange, true);
 
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
-
       document.removeEventListener('keydown', handleKeyDown);
 
       window.removeEventListener('resize', handleViewportChange);
-
       window.removeEventListener('scroll', handleViewportChange, true);
     };
   }, [open, updatePosition]);
