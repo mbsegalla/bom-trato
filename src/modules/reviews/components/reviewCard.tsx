@@ -18,24 +18,19 @@ export function ReviewCard({ reviewerDisplayName, rating, comment, createdAt }: 
 
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             <BadgeCheck className="size-3.5 text-primary" />
-            Avaliação verificada
+            Serviço verificado
           </p>
         </div>
 
         <div className="flex" aria-label={`${rating} de 5 estrelas`}>
-          {Array.from(
-            {
-              length: 5,
-            },
-            (_, index) => (
-              <Star
-                key={index}
-                aria-hidden="true"
-                fill={index < rating ? 'currentColor' : 'none'}
-                className={index < rating ? 'size-4 text-primary' : 'size-4 text-muted-foreground/40'}
-              />
-            ),
-          )}
+          {Array.from({ length: 5 }, (_, index) => (
+            <Star
+              key={index}
+              aria-hidden="true"
+              fill={index < rating ? 'currentColor' : 'none'}
+              className={index < rating ? 'size-4 text-primary' : 'size-4 text-muted-foreground/40'}
+            />
+          ))}
         </div>
       </div>
 

@@ -86,11 +86,11 @@ export function ReceivableReversePaymentDialog({
           {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
 
           <div className="mt-6 flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" className="cursor-pointer" onClick={onClose}>
               Voltar
             </Button>
 
-            <Button type="submit" variant="destructive" disabled={submitting}>
+            <Button type="submit" variant="destructive" className="cursor-pointer" disabled={submitting}>
               {submitting && <LoaderCircle className="size-4 animate-spin" />}
               Estornar pagamento
             </Button>
