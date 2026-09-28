@@ -8,6 +8,7 @@ import { PricingSectionSkeleton } from '@/modules/marketing/components/pricingSe
 import { ProductPreview } from '@/modules/marketing/components/productPreview';
 import { PublicPricingSection } from '@/modules/marketing/components/publicPricingSection';
 import { marketingFaqs } from '@/modules/marketing/data/marketing.data';
+import { FeaturedProfessionalsSection } from '@/modules/publicProfiles/components/featuredProfessionalsSection';
 
 export const metadata: Metadata = {
   title: 'Bom Trato | Gestão para quem presta serviços',
@@ -129,6 +130,10 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <Suspense fallback={null}>
+          <FeaturedProfessionalsSection />
+        </Suspense>
 
         <section id="how-it-works" className="scroll-mt-24 px-4 py-8 sm:px-6 lg:px-10">
           <div className="mx-auto max-w-7xl rounded-[2rem] bg-brand px-6 py-12 text-brand-foreground sm:px-10 sm:py-16 lg:px-14">

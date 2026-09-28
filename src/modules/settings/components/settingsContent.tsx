@@ -1,16 +1,17 @@
 'use client';
 
-import { Building2, CreditCard, ShieldCheck, Users } from 'lucide-react';
+import { Building2, CreditCard, ShieldCheck, Store, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 
 import { BusinessSettings } from './businessSettings';
+import { PublicProfileSettings } from './publicProfileSettings';
 import { SecuritySettings } from './securitySettings';
 import { SubscriptionSettings } from './subscriptionSettings';
 import { TeamSettings } from './teamSettings';
 
-export type SettingsTab = 'business' | 'team' | 'billing' | 'security';
+export type SettingsTab = 'business' | 'showcase' | 'team' | 'billing' | 'security';
 
 interface SettingsContentProps {
   initialTab: SettingsTab;
@@ -34,7 +35,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Configurações</h1>
 
-        <p className="mt-2 text-muted-foreground">Gerencie seu negócio, equipe, assinatura e segurança.</p>
+        <p className="mt-2 text-muted-foreground">Gerencie seu negócio, vitrine, equipe, assinatura e segurança.</p>
       </div>
 
       <div className="mt-8 flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">
@@ -46,6 +47,16 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         >
           <Building2 className="size-4" />
           Negócio
+        </Button>
+
+        <Button
+          type="button"
+          variant={tab === 'showcase' ? 'default' : 'ghost'}
+          onClick={() => changeTab('showcase')}
+          className="cursor-pointer rounded-lg"
+        >
+          <Store className="size-4" />
+          Vitrine
         </Button>
 
         <Button
@@ -81,6 +92,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
 
       <div className="mt-6">
         {tab === 'business' && <BusinessSettings />}
+        {tab === 'showcase' && <PublicProfileSettings />}
         {tab === 'team' && <TeamSettings />}
         {tab === 'billing' && <SubscriptionSettings />}
         {tab === 'security' && <SecuritySettings />}

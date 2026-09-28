@@ -15,7 +15,9 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
 
   let initialTab: SettingsTab = 'business';
 
-  if (tab === 'team') {
+  if (tab === 'showcase') {
+    initialTab = 'showcase';
+  } else if (tab === 'team') {
     initialTab = 'team';
   } else if (tab === 'billing') {
     initialTab = 'billing';
