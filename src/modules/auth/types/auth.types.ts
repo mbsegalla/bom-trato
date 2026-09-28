@@ -3,7 +3,12 @@ import type { z } from 'zod';
 import type { PlanPrice } from '@/modules/plans/types/plan.types';
 import type { ServiceResult } from '@/shared/types/serviceResult';
 
-import type { authSessionSchema, currentUserResponseSchema, sessionResponseSchema } from '../schemas/auth.schema';
+import type {
+  authProviderSchema,
+  authSessionSchema,
+  currentUserResponseSchema,
+  sessionResponseSchema,
+} from '../schemas/auth.schema';
 
 export interface RegisterInput {
   name: string;
@@ -37,3 +42,5 @@ export type ResetPasswordResult = ServiceResult<
   Record<never, never>,
   { invalidToken?: boolean; rateLimited?: boolean }
 >;
+
+export type AuthProvider = z.infer<typeof authProviderSchema>;
