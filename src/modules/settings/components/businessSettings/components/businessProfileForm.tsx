@@ -43,7 +43,7 @@ export function BusinessProfileForm({
   }
 
   return (
-    <form onSubmit={onSubmit} aria-busy={saving || refreshing}>
+    <form onSubmit={onSubmit} aria-busy={saving || refreshing} className="flex flex-col gap-6">
       <BusinessLogoField profile={profile} owner={owner} disabled={saving || refreshing} onChanged={onProfileChanged} />
 
       <section

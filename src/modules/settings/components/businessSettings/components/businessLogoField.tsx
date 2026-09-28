@@ -128,7 +128,14 @@ export function BusinessLogoField({ profile, owner, disabled = false, onChanged 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
           <div className="flex h-28 w-36 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-muted/30">
             {logoUrl ? (
-              <Image src={logoUrl} alt={`Logo de ${profile.name}`} className="h-full w-full object-contain p-2" />
+              <Image
+                src={logoUrl}
+                alt={`Logo de ${profile.name}`}
+                width={144}
+                height={112}
+                unoptimized={logoUrl.startsWith('blob:')}
+                className="h-full w-full object-contain p-2"
+              />
             ) : (
               <ImageIcon aria-hidden="true" className="size-9 text-muted-foreground" />
             )}

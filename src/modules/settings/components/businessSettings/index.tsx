@@ -26,14 +26,19 @@ interface BusinessErrorState {
 }
 
 export function BusinessSettings() {
-  const { activeOrganization, updateActiveOrganizationName } = useApp();
+  const { activeOrganization, updateActiveOrganization } = useApp();
 
   return (
     <OrganizationBusinessSettings
       key={activeOrganization.id}
       organizationId={activeOrganization.id}
       owner={activeOrganization.role === 'OWNER'}
-      onOrganizationNameChanged={updateActiveOrganizationName}
+      onOrganizationChanged={(profile) =>
+        updateActiveOrganization({
+          name: profile.name,
+          logoUrl: profile.logoUrl,
+        })
+      }
     />
   );
 }
@@ -41,11 +46,11 @@ export function BusinessSettings() {
 function OrganizationBusinessSettings({
   organizationId,
   owner,
-  onOrganizationNameChanged,
+  onOrganizationChanged,
 }: {
   organizationId: string;
   owner: boolean;
-  onOrganizationNameChanged(name: string): void;
+  onOrganizationChanged(profile: BusinessProfile): void;
 }) {
   const router = useRouter();
   const submittingRef = useRef(false);
@@ -91,13 +96,13 @@ function OrganizationBusinessSettings({
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
   const refreshing = state !== null && state.requestKey !== requestKey;
 
-  function applyProfile(updated: BusinessProfile): void {
+  function applyProfile(profile: BusinessProfile): void {
     setState({
       requestKey,
-      data: updated,
+      data: profile,
     });
 
-    onOrganizationNameChanged(updated.name);
+    onOrganizationChanged(profile);
   }
 
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {

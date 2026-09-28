@@ -7,6 +7,7 @@ export const organizationRoleSchema = z.enum(['OWNER', 'MEMBER']);
 export const joinedOrganizationSchema = z.object({
   id: z.uuid(),
   name: z.string().min(1),
+  logoUrl: z.url().nullable(),
   role: organizationRoleSchema,
 });
 

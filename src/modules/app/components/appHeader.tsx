@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { NotificationCenter } from '@/modules/notifications/components/notificationCenter';
+import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
 import { formatLongDate } from '@/shared/formatters/date.formatter';
 
 import { useApp } from './appProvider';
@@ -25,15 +26,6 @@ const pageNames: Record<string, string> = {
   '/billing': 'Faturamento',
 };
 
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
-}
-
 function pageName(pathname: string): string {
   const match = Object.entries(pageNames).find(([path]) => pathname === path || pathname.startsWith(`${path}/`));
 
@@ -43,7 +35,7 @@ function pageName(pathname: string): string {
 export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
   const pathname = usePathname();
 
-  const { user, activeOrganization } = useApp();
+  const { activeOrganization } = useApp();
 
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
@@ -78,12 +70,12 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
 
           <NotificationCenter key={activeOrganization.id} organizationId={activeOrganization.id} />
 
-          <div
-            title={user.name}
-            className="flex size-10 items-center justify-center rounded-full bg-brand-muted text-sm font-semibold text-primary"
-          >
-            {initials(user.name)}
-          </div>
+          <OrganizationLogo
+            name={activeOrganization.name}
+            logoUrl={activeOrganization.logoUrl}
+            variant="initials"
+            className="rounded-full"
+          />
         </div>
       </div>
     </header>
