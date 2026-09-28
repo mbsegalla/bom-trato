@@ -2,6 +2,7 @@ import { ArrowRight, MapPin, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 
 import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
+import { RatingSummary } from '@/modules/reviews/components/ratingSummary';
 
 import { getPublicWhatsappUrl } from '../services/publicDirectory.service';
 import type { PublicProfessionalCard as Professional } from '../types/publicProfile.types';
@@ -26,7 +27,11 @@ export function ProfessionalCard({ professional }: ProfessionalCardProps) {
         </div>
       </div>
 
-      <p className="mt-5 line-clamp-2 min-h-12 text-sm leading-relaxed text-muted-foreground">
+      <div className="mt-4">
+        <RatingSummary average={professional.ratingAverage} count={professional.ratingCount} compact />
+      </div>
+
+      <p className="mt-4 line-clamp-2 min-h-12 text-sm leading-relaxed text-muted-foreground">
         {professional.headline ?? 'Profissional disponível no Bom Trato.'}
       </p>
 

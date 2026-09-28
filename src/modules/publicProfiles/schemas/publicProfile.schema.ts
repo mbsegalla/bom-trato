@@ -75,12 +75,24 @@ export const publicProfessionalCardSchema = z.object({
   city: z.string(),
   state: z.string(),
   whatsappAvailable: z.boolean(),
+  ratingAverage: z.number().min(1).max(5).nullable(),
+  ratingCount: z.number().int().nonnegative(),
   services: z.array(publicProfessionalServiceSchema),
+});
+
+export const publicProfessionalReviewSchema = z.object({
+  id: z.uuid(),
+  reviewerDisplayName: z.string(),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  verified: z.literal(true),
 });
 
 export const publicProfessionalSchema = publicProfessionalCardSchema.extend({
   description: z.string().nullable(),
   services: z.array(publicProfessionalDetailedServiceSchema),
+  reviews: z.array(publicProfessionalReviewSchema),
 });
 
 export const publicProfileSettingsResponseSchema = apiResponseSchema(publicProfileSettingsSchema);

@@ -10,6 +10,8 @@ import {
   getPublicWhatsappUrl,
   PublicDirectoryError,
 } from '@/modules/publicProfiles/services/publicDirectory.service';
+import { RatingSummary } from '@/modules/reviews/components/ratingSummary';
+import { ReviewCard } from '@/modules/reviews/components/reviewCard';
 
 interface ProfessionalPageProps {
   params: Promise<{ slug: string }>;
@@ -80,6 +82,10 @@ export default async function ProfessionalPage({ params }: ProfessionalPageProps
                 </p>
               </div>
 
+              <div className="mt-4">
+                <RatingSummary average={professional.ratingAverage} count={professional.ratingCount} />
+              </div>
+
               {professional.whatsappAvailable && (
                 <a
                   href={getPublicWhatsappUrl(professional.slug)}
@@ -124,6 +130,34 @@ export default async function ProfessionalPage({ params }: ProfessionalPageProps
                 </div>
               </div>
             )}
+
+            <div className="mt-10 border-t border-border pt-8">
+              <div>
+                <h2 className="text-xl font-semibold">Avaliações</h2>
+
+                <div className="mt-2">
+                  <RatingSummary average={professional.ratingAverage} count={professional.ratingCount} />
+                </div>
+              </div>
+
+              {professional.reviews.length === 0 ? (
+                <p className="mt-6 rounded-2xl bg-muted/40 p-5 text-sm text-muted-foreground">
+                  Este profissional ainda não recebeu avaliações verificadas.
+                </p>
+              ) : (
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {professional.reviews.map((review) => (
+                    <ReviewCard
+                      key={review.id}
+                      reviewerDisplayName={review.reviewerDisplayName}
+                      rating={review.rating}
+                      comment={review.comment}
+                      createdAt={review.createdAt}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
         </div>
       </main>
