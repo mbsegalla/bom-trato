@@ -47,3 +47,11 @@ export const authSessionSchema = z.object({
 });
 
 export const authSessionsResponseSchema = apiResponseSchema(z.array(authSessionSchema));
+
+export const authProviderSchema = z.enum(['GOOGLE']);
+
+export const authIdentitiesResponseSchema = apiResponseSchema(
+  z.object({
+    providers: z.array(authProviderSchema),
+  }),
+);

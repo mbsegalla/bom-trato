@@ -11,8 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 import { registerUser } from '../services/auth.service';
+import { loginWithGoogle, SessionError } from '../services/session.service';
 import type { RegisterFormProps } from '../types/auth.types';
 import { getPasswordRequirements, isPasswordValid } from '../utils/passwordPolicy';
+import { AuthMethodDivider } from './authMethodDivider';
+import { GoogleSignInButton } from './googleSignInButton';
 
 export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const router = useRouter();
@@ -24,8 +27,30 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleSubmitting, setGoogleSubmitting] = useState(false);
+
+  const busy = isSubmitting || googleSubmitting;
 
   const loginHref = '/login';
+
+  async function handleGoogleCredential(credential: string): Promise<void> {
+    if (busy) {
+      return;
+    }
+
+    setGoogleSubmitting(true);
+    setError(null);
+
+    try {
+      await loginWithGoogle(credential, selectedPlan?.price.id ?? null);
+
+      router.replace('/dashboard');
+    } catch (cause: unknown) {
+      setError(cause instanceof SessionError ? cause.message : 'Não foi possível continuar com Google.');
+    } finally {
+      setGoogleSubmitting(false);
+    }
+  }
 
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
@@ -122,13 +147,24 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
         </div>
       )}
 
+      <div className="mt-7 space-y-5">
+        <GoogleSignInButton
+          text="continue_with"
+          disabled={busy}
+          onCredential={(credential) => void handleGoogleCredential(credential)}
+          onError={() => setError('Não foi possível abrir o cadastro com Google.')}
+        />
+
+        <AuthMethodDivider />
+      </div>
+
       <form
         onSubmit={handleSubmit}
         aria-busy={isSubmitting}
         aria-describedby={error ? 'register-error' : undefined}
-        className="mt-7"
+        className="mt-5"
       >
-        <fieldset disabled={isSubmitting} className="space-y-4">
+        <fieldset disabled={busy} className="space-y-4">
           <legend className="sr-only">Dados da conta</legend>
 
           <div className="space-y-2">

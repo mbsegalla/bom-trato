@@ -10,6 +10,7 @@ import { listSessions, logoutAll, revokeSession, SessionError } from '@/modules/
 import type { AuthSession } from '@/modules/auth/types/auth.types';
 
 import { SecuritySettingsSkeleton } from '../securitySettingsSkeleton';
+import { GoogleAccountCard } from './components/googleAccountCard';
 import { LogoutAllSessionsCard } from './components/logoutAllSessionsCard';
 import { SessionList } from './components/sessionList';
 
@@ -121,7 +122,7 @@ export function SecuritySettings() {
   }
 
   if (!sessions && !error) {
-    <SecuritySettingsSkeleton />;
+    return <SecuritySettingsSkeleton />;
   }
 
   if (!sessions && error) {
@@ -159,11 +160,15 @@ export function SecuritySettings() {
             {actionError}
           </p>
         )}
+
+        <GoogleAccountCard />
+
         <SessionList
           sessions={sessions}
           disabled={actionLoading}
           onRevoke={(session) => setConfirmation({ type: 'session', session })}
         />
+
         <LogoutAllSessionsCard disabled={actionLoading} onLogoutAll={() => setConfirmation({ type: 'all' })} />
       </div>
 

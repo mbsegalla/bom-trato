@@ -22,7 +22,7 @@ export type VerificationOutcome =
       email: string;
     };
 
-type SessionOperation = 'login' | 'refresh' | 'verify';
+type SessionOperation = 'login' | 'google' | 'refresh' | 'verify';
 
 let session: Session | null = null;
 
@@ -44,11 +44,30 @@ export class SessionError extends Error {
     message: string,
     readonly status = 0,
     readonly uncertain = false,
+    readonly code?: string,
   ) {
     super(message);
 
     this.name = 'SessionError';
   }
+}
+
+async function readErrorCode(response: Response): Promise<string | undefined> {
+  const payload: unknown = await response.json().catch(() => null);
+
+  if (typeof payload !== 'object' || payload === null || !('error' in payload)) {
+    return undefined;
+  }
+
+  const error = Reflect.get(payload, 'error');
+
+  if (typeof error !== 'object' || error === null || !('code' in error)) {
+    return undefined;
+  }
+
+  const code = Reflect.get(error, 'code');
+
+  return typeof code === 'string' ? code : undefined;
 }
 
 function serialized<T>(operation: () => Promise<T>): Promise<T> {
@@ -59,9 +78,29 @@ function serialized<T>(operation: () => Promise<T>): Promise<T> {
   return pending;
 }
 
-function sessionErrorMessage(status: number, operation: SessionOperation): string {
+function sessionErrorMessage(status: number, operation: SessionOperation, code?: string): string {
+  if (code === 'GOOGLE_ACCOUNT_LINK_REQUIRED') {
+    return 'Sua conta já existe no Bom Trato.';
+  }
+
+  if (code === 'GOOGLE_EMAIL_MISMATCH') {
+    return 'Use a conta Google com o mesmo e-mail da sua conta Bom Trato.';
+  }
+
+  if (code === 'GOOGLE_IDENTITY_IN_USE' || code === 'GOOGLE_PROVIDER_ALREADY_LINKED') {
+    return 'Esta conta Google já está vinculada.';
+  }
+
   if (status === 429) {
     return 'Muitas tentativas. Aguarde antes de tentar novamente.';
+  }
+
+  if (operation === 'google') {
+    if (status === 401 || status === 403) {
+      return 'Não foi possível validar sua conta Google.';
+    }
+
+    return 'Não foi possível entrar com Google. Tente novamente.';
   }
 
   if (operation === 'login') {
@@ -131,7 +170,14 @@ async function requestSession(path: string, operation: SessionOperation, body?: 
   }
 
   if (!response.ok) {
-    throw new SessionError(sessionErrorMessage(response.status, operation), response.status, response.status >= 500);
+    const code = await readErrorCode(response);
+
+    throw new SessionError(
+      sessionErrorMessage(response.status, operation, code),
+      response.status,
+      response.status >= 500,
+      code,
+    );
   }
 
   const payload: unknown = await response.json().catch(() => null);
@@ -155,6 +201,15 @@ export function login(email: string, password: string): Promise<void> {
     await requestSession('/api/auth/login', 'login', {
       email,
       password,
+    });
+  });
+}
+
+export function loginWithGoogle(credential: string, selectedPlanPriceId?: string | null): Promise<void> {
+  return serialized(async () => {
+    await requestSession('/api/auth/google', 'google', {
+      credential,
+      selectedPlanPriceId: selectedPlanPriceId ?? null,
     });
   });
 }
