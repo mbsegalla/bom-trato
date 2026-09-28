@@ -1,5 +1,6 @@
-import { ChevronDown, Store } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
+import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
 import type { JoinedOrganization } from '@/modules/organizations/types/organization.types';
 
 import { getOrganizationRoleLabel } from '../helpers/appSidebar.helper';
@@ -21,20 +22,19 @@ export function OrganizationSwitcher({
     <div className="px-4 pb-5">
       <div className="relative rounded-2xl border border-sidebar-border bg-background p-3">
         <div className="flex items-center gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-muted text-primary">
-            <Store aria-hidden="true" className="size-5" />
-          </div>
+          <OrganizationLogo name={activeOrganization.name} logoUrl={activeOrganization.logoUrl} variant="store" />
 
           <div className="min-w-0 flex-1">
             <label htmlFor="active-organization" className="sr-only">
               Negócio ativo
             </label>
+
             <div className="relative">
               <select
                 id="active-organization"
                 value={activeOrganization.id}
                 disabled={switching}
-                onChange={(event) => onSwitch(event.target.value)}
+                onChange={(event) => onSwitch(event.currentTarget.value)}
                 className="w-full cursor-pointer appearance-none truncate bg-transparent pr-6 text-sm font-semibold outline-none disabled:cursor-wait"
               >
                 {organizations.map((organization) => (
@@ -51,6 +51,7 @@ export function OrganizationSwitcher({
                 />
               )}
             </div>
+
             <p className="mt-0.5 text-xs text-muted-foreground">{getOrganizationRoleLabel(activeOrganization.role)}</p>
           </div>
         </div>

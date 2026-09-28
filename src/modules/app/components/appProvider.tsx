@@ -17,13 +17,15 @@ import type { JoinedOrganization } from '@/modules/organizations/types/organizat
 import { AppBootstrapSkeleton } from './appBootstrapSkeleton';
 import { AppShell } from './appShell';
 
+type ActiveOrganizationPatch = Partial<Pick<JoinedOrganization, 'name' | 'logoUrl'>>;
+
 interface AppContextValue {
   user: AuthUser;
   organizations: JoinedOrganization[];
   activeOrganization: JoinedOrganization;
   switchingOrganization: boolean;
   switchOrganization(organizationId: string): Promise<void>;
-  updateActiveOrganizationName(name: string): void;
+  updateActiveOrganization(patch: ActiveOrganizationPatch): void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -64,6 +66,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
         if (joinedOrganizations.length === 0) {
           router.replace('/onboarding');
+
           return;
         }
 
@@ -85,6 +88,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
           if (onboarding.step === 'APP') {
             availableOrganization = organization;
+
             break;
           }
         }
@@ -95,6 +99,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
         if (availableOrganization === null) {
           router.replace('/onboarding');
+
           return;
         }
 
@@ -110,6 +115,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
         if (cause instanceof SessionError && cause.status === 401) {
           router.replace('/login');
+
           return;
         }
 
@@ -142,11 +148,11 @@ export function AppProvider({ children }: AppProviderProps) {
 
       if (onboarding.step !== 'APP') {
         router.replace('/onboarding');
+
         return;
       }
 
       storeActiveOrganizationId(organization.id);
-
       setActiveOrganization(organization);
 
       router.replace('/dashboard');
@@ -155,17 +161,19 @@ export function AppProvider({ children }: AppProviderProps) {
     }
   }
 
-  function updateActiveOrganizationName(name: string): void {
+  function updateActiveOrganization(patch: ActiveOrganizationPatch): void {
     if (!activeOrganization) {
       return;
     }
 
+    const organizationId = activeOrganization.id;
+
     setOrganizations((current) =>
       current.map((organization) =>
-        organization.id === activeOrganization.id
+        organization.id === organizationId
           ? {
               ...organization,
-              name,
+              ...patch,
             }
           : organization,
       ),
@@ -175,7 +183,7 @@ export function AppProvider({ children }: AppProviderProps) {
       current
         ? {
             ...current,
-            name,
+            ...patch,
           }
         : current,
     );
@@ -215,7 +223,7 @@ export function AppProvider({ children }: AppProviderProps) {
         activeOrganization,
         switchingOrganization,
         switchOrganization,
-        updateActiveOrganizationName,
+        updateActiveOrganization,
       }}
     >
       <AppShell>{children}</AppShell>
