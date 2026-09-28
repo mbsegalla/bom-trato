@@ -1,4 +1,5 @@
-import { ArrowRight, Link } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 import { getPublicProfessionals } from '../services/publicDirectory.service';
 import { ProfessionalCard } from './professionalCard';
@@ -13,25 +14,29 @@ export async function FeaturedProfessionalsSection() {
     return null;
   }
 
-  console.log('asadadsdas', page);
-
   return (
-    <section className="px-6 py-20 sm:py-24 lg:px-10">
+    <section
+      id="professionals"
+      className="scroll-mt-24 border-y border-border bg-muted/20 px-6 py-20 sm:py-24 lg:px-10"
+    >
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-widest text-primary uppercase">Profissionais no Bom Trato</p>
+            <p className="text-xs font-semibold tracking-widest text-primary uppercase">Profissionais em destaque</p>
 
             <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-              Encontre quem faz bem feito.
+              Quem faz bem feito merece ser encontrado.
             </h2>
 
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Conheça profissionais e negócios que usam o Bom Trato para organizar seus serviços.
+              Conheça profissionais com avaliações verificadas por serviços realizados através do Bom Trato.
             </p>
           </div>
 
-          <Link href="/profissionais" className="inline-flex min-h-11 items-center gap-2 font-medium text-primary">
+          <Link
+            href="/profissionais"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary"
+          >
             Ver todos os profissionais
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>

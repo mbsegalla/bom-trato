@@ -2,6 +2,7 @@ import { CalendarClock, Check, Pencil, Play, Users, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { WorkOrderReceivableAction } from '@/modules/receivables/components/workOrderReceivableAction';
+import { WorkOrderReviewAction } from '@/modules/reviews/components/workOrderReviewAction';
 import { formatDate } from '@/shared/formatters/date.formatter';
 
 import { canCancelWorkOrder } from '../../../constants/workOrder.constants';
@@ -80,11 +81,15 @@ export function WorkOrderDetailsHeader({
         )}
 
         {canCreateReceivable && (
-          <WorkOrderReceivableAction
-            organizationId={organizationId}
-            workOrderId={workOrder.id}
-            title={workOrder.title}
-          />
+          <>
+            <WorkOrderReceivableAction
+              organizationId={organizationId}
+              workOrderId={workOrder.id}
+              title={workOrder.title}
+            />
+
+            <WorkOrderReviewAction organizationId={organizationId} workOrderId={workOrder.id} />
+          </>
         )}
 
         {canStart && (
