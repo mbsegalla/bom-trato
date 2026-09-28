@@ -1,8 +1,24 @@
 export const marketingNavigation = [
-  { label: 'Funcionalidades', href: '#features' },
-  { label: 'Como funciona', href: '#how-it-works' },
-  { label: 'Planos', href: '#pricing' },
-  { label: 'Dúvidas', href: '#faq' },
+  {
+    label: 'Funcionalidades',
+    href: '/#features',
+  },
+  {
+    label: 'Como funciona',
+    href: '/#how-it-works',
+  },
+  {
+    label: 'Profissionais',
+    href: '/profissionais',
+  },
+  {
+    label: 'Planos',
+    href: '/#pricing',
+  },
+  {
+    label: 'Dúvidas',
+    href: '/#faq',
+  },
 ];
 
 export const marketingFaqs = [
