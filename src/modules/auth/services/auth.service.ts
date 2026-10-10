@@ -5,7 +5,29 @@ import { startVerificationCooldown } from '../helpers/verificationCooldown';
 import type { RegisterInput, RegisterResult } from '../types/auth.types';
 import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
-function getRegistrationErrorMessage(status: number): string {
+async function readErrorCode(response: Response): Promise<string | null> {
+  const payload: unknown = await response.json().catch(() => null);
+
+  if (typeof payload !== 'object' || payload === null || !('error' in payload)) {
+    return null;
+  }
+
+  const error = Reflect.get(payload, 'error');
+
+  if (typeof error !== 'object' || error === null || !('code' in error)) {
+    return null;
+  }
+
+  const code = Reflect.get(error, 'code');
+
+  return typeof code === 'string' ? code : null;
+}
+
+function getRegistrationErrorMessage(status: number, code: string | null): string {
+  if (code === 'LEGAL_DOCUMENT_VERSION_OUTDATED') {
+    return 'Os Termos de Uso foram atualizados. Recarregue a página para continuar.';
+  }
+
   switch (status) {
     case 400:
     case 422:
@@ -53,9 +75,11 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
         startVerificationCooldown(readRetryAfterSeconds(response));
       }
 
+      const code = await readErrorCode(response);
+
       return {
         success: false,
-        message: getRegistrationErrorMessage(response.status),
+        message: getRegistrationErrorMessage(response.status, code),
       };
     }
 

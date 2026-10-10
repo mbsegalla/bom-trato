@@ -2,6 +2,7 @@ import { ArrowRight, Check, ChevronDown, ClipboardList, FileText, Users, Wallet 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { MarketingFooter } from '@/modules/marketing/components/marketingFooter';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 import { MarketingLink } from '@/modules/marketing/components/marketingLink';
 import { PricingSectionSkeleton } from '@/modules/marketing/components/pricingSectionSkeleton';
@@ -221,20 +222,7 @@ export default function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-border px-6 py-8 lg:px-10">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6">
-          <span className="text-xl font-bold tracking-tight">bom trato.</span>
-
-          <p className="text-sm text-muted-foreground">Gestão para quem presta serviços.</p>
-
-          <a
-            href="#pricing"
-            className="inline-flex min-h-11 items-center rounded-sm text-sm font-medium text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-          >
-            Conhecer os planos
-          </a>
-        </div>
-      </footer>
+      <MarketingFooter />
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
   emailVerificationTokenSchema,
   sessionResponseSchema,
 } from '../schemas/auth.schema';
-import type { AuthSession, AuthUser, SessionResponse } from '../types/auth.types';
+import type { AuthSession, AuthUser, GoogleRegistrationLegalAcceptance, SessionResponse } from '../types/auth.types';
 import { CsrfRequestError, requestCsrfToken } from './csrf.service';
 
 type Session = SessionResponse & {
@@ -89,6 +89,14 @@ function sessionErrorMessage(status: number, operation: SessionOperation, code?:
 
   if (code === 'GOOGLE_IDENTITY_IN_USE' || code === 'GOOGLE_PROVIDER_ALREADY_LINKED') {
     return 'Esta conta Google já está vinculada.';
+  }
+
+  if (code === 'TERMS_ACCEPTANCE_REQUIRED') {
+    return 'Para criar sua conta com Google, acesse Criar conta e aceite os Termos de Uso.';
+  }
+
+  if (code === 'LEGAL_DOCUMENT_VERSION_OUTDATED') {
+    return 'Os Termos de Uso foram atualizados. Recarregue a página e tente novamente.';
   }
 
   if (status === 429) {
@@ -205,11 +213,17 @@ export function login(email: string, password: string): Promise<void> {
   });
 }
 
-export function loginWithGoogle(credential: string, selectedPlanPriceId?: string | null): Promise<void> {
+export function loginWithGoogle(
+  credential: string,
+  selectedPlanPriceId?: string | null,
+  legalAcceptance?: GoogleRegistrationLegalAcceptance,
+): Promise<void> {
   return serialized(async () => {
     await requestSession('/api/auth/google', 'google', {
       credential,
       selectedPlanPriceId: selectedPlanPriceId ?? null,
+      termsVersion: legalAcceptance?.termsVersion,
+      privacyNoticeVersion: legalAcceptance?.privacyNoticeVersion,
     });
   });
 }
