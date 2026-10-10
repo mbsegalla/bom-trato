@@ -9,10 +9,12 @@ import {
 import type { AddressLookup, BrazilianCity, BrazilianState } from '../types/address.types';
 
 const postalCodeFlights = new Map<string, Promise<AddressLookup>>();
-
 const citiesFlights = new Map<string, Promise<BrazilianCity[]>>();
 
+const citiesCache = new Map<string, BrazilianCity[]>();
+
 let statesFlight: Promise<BrazilianState[]> | null = null;
+let statesCache: BrazilianState[] | null = null;
 
 function addressErrorMessage(status: number, fallback: string): string {
   switch (status) {
@@ -57,7 +59,6 @@ async function requestAddress(postalCode: string): Promise<AddressLookup> {
 
 export function findAddressByPostalCode(postalCode: string): Promise<AddressLookup> {
   const normalized = normalizeBrazilianPostalCode(postalCode);
-
   const existing = postalCodeFlights.get(normalized);
 
   if (existing) {
@@ -91,7 +92,6 @@ async function requestStates(): Promise<BrazilianState[]> {
   }
 
   const payload: unknown = await response.json();
-
   const parsed = brazilianStatesResponseSchema.safeParse(payload);
 
   if (!parsed.success) {
@@ -102,11 +102,19 @@ async function requestStates(): Promise<BrazilianState[]> {
 }
 
 export function listBrazilianStates(): Promise<BrazilianState[]> {
+  if (statesCache) {
+    return Promise.resolve(statesCache);
+  }
+
   if (statesFlight) {
     return statesFlight;
   }
 
-  const request = requestStates();
+  const request = requestStates().then((items) => {
+    statesCache = items;
+
+    return items;
+  });
 
   statesFlight = request;
 
@@ -135,7 +143,6 @@ async function requestCities(state: string): Promise<BrazilianCity[]> {
   }
 
   const payload: unknown = await response.json();
-
   const parsed = brazilianCitiesResponseSchema.safeParse(payload);
 
   if (!parsed.success) {
@@ -147,6 +154,11 @@ async function requestCities(state: string): Promise<BrazilianCity[]> {
 
 export function listBrazilianCities(state: string): Promise<BrazilianCity[]> {
   const normalized = state.trim().toUpperCase();
+  const cached = citiesCache.get(normalized);
+
+  if (cached) {
+    return Promise.resolve(cached);
+  }
 
   const existing = citiesFlights.get(normalized);
 
@@ -154,7 +166,11 @@ export function listBrazilianCities(state: string): Promise<BrazilianCity[]> {
     return existing;
   }
 
-  const request = requestCities(normalized);
+  const request = requestCities(normalized).then((items) => {
+    citiesCache.set(normalized, items);
+
+    return items;
+  });
 
   citiesFlights.set(normalized, request);
 

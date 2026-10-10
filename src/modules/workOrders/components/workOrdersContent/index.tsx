@@ -7,8 +7,6 @@ import { ListContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
-import { listOrganizationMembers } from '@/modules/organizations/services/organization.service';
-import type { OrganizationMember } from '@/modules/organizations/types/organization.types';
 
 import { listWorkOrders } from '../../services/workOrder.service';
 import type { WorkOrderListStatus, WorkOrderPage } from '../../types/workOrder.types';
@@ -20,7 +18,6 @@ import { WorkOrdersTable } from './components/workOrdersTable';
 interface WorkOrderListState {
   requestKey: string;
   data: WorkOrderPage;
-  members: OrganizationMember[];
 }
 
 export function WorkOrdersContent() {
@@ -42,12 +39,12 @@ function OrganizationWorkOrdersContent({ organizationId }: { organizationId: str
   useEffect(() => {
     let active = true;
 
-    void Promise.all([listWorkOrders(organizationId, { page, status }), listOrganizationMembers(organizationId)])
-      .then(([result, members]) => {
+    void listWorkOrders(organizationId, { page, status })
+      .then((result) => {
         if (!active) return;
 
         setError(null);
-        setState({ requestKey, data: result, members });
+        setState({ requestKey, data: result });
       })
       .catch((cause: unknown) => {
         if (!active) return;
@@ -98,7 +95,7 @@ function OrganizationWorkOrdersContent({ organizationId }: { organizationId: str
         ) : current.data.items.length === 0 ? (
           <WorkOrdersEmptyState />
         ) : (
-          <WorkOrdersTable data={current.data} members={current.members} page={page} onPageChange={setPage} />
+          <WorkOrdersTable data={current.data} page={page} onPageChange={setPage} />
         )}
       </section>
     </div>
