@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { PublicLeadRequest } from '@/modules/leads/components/publicLeadRequest';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
 import {
@@ -86,17 +87,28 @@ export default async function ProfessionalPage({ params }: ProfessionalPageProps
                 <RatingSummary average={professional.ratingAverage} count={professional.ratingCount} />
               </div>
 
-              {professional.whatsappAvailable && (
-                <a
-                  href={getPublicWhatsappUrl(professional.slug)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <MessageCircle className="size-5" />
-                  Falar no WhatsApp
-                </a>
-              )}
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <PublicLeadRequest
+                  slug={professional.slug}
+                  professionalName={professional.name}
+                  services={professional.services.map((service) => ({
+                    id: service.id,
+                    name: service.name,
+                  }))}
+                />
+
+                {professional.whatsappAvailable && (
+                  <a
+                    href={getPublicWhatsappUrl(professional.slug)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-border px-5 font-medium transition-colors hover:bg-muted"
+                  >
+                    <MessageCircle className="size-5" />
+                    WhatsApp
+                  </a>
+                )}
+              </div>
             </div>
 
             {professional.description && (

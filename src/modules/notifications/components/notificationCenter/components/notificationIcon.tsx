@@ -7,6 +7,7 @@ import {
   CreditCard,
   FileCheck2,
   FileX2,
+  Inbox,
   UserRoundPlus,
 } from 'lucide-react';
 
@@ -14,6 +15,8 @@ import type { InAppNotificationType } from '../../../types/notification.types';
 
 export function NotificationIcon({ type }: { type: InAppNotificationType }) {
   switch (type) {
+    case 'LEAD_RECEIVED':
+      return <Inbox aria-hidden="true" className="size-4" />;
     case 'QUOTE_APPROVED':
       return <FileCheck2 aria-hidden="true" className="size-4" />;
     case 'QUOTE_DECLINED':
