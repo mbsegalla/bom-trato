@@ -27,8 +27,15 @@ export const leadSchema = z.object({
 export const publicLeadFormSchema = z
   .object({
     name: z.string().trim().min(2, 'Informe seu nome.').max(100),
-    email: z.string().trim(),
-    phone: z.string().trim(),
+    email: z
+      .string()
+      .trim()
+      .refine((value) => !value || z.email().safeParse(value).success, 'Informe um e-mail válido.'),
+    phone: z
+      .string()
+      .trim()
+      .min(1, 'Informe seu telefone.')
+      .refine((value) => isValidBrazilianPhone(value), 'Informe um telefone válido.'),
     catalogServiceId: z.string().trim().nullable(),
     message: z.string().trim().min(10, 'Conte um pouco mais sobre o serviço.').max(2000),
   })

@@ -5,6 +5,8 @@ import type { ConvertLeadResult, Lead, LeadListParams, LeadPage } from '../types
 
 const DEFAULT_LIMIT = 20;
 
+const listFlights = new Map<string, Promise<LeadPage>>();
+
 function path(organizationId: string): string {
   return `/api/organizations/${encodeURIComponent(organizationId)}/leads`;
 }
@@ -36,7 +38,17 @@ async function check(response: Response): Promise<Response> {
   return response;
 }
 
-export async function listLeads(organizationId: string, params: LeadListParams): Promise<LeadPage> {
+function leadListRequestKey(organizationId: string, params: LeadListParams): string {
+  return JSON.stringify({
+    organizationId,
+    page: params.page,
+    limit: params.limit ?? DEFAULT_LIMIT,
+    status: params.status ?? null,
+    search: params.search?.trim() || null,
+  });
+}
+
+async function requestLeads(organizationId: string, params: LeadListParams): Promise<LeadPage> {
   const { page, limit, status, search } = params;
 
   const query = new URLSearchParams({
@@ -62,6 +74,29 @@ export async function listLeads(organizationId: string, params: LeadListParams):
   }
 
   return parsed.data;
+}
+
+export function listLeads(organizationId: string, params: LeadListParams): Promise<LeadPage> {
+  const key = leadListRequestKey(organizationId, params);
+  const current = listFlights.get(key);
+
+  if (current) {
+    return current;
+  }
+
+  const request = requestLeads(organizationId, params);
+
+  listFlights.set(key, request);
+
+  const cleanup = () => {
+    if (listFlights.get(key) === request) {
+      listFlights.delete(key);
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
 }
 
 export async function getLead(organizationId: string, leadId: string): Promise<Lead> {

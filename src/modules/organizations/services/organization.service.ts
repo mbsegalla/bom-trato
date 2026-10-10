@@ -4,9 +4,16 @@ import { joinedOrganizationsResponseSchema, organizationMembersResponseSchema } 
 import type { JoinedOrganization, OrganizationMember } from '../types/organization.types';
 
 const PAGE_LIMIT = 100;
+const ORGANIZATION_MEMBERS_CACHE_TTL_MS = 5 * 60 * 1000;
+
+interface OrganizationMembersCacheEntry {
+  items: OrganizationMember[];
+  expiresAt: number;
+}
 
 let joinedOrganizationsFlight: Promise<JoinedOrganization[]> | null = null;
 
+const organizationMembersCache = new Map<string, OrganizationMembersCacheEntry>();
 const organizationMembersFlights = new Map<string, Promise<OrganizationMember[]>>();
 
 async function requestJoinedOrganizations(): Promise<JoinedOrganization[]> {
@@ -100,13 +107,30 @@ async function requestOrganizationMembers(organizationId: string): Promise<Organ
 }
 
 export function listOrganizationMembers(organizationId: string): Promise<OrganizationMember[]> {
+  const cached = organizationMembersCache.get(organizationId);
+
+  if (cached && cached.expiresAt > Date.now()) {
+    return Promise.resolve(cached.items);
+  }
+
+  if (cached) {
+    organizationMembersCache.delete(organizationId);
+  }
+
   const existing = organizationMembersFlights.get(organizationId);
 
   if (existing) {
     return existing;
   }
 
-  const request = requestOrganizationMembers(organizationId);
+  const request = requestOrganizationMembers(organizationId).then((items) => {
+    organizationMembersCache.set(organizationId, {
+      items,
+      expiresAt: Date.now() + ORGANIZATION_MEMBERS_CACHE_TTL_MS,
+    });
+
+    return items;
+  });
 
   organizationMembersFlights.set(organizationId, request);
 
@@ -119,4 +143,8 @@ export function listOrganizationMembers(organizationId: string): Promise<Organiz
   void request.then(cleanup, cleanup);
 
   return request;
+}
+
+export function invalidateOrganizationMembers(organizationId: string): void {
+  organizationMembersCache.delete(organizationId);
 }

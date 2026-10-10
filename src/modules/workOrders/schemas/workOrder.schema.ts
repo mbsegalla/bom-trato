@@ -103,6 +103,7 @@ export const workOrderSummarySchema = z.object({
   customerName: z.string(),
   title: z.string(),
   assignedToId: z.uuid().nullable(),
+  assignedToName: z.string().nullable(),
   status: workOrderStatusSchema,
   currency: z.literal('brl'),
   totalInCents: z.number().int().nonnegative(),

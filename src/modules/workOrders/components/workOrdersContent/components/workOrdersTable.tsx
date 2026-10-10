@@ -2,7 +2,6 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import type { OrganizationMember } from '@/modules/organizations/types/organization.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
 
@@ -11,20 +10,11 @@ import { WorkOrderStatusBadge } from '../../workOrderStatusBadge';
 
 interface WorkOrdersTableProps {
   data: WorkOrderPage;
-  members: OrganizationMember[];
   page: number;
   onPageChange: (page: number) => void;
 }
 
-export function WorkOrdersTable({ data, members, page, onPageChange }: WorkOrdersTableProps) {
-  function memberName(userId: string | null): string {
-    if (userId === null) {
-      return 'Sem responsável';
-    }
-
-    return members.find((member) => member.userId === userId)?.user.name ?? 'Membro indisponível';
-  }
-
+export function WorkOrdersTable({ data, page, onPageChange }: WorkOrdersTableProps) {
   return (
     <>
       <div className="overflow-x-auto">
@@ -54,7 +44,9 @@ export function WorkOrdersTable({ data, members, page, onPageChange }: WorkOrder
 
                 <td className="px-6 py-4 text-sm">{workOrder.customerName}</td>
 
-                <td className="px-6 py-4 text-sm text-muted-foreground">{memberName(workOrder.assignedToId)}</td>
+                <td className="px-6 py-4 text-sm text-muted-foreground">
+                  {workOrder.assignedToName ?? 'Sem responsável'}
+                </td>
 
                 <td className="px-6 py-4">
                   <WorkOrderStatusBadge status={workOrder.status} />

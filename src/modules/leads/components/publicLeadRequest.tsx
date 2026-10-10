@@ -137,13 +137,14 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="lead-phone">Telefone</Label>
+                    <Label htmlFor="lead-phone">Telefone *</Label>
                     <Input
                       id="lead-phone"
                       type="tel"
                       inputMode="tel"
                       value={phone}
                       maxLength={15}
+                      required
                       onChange={(event) => setPhone(formatBrazilianPhoneInput(event.currentTarget.value))}
                       placeholder="(34) 99999-9999"
                       className="h-12 rounded-xl"
@@ -195,7 +196,7 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
 
                 <p className="text-xs leading-relaxed text-muted-foreground">
                   Seus dados serão compartilhados com {professionalName} exclusivamente para atendimento desta
-                  solicitação.
+                  solicitação. O profissional poderá entrar em contato pelo WhatsApp.
                 </p>
               </div>
 

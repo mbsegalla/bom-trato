@@ -1,4 +1,5 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { invalidateOrganizationMembers } from '@/modules/organizations/services/organization.service';
 
 import {
   acceptOrganizationInvitationResponseSchema,
@@ -286,6 +287,8 @@ export async function removeOrganizationMember(organizationId: string, memberId:
   if (!response.ok) {
     await throwTeamRequestError(response, 'Não foi possível remover o membro.');
   }
+
+  invalidateOrganizationMembers(organizationId);
 }
 
 export async function previewOrganizationInvitation(token: string): Promise<PreviewOrganizationInvitation> {
@@ -336,6 +339,8 @@ export async function acceptOrganizationInvitation(token: string): Promise<Accep
   if (!parsed.success) {
     throw new Error('Não foi possível interpretar a confirmação do convite.');
   }
+
+  invalidateOrganizationMembers(parsed.data.organizationId);
 
   return parsed.data;
 }

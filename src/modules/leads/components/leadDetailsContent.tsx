@@ -1,6 +1,6 @@
 'use client';
 
-import { Archive, ArrowLeft, LoaderCircle, Mail, MessageSquare, Phone, UserCheck } from 'lucide-react';
+import { Archive, ArrowLeft, LoaderCircle, Mail, MessageCircle, MessageSquare, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -12,6 +12,22 @@ import { formatBrazilianPhone } from '@/shared/formatters/phone.formatter';
 
 import { archiveLead, convertLead, getLead, markLeadContacted } from '../services/lead.service';
 import type { Lead } from '../types/lead.types';
+
+function getWhatsappUrl(name: string, phone: string, requestedServiceName: string | null): string {
+  const digits = phone.replace(/\D/g, '');
+  const internationalPhone =
+    digits.startsWith('55') && (digits.length === 12 || digits.length === 13) ? digits : `55${digits}`;
+
+  const serviceMessage = requestedServiceName ? ` sobre ${requestedServiceName}` : '';
+
+  const message = [
+    `Olá, ${name}! Tudo bem?`,
+    `Recebi sua solicitação de orçamento${serviceMessage} pelo Bom Trato.`,
+    'Estou entrando em contato para entender melhor o que você precisa.',
+  ].join(' ');
+
+  return `https://wa.me/${internationalPhone}?text=${encodeURIComponent(message)}`;
+}
 
 export function LeadDetailsContent({ leadId }: { leadId: string }) {
   const { activeOrganization } = useApp();
@@ -111,6 +127,7 @@ function OrganizationLeadDetails({ organizationId, leadId }: { organizationId: s
   }
 
   const actionable = lead.status === 'NEW' || lead.status === 'CONTACTED';
+  const whatsappUrl = lead.phone ? getWhatsappUrl(lead.name, lead.phone, lead.requestedServiceName) : null;
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -184,23 +201,43 @@ function OrganizationLeadDetails({ organizationId, leadId }: { organizationId: s
         <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
           <h2 className="font-semibold">Contato</h2>
 
-          <div className="mt-5 space-y-4 text-sm">
+          <div className="mt-5 space-y-3">
             {lead.email && (
-              <div className="flex items-center gap-3">
-                <Mail className="size-4 text-muted-foreground" />
-                <a href={`mailto:${lead.email}`} className="hover:text-primary hover:underline">
-                  {lead.email}
-                </a>
-              </div>
+              <a
+                href={`mailto:${lead.email}`}
+                className="flex items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:bg-muted/50"
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+                  <Mail className="size-4" />
+                </span>
+
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-medium">{lead.email}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Enviar e-mail</span>
+                </span>
+              </a>
             )}
 
-            {lead.phone && (
-              <div className="flex items-center gap-3">
-                <Phone className="size-4 text-muted-foreground" />
-                <a href={`tel:+55${lead.phone}`} className="hover:text-primary hover:underline">
-                  {formatBrazilianPhone(lead.phone)}
-                </a>
-              </div>
+            {lead.phone && whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:bg-muted/50"
+              >
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <MessageCircle className="size-5" />
+                </span>
+
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium">{formatBrazilianPhone(lead.phone)}</span>
+                  <span className="mt-0.5 block text-xs text-muted-foreground">Conversar no WhatsApp</span>
+                </span>
+              </a>
+            )}
+
+            {!lead.email && !lead.phone && (
+              <p className="text-sm text-muted-foreground">Nenhum contato foi informado nesta solicitação.</p>
             )}
           </div>
         </section>

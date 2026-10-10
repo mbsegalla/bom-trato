@@ -35,6 +35,7 @@ interface StatesState {
 interface CitiesState {
   stateCode: string;
   items: BrazilianCity[];
+  loading: boolean;
   error: string | null;
 }
 
@@ -88,63 +89,67 @@ export function BusinessAddressFields({ profile, owner }: BusinessAddressFieldsP
     };
   }, [router]);
 
-  useEffect(() => {
-    if (!state) {
-      return;
-    }
-
-    let active = true;
-
-    const stateCode = state;
-
-    void listBrazilianCities(stateCode)
-      .then((items) => {
-        if (!active) {
-          return;
-        }
-
-        setCitiesState({
-          stateCode,
-          items,
-          error: null,
-        });
-      })
-      .catch((cause: unknown) => {
-        if (!active) {
-          return;
-        }
-
-        if (cause instanceof SessionError && cause.status === 401) {
-          router.replace('/login');
-
-          return;
-        }
-
-        setCitiesState({
-          stateCode,
-          items: [],
-          error: cause instanceof Error ? cause.message : 'Não foi possível carregar as cidades.',
-        });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [router, state]);
-
   const states = statesState?.items ?? [];
-
   const statesLoading = statesState === null;
-
   const statesError = statesState?.error ?? null;
 
   const currentCitiesState = citiesState?.stateCode === state ? citiesState : null;
-
-  const cities = state ? (currentCitiesState?.items ?? []) : [];
-
-  const citiesLoading = state.length > 0 && currentCitiesState === null;
-
+  const cities = currentCitiesState?.items ?? [];
+  const citiesLoading = currentCitiesState?.loading ?? false;
   const citiesError = currentCitiesState?.error ?? null;
+
+  async function loadCities(stateCode: string): Promise<void> {
+    if (!stateCode) {
+      return;
+    }
+
+    if (citiesState?.stateCode === stateCode && (citiesState.loading || citiesState.items.length > 0)) {
+      return;
+    }
+
+    setCitiesState({
+      stateCode,
+      items: [],
+      loading: true,
+      error: null,
+    });
+
+    try {
+      const items = await listBrazilianCities(stateCode);
+
+      setCitiesState((current) => {
+        if (current?.stateCode !== stateCode) {
+          return current;
+        }
+
+        return {
+          stateCode,
+          items,
+          loading: false,
+          error: null,
+        };
+      });
+    } catch (cause: unknown) {
+      if (cause instanceof SessionError && cause.status === 401) {
+        router.replace('/login');
+
+        return;
+      }
+
+      setCitiesState((current) => {
+        if (current?.stateCode !== stateCode) {
+          return current;
+        }
+
+        return {
+          stateCode,
+          items: [],
+          loading: false,
+          error: cause instanceof Error ? cause.message : 'Não foi possível carregar as cidades.',
+        };
+      });
+    }
+  }
 
   function changeState(nextState: string): void {
     setState(nextState);
@@ -334,6 +339,7 @@ export function BusinessAddressFields({ profile, owner }: BusinessAddressFieldsP
             name="city"
             value={city}
             disabled={!owner || !state || citiesLoading}
+            onFocus={() => void loadCities(state)}
             onChange={(event) => setCity(event.currentTarget.value)}
             className="h-12 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50"
           >
