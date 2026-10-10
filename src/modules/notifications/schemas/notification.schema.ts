@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
 export const inAppNotificationTypeSchema = z.enum([
+  'LEAD_RECEIVED',
   'QUOTE_APPROVED',
   'QUOTE_DECLINED',
   'WORK_ORDER_ASSIGNED',

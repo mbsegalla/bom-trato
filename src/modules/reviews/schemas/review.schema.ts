@@ -2,11 +2,6 @@ import { z } from 'zod';
 
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
-export const reviewInvitationSchema = z.object({
-  url: z.url(),
-  expiresAt: z.coerce.date(),
-});
-
 export const reviewInvitationPreviewSchema = z.object({
   businessName: z.string(),
   logoUrl: z.url().nullable(),
@@ -24,8 +19,6 @@ export const submittedReviewSchema = z.object({
   verified: z.boolean(),
   professionalSlug: z.string(),
 });
-
-export const reviewInvitationResponseSchema = apiResponseSchema(reviewInvitationSchema);
 
 export const reviewInvitationPreviewResponseSchema = apiResponseSchema(reviewInvitationPreviewSchema);
 

@@ -23,23 +23,25 @@ export class PublicDirectoryError extends Error {
 }
 
 export async function getPublicProfessionals(params: PublicProfessionalsParams = {}): Promise<PublicProfessionalPage> {
+  const { city, limit, page, search, state } = params;
+
   const { baseUrl } = getApiConfig();
 
   const query = new URLSearchParams({
-    page: String(params.page ?? 1),
-    limit: String(params.limit ?? 12),
+    page: String(page ?? 1),
+    limit: String(limit ?? 12),
   });
 
-  if (params.search?.trim()) {
-    query.set('search', params.search.trim());
+  if (search?.trim()) {
+    query.set('search', search.trim());
   }
 
-  if (params.city?.trim()) {
-    query.set('city', params.city.trim());
+  if (city?.trim()) {
+    query.set('city', city.trim());
   }
 
-  if (params.state?.trim()) {
-    query.set('state', params.state.trim().toUpperCase());
+  if (state?.trim()) {
+    query.set('state', state.trim().toUpperCase());
   }
 
   const response = await fetch(new URL(`/api/public/professionals?${query.toString()}`, baseUrl), {

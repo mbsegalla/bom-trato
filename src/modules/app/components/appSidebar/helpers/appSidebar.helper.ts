@@ -1,9 +1,10 @@
-import { Banknote, CalendarDays, ClipboardList, FileText, LayoutDashboard, Users, Wrench } from 'lucide-react';
+import { Banknote, CalendarDays, ClipboardList, FileText, Inbox, LayoutDashboard, Users, Wrench } from 'lucide-react';
 
 import type { OrganizationRole } from '@/modules/organizations/types/organization.types';
 
 export const appNavigation = [
   { label: 'Visão geral', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Oportunidades', href: '/leads', icon: Inbox },
   { label: 'Clientes', href: '/customers', icon: Users },
   { label: 'Catálogo de serviços', href: '/services-catalog', icon: Wrench },
   { label: 'Orçamentos', href: '/quotes', icon: FileText },
