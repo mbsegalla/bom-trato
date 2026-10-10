@@ -6,10 +6,37 @@ import { MarketingHeader } from '@/modules/marketing/components/marketingHeader'
 import { ProfessionalCard } from '@/modules/publicProfiles/components/professionalCard';
 import { getPublicProfessionals } from '@/modules/publicProfiles/services/publicDirectory.service';
 
-export const metadata: Metadata = {
-  title: 'Profissionais',
-  description: 'Encontre profissionais e prestadores de serviços no Bom Trato.',
-};
+export async function generateMetadata({ searchParams }: ProfessionalsPageProps): Promise<Metadata> {
+  const params = await searchParams;
+
+  const search = single(params.search).trim();
+  const city = single(params.city).trim();
+  const page = Math.max(1, Number(single(params.page)) || 1);
+
+  const filtered = Boolean(search || city || page > 1);
+
+  const description =
+    'Encontre profissionais e prestadores de serviços, veja avaliações e solicite orçamento pelo Bom Trato.';
+
+  return {
+    title: 'Profissionais',
+    description,
+    alternates: {
+      canonical: '/profissionais',
+    },
+    robots: {
+      index: !filtered,
+      follow: true,
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'pt_BR',
+      url: '/profissionais',
+      title: 'Profissionais | Bom Trato',
+      description,
+    },
+  };
+}
 
 interface ProfessionalsPageProps {
   searchParams: Promise<{

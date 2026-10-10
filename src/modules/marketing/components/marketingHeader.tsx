@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { BrandLogo } from '@/components/brandLogo';
 import { Button } from '@/components/ui/button';
 
 import { marketingNavigation } from '../data/marketing.data';
@@ -12,22 +13,22 @@ import { MarketingLink } from './marketingLink';
 export function MarketingHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const handleOnKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape') {
+      setMenuOpen(false);
+      document.querySelector<HTMLButtonElement>('[aria-controls="marketing-mobile-menu"]')?.focus();
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
       <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-6 px-6 lg:px-10">
         <Link
           href="/"
           aria-label="Bom Trato — página inicial"
-          className="flex shrink-0 items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          className="flex shrink-0 items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
-          <span
-            aria-hidden="true"
-            className="flex size-9 items-center justify-center rounded-xl bg-brand text-xl font-bold tracking-tighter text-brand-foreground"
-          >
-            bt
-          </span>
-
-          <span className="text-xl font-bold tracking-tight">bom trato.</span>
+          <BrandLogo alt="" priority className="w-40 sm:w-44" />
         </Link>
 
         <nav aria-label="Navegação principal" className="hidden lg:block">
@@ -74,12 +75,7 @@ export function MarketingHeader() {
         id="marketing-mobile-menu"
         aria-label="Navegação móvel"
         hidden={!menuOpen}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') {
-            setMenuOpen(false);
-            document.querySelector<HTMLButtonElement>('[aria-controls="marketing-mobile-menu"]')?.focus();
-          }
-        }}
+        onKeyDown={handleOnKeyDown}
         className="border-t border-border px-6 pb-6 lg:hidden"
       >
         <ul className="py-3">

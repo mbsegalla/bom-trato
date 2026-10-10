@@ -2,6 +2,8 @@ import { ArrowRight, Check, ChevronDown, ClipboardList, FileText, Users, Wallet 
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { JsonLd } from '@/components/jsonLd';
+import { siteConfig } from '@/config/site.config';
 import { MarketingFooter } from '@/modules/marketing/components/marketingFooter';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 import { MarketingLink } from '@/modules/marketing/components/marketingLink';
@@ -12,8 +14,21 @@ import { marketingFaqs } from '@/modules/marketing/data/marketing.data';
 import { FeaturedProfessionalsSection } from '@/modules/publicProfiles/components/featuredProfessionalsSection';
 
 export const metadata: Metadata = {
-  title: 'Bom Trato | Gestão para quem presta serviços',
-  description: 'Organize clientes, orçamentos, ordens de serviço e recebimentos em um só lugar com o Bom Trato.',
+  title: {
+    absolute: 'Bom Trato | Gestão para prestadores de serviços',
+  },
+  description: siteConfig.description,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: siteConfig.locale,
+    url: '/',
+    siteName: siteConfig.name,
+    title: 'Bom Trato | Gestão para prestadores de serviços',
+    description: siteConfig.description,
+  },
 };
 
 const features = [
@@ -52,6 +67,27 @@ const steps = [
   },
 ];
 
+const homeJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteConfig.name,
+    url: siteConfig.url.toString(),
+    description: siteConfig.description,
+    inLanguage: siteConfig.language,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: siteConfig.name,
+    url: siteConfig.url.toString(),
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web',
+    description: siteConfig.description,
+    inLanguage: siteConfig.language,
+  },
+];
+
 export default function Home() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -63,6 +99,8 @@ export default function Home() {
       </a>
 
       <MarketingHeader />
+
+      <JsonLd data={homeJsonLd} />
 
       <main id="main-content" tabIndex={-1}>
         <section className="overflow-hidden px-6 pt-14 pb-20 sm:pt-20 sm:pb-28 lg:px-10">

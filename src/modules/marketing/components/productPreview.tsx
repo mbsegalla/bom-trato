@@ -20,9 +20,9 @@ const quotes = [
     status: 'Enviado',
   },
   {
-    customer: 'Marcelo Oliveira',
-    service: 'Reforma do banheiro',
-    amount: 'R$ 1.800',
+    customer: 'Marco Segalla',
+    service: 'Desenvolvimento de software',
+    amount: 'R$ 10.000',
     status: 'Rascunho',
   },
 ];

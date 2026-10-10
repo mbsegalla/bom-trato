@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { JsonLd } from '@/components/jsonLd';
+import { siteConfig } from '@/config/site.config';
 import { PublicLeadRequest } from '@/modules/leads/components/publicLeadRequest';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
@@ -11,6 +13,7 @@ import {
   getPublicWhatsappUrl,
   PublicDirectoryError,
 } from '@/modules/publicProfiles/services/publicDirectory.service';
+import type { PublicProfessional } from '@/modules/publicProfiles/types/publicProfile.types';
 import { RatingSummary } from '@/modules/reviews/components/ratingSummary';
 import { ReviewCard } from '@/modules/reviews/components/reviewCard';
 
@@ -18,19 +21,57 @@ interface ProfessionalPageProps {
   params: Promise<{ slug: string }>;
 }
 
+function professionalDescription(professional: PublicProfessional): string {
+  if (professional.headline) {
+    return `${professional.headline} — ${professional.name} em ${professional.city}/${professional.state}.`;
+  }
+
+  const services = professional.services
+    .slice(0, 3)
+    .map((service) => service.name)
+    .join(', ');
+
+  if (services) {
+    return `${professional.name} em ${professional.city}/${professional.state}. Serviços: ${services}. Veja avaliações e solicite orçamento pelo Bom Trato.`;
+  }
+
+  return `Conheça ${professional.name} em ${professional.city}/${professional.state} e solicite orçamento pelo Bom Trato.`;
+}
+
 export async function generateMetadata({ params }: ProfessionalPageProps): Promise<Metadata> {
   const { slug } = await params;
 
   try {
     const professional = await getPublicProfessional(slug);
+    const description = professionalDescription(professional);
+    const canonical = `/profissionais/${professional.slug}`;
 
     return {
-      title: professional.name,
-      description: professional.headline ?? `Conheça ${professional.name} no Bom Trato.`,
+      title: `${professional.name} em ${professional.city}`,
+      description,
+      alternates: {
+        canonical,
+      },
+      robots: {
+        index: true,
+        follow: true,
+      },
+      openGraph: {
+        type: 'website',
+        locale: siteConfig.locale,
+        url: canonical,
+        siteName: siteConfig.name,
+        title: `${professional.name} em ${professional.city} | Bom Trato`,
+        description,
+      },
     };
   } catch {
     return {
-      title: 'Profissional',
+      title: 'Profissional não encontrado',
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 }
@@ -50,9 +91,78 @@ export default async function ProfessionalPage({ params }: ProfessionalPageProps
     throw error;
   }
 
+  const professionalUrl = new URL(`/profissionais/${professional.slug}`, siteConfig.url).toString();
+
+  const professionalJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: professional.name,
+    url: professionalUrl,
+    description: professionalDescription(professional),
+    image: professional.logoUrl ?? undefined,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: professional.city,
+      addressRegion: professional.state,
+      addressCountry: 'BR',
+    },
+    areaServed: {
+      '@type': 'City',
+      name: professional.city,
+    },
+    makesOffer:
+      professional.services.length > 0
+        ? professional.services.map((service) => ({
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: service.name,
+              description: service.description ?? undefined,
+            },
+          }))
+        : undefined,
+    aggregateRating:
+      professional.ratingAverage !== null && professional.ratingCount > 0
+        ? {
+            '@type': 'AggregateRating',
+            ratingValue: professional.ratingAverage,
+            ratingCount: professional.ratingCount,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Bom Trato',
+        item: siteConfig.url.toString(),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Profissionais',
+        item: new URL('/profissionais', siteConfig.url).toString(),
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: professional.name,
+        item: professionalUrl,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-dvh bg-background">
       <MarketingHeader />
+
+      <JsonLd data={[professionalJsonLd, breadcrumbJsonLd]} />
 
       <main className="px-6 py-12 lg:px-10">
         <div className="mx-auto max-w-5xl">

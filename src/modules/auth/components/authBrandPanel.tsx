@@ -1,5 +1,7 @@
 import { CalendarDays, ChartNoAxesCombined, Check, FileText, Users } from 'lucide-react';
 
+import { BrandLogo } from '@/components/brandLogo';
+
 const features = [
   {
     icon: Users,
@@ -28,18 +30,7 @@ export function AuthBrandPanel() {
     <aside className="relative hidden flex-col overflow-hidden bg-brand text-brand-foreground lg:flex">
       <div className="relative flex flex-1 flex-col px-10 pt-10 xl:px-14 xl:pt-12">
         <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="flex size-10 items-center justify-center rounded-lg bg-brand-foreground text-2xl font-bold tracking-tighter text-brand"
-            >
-              bt
-            </span>
-
-            <span className="text-3xl font-semibold tracking-tight">
-              bom trato<span className="text-brand-muted">.</span>
-            </span>
-          </div>
+          <BrandLogo variant="horizontal-light" className="w-52" />
 
           <p className="hidden text-right text-xs leading-relaxed tracking-widest text-brand-muted xl:block">
             PEQUENOS NEGÓCIOS
