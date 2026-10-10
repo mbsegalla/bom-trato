@@ -1,11 +1,13 @@
 import Link from 'next/link';
 
+import { BrandLogo } from '@/components/brandLogo';
+
 export function MarketingFooter() {
   return (
     <footer className="border-t border-border px-6 py-8 lg:px-10">
       <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6">
-        <Link href="/" className="text-xl font-bold tracking-tight">
-          bom trato.
+        <Link href="/" aria-label="Bom Trato — página inicial">
+          <BrandLogo alt="" className="w-32" />
         </Link>
 
         <div className="flex flex-wrap items-center gap-5 text-sm text-muted-foreground">

@@ -3,6 +3,8 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Geist_Mono, Montserrat } from 'next/font/google';
 
+import { siteConfig } from '@/config/site.config';
+
 const montserrat = Montserrat({
   subsets: ['latin'],
   variable: '--font-montserrat',
@@ -15,12 +17,25 @@ const geistMono = Geist_Mono({
   display: 'swap',
 });
 
+const googleSiteVerification = process.env.GOOGLE_SITE_VERIFICATION?.trim();
+
 export const metadata: Metadata = {
+  metadataBase: siteConfig.url,
+  applicationName: siteConfig.name,
   title: {
-    default: 'Bom Trato',
-    template: '%s | Bom Trato',
+    default: 'Bom Trato | Gestão para prestadores de serviços',
+    template: `%s | ${siteConfig.name}`,
   },
-  description: 'Gestão simples para quem presta serviços.',
+  description: siteConfig.description,
+  robots: {
+    index: true,
+    follow: true,
+  },
+  verification: googleSiteVerification
+    ? {
+        google: googleSiteVerification,
+      }
+    : undefined,
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {

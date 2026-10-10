@@ -1,7 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { BrandLogo } from '@/components/brandLogo';
 import { AuthBrandPanel } from '@/modules/auth/components/authBrandPanel';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -17,9 +26,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <Link
             href="/"
             aria-label="Bom Trato — página inicial"
-            className="inline-flex min-h-11 cursor-pointer items-center rounded-md text-2xl font-semibold tracking-tight text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            className="inline-flex min-h-11 cursor-pointer items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
-            bom trato.
+            <BrandLogo alt="" priority className="w-40" />
           </Link>
         </header>
 
@@ -28,7 +37,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </main>
 
         <footer className="mx-6 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6 sm:mx-10">
-          <span className="text-sm font-semibold tracking-tight">bom trato.</span>
+          <Link href="/" aria-label="Bom Trato — página inicial">
+            <BrandLogo alt="" className="w-28" />
+          </Link>
 
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
             <Link href="/termos" className="hover:text-foreground">

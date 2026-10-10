@@ -1,5 +1,15 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+
+import { BrandLogo } from '@/components/brandLogo';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 interface OnboardingLayoutProps {
   children: ReactNode;
@@ -13,16 +23,9 @@ export default function OnboardingLayout({ children }: OnboardingLayoutProps) {
           <Link
             href="/"
             aria-label="Bom Trato — página inicial"
-            className="flex items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            className="flex items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
-            <span
-              aria-hidden="true"
-              className="flex size-9 items-center justify-center rounded-xl bg-brand text-xl font-bold tracking-tighter text-brand-foreground"
-            >
-              bt
-            </span>
-
-            <span className="text-xl font-bold tracking-tight">bom trato.</span>
+            <BrandLogo alt="" priority className="w-40" />
           </Link>
 
           <p className="hidden text-sm text-muted-foreground sm:block">Configuração da sua conta</p>

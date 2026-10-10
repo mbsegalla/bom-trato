@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { BrandLogo } from '@/components/brandLogo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { logout } from '@/modules/auth/services/session.service';
@@ -62,16 +63,11 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
         <div className="flex min-h-20 items-center justify-between px-5">
           <Link
             href="/dashboard"
+            aria-label="Bom Trato — visão geral"
             onClick={onMobileClose}
-            className="flex items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+            className="flex items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
-            <span
-              aria-hidden="true"
-              className="flex size-10 items-center justify-center rounded-xl bg-brand text-xl font-bold tracking-tighter text-brand-foreground"
-            >
-              bt
-            </span>
-            <span className="text-xl font-bold tracking-tight">bom trato.</span>
+            <BrandLogo alt="" priority className="w-40" />
           </Link>
           <Button
             type="button"

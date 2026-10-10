@@ -1,12 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { BrandLogo } from '@/components/brandLogo';
 import { legalDocuments, legalIdentity } from '@/modules/legal/data/legal.data';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso | Bom Trato',
+  title: 'Termos de Uso',
   description: 'Conheça os Termos de Uso do Bom Trato.',
+  alternates: {
+    canonical: '/termos',
+  },
 };
 
 export default function TermsPage() {
@@ -346,8 +350,8 @@ export default function TermsPage() {
 
       <footer className="border-t border-border px-6 py-8 lg:px-10">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4">
-          <Link href="/" className="font-semibold">
-            bom trato.
+          <Link href="/" aria-label="Bom Trato — página inicial">
+            <BrandLogo alt="" className="w-28" />
           </Link>
 
           <div className="flex gap-5 text-sm text-muted-foreground">
