@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { getCurrentLegalDocuments } from '@/modules/legal/services/legal.service';
 import { listPlans } from '@/modules/plans/services/plan.service';
 
 import { RegisterForm } from './registerForm';
@@ -11,8 +12,16 @@ interface RegistrationContentProps {
 export async function RegistrationContent({ searchParams }: RegistrationContentProps) {
   const { planPriceId } = await searchParams;
 
+  const legalResult = await getCurrentLegalDocuments();
+
+  if (!legalResult.success) {
+    return (
+      <RegistrationUnavailable message="Não foi possível carregar os Termos de Uso. Tente novamente em instantes." />
+    );
+  }
+
   if (planPriceId === undefined) {
-    return <RegisterForm />;
+    return <RegisterForm legalDocuments={legalResult.documents} />;
   }
 
   if (typeof planPriceId !== 'string' || !planPriceId) {
@@ -37,6 +46,7 @@ export async function RegistrationContent({ searchParams }: RegistrationContentP
             name: plan.name,
             price,
           }}
+          legalDocuments={legalResult.documents}
         />
       );
     }

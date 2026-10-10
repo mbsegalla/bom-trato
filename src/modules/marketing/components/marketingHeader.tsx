@@ -53,7 +53,7 @@ export function MarketingHeader() {
             Entrar
           </Link>
 
-          <MarketingLink href="#pricing">Conhecer os planos</MarketingLink>
+          <MarketingLink href="/#pricing">Conhecer os planos</MarketingLink>
         </div>
 
         <Button
@@ -101,7 +101,7 @@ export function MarketingHeader() {
             Entrar
           </MarketingLink>
 
-          <MarketingLink href="#pricing" onClick={() => setMenuOpen(false)} className="flex-1">
+          <MarketingLink href="/#pricing" onClick={() => setMenuOpen(false)} className="flex-1">
             Ver planos
           </MarketingLink>
         </div>

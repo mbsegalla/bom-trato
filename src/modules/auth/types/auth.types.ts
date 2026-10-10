@@ -1,5 +1,6 @@
 import type { z } from 'zod';
 
+import type { CurrentLegalDocuments } from '@/modules/legal/types/legal.types';
 import type { PlanPrice } from '@/modules/plans/types/plan.types';
 import type { ServiceResult } from '@/shared/types/serviceResult';
 
@@ -15,6 +16,13 @@ export interface RegisterInput {
   email: string;
   password: string;
   selectedPlanPriceId?: string | null;
+  termsVersion: string;
+  privacyNoticeVersion: string;
+}
+
+export interface GoogleRegistrationLegalAcceptance {
+  termsVersion: string;
+  privacyNoticeVersion: string;
 }
 
 export interface RegistrationPlan {
@@ -24,6 +32,7 @@ export interface RegistrationPlan {
 
 export interface RegisterFormProps {
   selectedPlan?: RegistrationPlan;
+  legalDocuments: CurrentLegalDocuments;
 }
 
 export type SessionResponse = z.infer<typeof sessionResponseSchema>;

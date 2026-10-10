@@ -17,7 +17,7 @@ import { getPasswordRequirements, isPasswordValid } from '../utils/passwordPolic
 import { AuthMethodDivider } from './authMethodDivider';
 import { GoogleSignInButton } from './googleSignInButton';
 
-export function RegisterForm({ selectedPlan }: RegisterFormProps) {
+export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps) {
   const router = useRouter();
   const submittingRef = useRef(false);
 
@@ -25,6 +25,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
   const passwordRequirements = getPasswordRequirements(passwordValue);
 
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
@@ -38,11 +39,20 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
       return;
     }
 
+    if (!termsAccepted) {
+      setError('Você precisa aceitar os Termos de Uso para criar sua conta.');
+
+      return;
+    }
+
     setGoogleSubmitting(true);
     setError(null);
 
     try {
-      await loginWithGoogle(credential, selectedPlan?.price.id ?? null);
+      await loginWithGoogle(credential, selectedPlan?.price.id ?? null, {
+        termsVersion: legalDocuments.terms.version,
+        privacyNoticeVersion: legalDocuments.privacy.version,
+      });
 
       router.replace('/dashboard');
     } catch (cause: unknown) {
@@ -69,6 +79,12 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
 
     setError(null);
 
+    if (!termsAccepted) {
+      setError('Você precisa aceitar os Termos de Uso para criar sua conta.');
+
+      return;
+    }
+
     if (!name || !email || !password) {
       setError('Preencha todos os campos.');
       return;
@@ -93,6 +109,8 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
         email,
         password,
         selectedPlanPriceId: selectedPlan?.price.id ?? null,
+        termsVersion: legalDocuments.terms.version,
+        privacyNoticeVersion: legalDocuments.privacy.version,
       });
 
       if (!result.success) {
@@ -102,6 +120,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
 
       form.reset();
       setPasswordValue('');
+      setTermsAccepted(false);
 
       router.replace('/verify-email');
     } finally {
@@ -146,6 +165,50 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
           <p className="mt-3 text-xs text-muted-foreground">O cadastro não realiza cobrança.</p>
         </div>
       )}
+
+      <label
+        htmlFor="register-terms"
+        className="mt-6 flex cursor-pointer items-start gap-3 rounded-xl border border-border bg-muted/30 px-4 py-4 transition-colors hover:bg-muted/50"
+      >
+        <input
+          id="register-terms"
+          type="checkbox"
+          checked={termsAccepted}
+          disabled={busy}
+          onChange={(event) => {
+            setTermsAccepted(event.currentTarget.checked);
+
+            if (error) {
+              setError(null);
+            }
+          }}
+          className="mt-1 size-4 shrink-0 cursor-pointer accent-primary"
+        />
+
+        <span className="min-w-0 text-sm leading-6 text-muted-foreground">
+          Li e aceito os{' '}
+          <Link
+            href="/termos"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
+            className="font-medium text-primary underline underline-offset-4"
+          >
+            Termos de Uso
+          </Link>{' '}
+          e declaro ter lido o{' '}
+          <Link
+            href="/privacidade"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(event) => event.stopPropagation()}
+            className="font-medium text-primary underline underline-offset-4"
+          >
+            Aviso de Privacidade
+          </Link>
+          .
+        </span>
+      </label>
 
       <div className="mt-7 space-y-5">
         <GoogleSignInButton
@@ -227,6 +290,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
                 )}
               </Button>
             </div>
+
             <ul id="register-password-requirements" className="space-y-1.5 pt-1 text-xs leading-relaxed">
               {passwordRequirements.map(({ label, isSatisfied }) => (
                 <li
@@ -240,6 +304,7 @@ export function RegisterForm({ selectedPlan }: RegisterFormProps) {
                   ) : (
                     <Circle aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                   )}
+
                   <span>
                     <span className="sr-only">{isSatisfied ? 'Atendido: ' : 'Pendente: '}</span>
                     {label}

@@ -27,10 +27,18 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
           <div className="w-full max-w-sm">{children}</div>
         </main>
 
-        <footer className="mx-6 flex flex-wrap items-center justify-between gap-3 border-t border-border py-6 sm:mx-10">
+        <footer className="mx-6 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6 sm:mx-10">
           <span className="text-sm font-semibold tracking-tight">bom trato.</span>
 
-          <span className="text-xs text-muted-foreground">Trabalho de gente que faz a diferença.</span>
+          <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+            <Link href="/termos" className="hover:text-foreground">
+              Termos de Uso
+            </Link>
+
+            <Link href="/privacidade" className="hover:text-foreground">
+              Privacidade
+            </Link>
+          </div>
         </footer>
       </div>
     </div>
