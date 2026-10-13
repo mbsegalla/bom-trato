@@ -244,9 +244,9 @@ function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFor
           <Image
             src="/stripe/powered-by-stripe.svg"
             alt="Powered by Stripe"
-            width={88}
-            height={20}
-            className="h-5 w-auto"
+            width={150}
+            height={34}
+            className="h-6 w-auto"
           />
         </a>
       </div>

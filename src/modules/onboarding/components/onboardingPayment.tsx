@@ -220,9 +220,9 @@ function PaymentForm() {
           <Image
             src="/stripe/powered-by-stripe.svg"
             alt="Powered by Stripe"
-            width={104}
-            height={24}
-            className="h-6 w-auto"
+            width={150}
+            height={34}
+            className="h-5 w-auto"
           />
         </a>
       </div>
