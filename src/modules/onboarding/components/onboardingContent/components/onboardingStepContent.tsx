@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import type { OnboardingState } from '../../../types/onboarding.types';
+import { BillingRecovery } from '../../billingRecovery';
 import { OnboardingBusinessForm } from '../../onboardingBusinessForm';
 import { OnboardingPayment } from '../../onboardingPayment';
 import { OnboardingPlanSelection } from '../../onboardingPlanSelection';
@@ -121,26 +122,12 @@ export function OnboardingStepContent({ state, refreshing, onStateChange, onRefr
     );
   }
 
-  if (state.step === 'BILLING_REQUIRED') {
-    return (
-      <>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">Precisamos revisar sua assinatura</h1>
-        <p className="mt-3 leading-relaxed text-muted-foreground">
-          Existe uma assinatura que precisa ser regularizada antes de continuar.
-        </p>
-      </>
-    );
+  if (state.step === 'BILLING_REQUIRED' && state.organizationId) {
+    return <BillingRecovery organizationId={state.organizationId} onStateChange={onStateChange} />;
   }
 
-  if (state.step === 'BILLING_REVIEW') {
-    return (
-      <>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">Estamos revisando sua assinatura</h1>
-        <p className="mt-3 leading-relaxed text-muted-foreground">
-          Encontramos uma situação de cobrança que precisa ser reconciliada antes de continuar.
-        </p>
-      </>
-    );
+  if (state.step === 'BILLING_REVIEW' && state.organizationId) {
+    return <BillingRecovery organizationId={state.organizationId} variant="review" onStateChange={onStateChange} />;
   }
 
   if (state.step === 'CONTACT_OWNER') {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { BrandLogo } from '@/components/brandLogo';
+import { legalIdentity } from '@/modules/legal/data/legal.data';
 
 export function MarketingFooter() {
   return (
@@ -18,6 +19,10 @@ export function MarketingFooter() {
           <Link href="/privacidade" className="hover:text-foreground">
             Privacidade
           </Link>
+
+          <a href={`mailto:${legalIdentity.supportEmail}`} className="hover:text-foreground">
+            Suporte
+          </a>
         </div>
 
         <Link

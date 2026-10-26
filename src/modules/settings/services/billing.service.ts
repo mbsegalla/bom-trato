@@ -522,6 +522,16 @@ export async function cancelPlanChange(organizationId: string, changeId: string)
   return parsed.data;
 }
 
+export async function syncBilling(organizationId: string): Promise<void> {
+  const response = await authenticatedFetch(`${billingPath(organizationId)}/sync`, {
+    method: 'POST',
+  });
+
+  if (!response.ok) {
+    await throwBillingError(response, 'Não foi possível verificar sua assinatura.');
+  }
+}
+
 export async function createBillingPortal(organizationId: string): Promise<string> {
   const response = await authenticatedFetch(`${billingPath(organizationId)}/portal`, {
     method: 'POST',

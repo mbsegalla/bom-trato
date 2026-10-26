@@ -43,8 +43,9 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-3">
-                Ao criar uma conta, o Usuário declara ter lido e aceitado estes Termos de Uso. O Aviso de Privacidade é
-                apresentado separadamente e explica como os dados pessoais são tratados.
+                Ao criar uma conta, contratar um plano ou utilizar a plataforma, o Usuário declara ter lido e aceitado
+                estes Termos de Uso. O Aviso de Privacidade é apresentado separadamente e explica como os dados pessoais
+                são tratados.
               </p>
             </section>
 
@@ -53,13 +54,13 @@ export default function TermsPage() {
 
               <p className="mt-3">
                 O serviço é destinado a pessoas legalmente capazes de contratar e a representantes autorizados de
-                empresas ou organizações. Ao utilizar o Bom Trato em nome de uma empresa, o Usuário declara possuir
-                poderes suficientes para vinculá-la a estes Termos.
+                empresas ou organizações. Ao utilizar o Bom Trato em nome de uma empresa ou organização, o Usuário
+                declara possuir poderes suficientes para vinculá-la a estes Termos.
               </p>
 
               <p className="mt-3">
                 O Usuário é responsável por fornecer informações verdadeiras, atuais e completas durante o cadastro e
-                por mantê-las atualizadas.
+                por mantê-las atualizadas durante a utilização da plataforma.
               </p>
             </section>
 
@@ -67,15 +68,19 @@ export default function TermsPage() {
               <h2 className="text-xl font-semibold text-foreground">3. Conta e segurança</h2>
 
               <p className="mt-3">
-                Cada conta é pessoal. O Usuário deve proteger suas credenciais e não permitir o uso indevido da conta
-                por terceiros. O Bom Trato poderá adotar mecanismos de segurança como confirmação de e-mail,
-                autenticação por provedores externos, sessões autenticadas, limitação de tentativas e revogação de
-                sessões.
+                Cada conta é pessoal e deve ser utilizada exclusivamente por seu titular, salvo funcionalidades
+                específicas de equipe disponibilizadas pela plataforma.
               </p>
 
               <p className="mt-3">
-                O Usuário deve informar o Bom Trato caso identifique acesso não autorizado ou suspeita de
-                comprometimento da conta.
+                O Usuário deve proteger suas credenciais e não permitir o uso indevido da conta por terceiros. O Bom
+                Trato poderá adotar mecanismos de segurança como confirmação de e-mail, autenticação por provedores
+                externos, sessões autenticadas, limitação de tentativas e revogação de sessões.
+              </p>
+
+              <p className="mt-3">
+                O Usuário deve comunicar o Bom Trato caso identifique acesso não autorizado, perda de credenciais ou
+                qualquer suspeita de comprometimento da conta.
               </p>
             </section>
 
@@ -88,8 +93,13 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-3">
-                O proprietário é responsável por administrar os acessos concedidos à organização e por remover membros
-                que não devam mais ter acesso às informações do negócio.
+                O proprietário é responsável por administrar os acessos concedidos à organização, definir permissões
+                adequadas e remover membros que não devam mais ter acesso às informações do negócio.
+              </p>
+
+              <p className="mt-3">
+                Ações realizadas por integrantes autorizados da equipe poderão produzir efeitos sobre informações e
+                configurações da organização de acordo com as permissões atribuídas.
               </p>
             </section>
 
@@ -104,8 +114,9 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-3">
-                As funcionalidades disponíveis podem variar conforme o plano contratado, a evolução do produto ou
-                requisitos técnicos e de segurança.
+                As funcionalidades disponíveis podem variar conforme o plano contratado, a evolução do produto,
+                requisitos técnicos, condições comerciais ou necessidades relacionadas à segurança e manutenção da
+                plataforma.
               </p>
             </section>
 
@@ -122,6 +133,12 @@ export default function TermsPage() {
                 prestação de serviços celebrados entre o profissional e seus clientes e não define preços, condições,
                 garantias ou obrigações comerciais assumidas entre eles.
               </p>
+
+              <p className="mt-3">
+                O profissional permanece responsável pelo serviço que oferece, pelas informações fornecidas aos seus
+                clientes e pelo cumprimento das obrigações legais, fiscais, profissionais e comerciais aplicáveis à sua
+                atividade.
+              </p>
             </section>
 
             <section>
@@ -129,13 +146,14 @@ export default function TermsPage() {
 
               <p className="mt-3">
                 O Usuário poderá, quando a funcionalidade estiver disponível, publicar um perfil profissional na vitrine
-                do Bom Trato com informações sobre seu negócio, serviços, localização e meios de contato.
+                do Bom Trato com informações sobre seu negócio, serviços, localização, logotipo, avaliações e meios de
+                contato.
               </p>
 
               <p className="mt-3">
                 Visitantes poderão utilizar a vitrine para localizar profissionais e enviar solicitações de orçamento. A
                 existência de um perfil na plataforma não representa certificação, garantia ou recomendação do Bom Trato
-                quanto à qualidade, habilitação profissional ou resultado dos serviços oferecidos.
+                quanto à qualidade, habilitação profissional, segurança ou resultado dos serviços oferecidos.
               </p>
 
               <p className="mt-3">
@@ -154,45 +172,88 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-3">
-                É proibido manipular avaliações, criar avaliações falsas, oferecer vantagens em troca de avaliações
-                enganosas ou adotar qualquer prática destinada a artificialmente alterar a reputação exibida.
+                É proibido manipular avaliações, criar avaliações falsas, avaliar artificialmente o próprio negócio,
+                oferecer vantagens em troca de avaliações enganosas ou adotar qualquer prática destinada a alterar de
+                forma artificial a reputação exibida.
+              </p>
+
+              <p className="mt-3">
+                O Bom Trato poderá remover ou limitar a exibição de avaliações quando existirem indícios razoáveis de
+                fraude, abuso, conteúdo ilegal, violação destes Termos ou utilização indevida do sistema de avaliações.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">9. Planos, assinatura e pagamento</h2>
+              <h2 className="text-xl font-semibold text-foreground">9. Planos, assinatura, pagamento e renovação</h2>
 
               <p className="mt-3">
                 Determinadas funcionalidades dependem da contratação de um plano pago. Preço, periodicidade, limites e
-                recursos do plano são apresentados antes da contratação.
+                recursos do plano são apresentados ao Usuário antes da contratação.
               </p>
 
               <p className="mt-3">
                 Assinaturas recorrentes poderão ser renovadas automaticamente de acordo com a periodicidade escolhida,
-                até que seja solicitado o cancelamento. Quando o cancelamento for programado para o fim do período
-                vigente, o acesso permanecerá disponível conforme as condições apresentadas na área de assinatura.
+                até que seja solicitado o cancelamento.
+              </p>
+
+              <p className="mt-3">
+                Quando o cancelamento for programado para o término do período vigente, o acesso às funcionalidades
+                contratadas permanecerá disponível até o encerramento desse período, salvo quando informado de forma
+                diferente ou quando uma medida imediata for necessária por razões legais ou de segurança.
               </p>
 
               <p className="mt-3">
                 O processamento de pagamentos poderá ser realizado por prestadores especializados. Dados completos de
-                cartão podem ser fornecidos diretamente ao processador de pagamentos, enquanto o Bom Trato recebe as
-                informações necessárias para identificar a assinatura, pagamento e situação da cobrança.
+                cartão podem ser fornecidos diretamente ao processador de pagamentos, enquanto o Bom Trato recebe apenas
+                as informações necessárias para identificar a assinatura, o pagamento e a situação da cobrança.
               </p>
 
               <p className="mt-3">
-                Alterações de preço, plano ou periodicidade serão apresentadas de maneira adequada antes de produzirem
-                efeitos quando exigido pela legislação ou pelas características da contratação.
+                O não pagamento de valores devidos poderá resultar na limitação ou suspensão de funcionalidades pagas,
+                observadas as condições apresentadas ao Usuário e a legislação aplicável.
               </p>
 
               <p className="mt-3">
-                Os direitos previstos pela legislação de defesa do consumidor permanecem preservados sempre que a
-                relação contratual estiver sujeita a essas normas, inclusive direitos aplicáveis às contratações
-                realizadas à distância.
+                Alterações de preço, plano ou periodicidade serão comunicadas ou apresentadas de maneira adequada antes
+                de produzirem efeitos quando exigido pela legislação ou pelas características da contratação.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">10. Responsabilidade sobre dados inseridos</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                10. Direito de arrependimento, cancelamento e reembolsos
+              </h2>
+
+              <p className="mt-3">
+                O Usuário poderá solicitar o cancelamento de sua assinatura utilizando os recursos disponibilizados na
+                plataforma ou entrando em contato pelos canais indicados nestes Termos.
+              </p>
+
+              <p className="mt-3">
+                Quando a contratação estiver sujeita às normas brasileiras de proteção ao consumidor e o direito de
+                arrependimento for aplicável, o consumidor poderá exercê-lo no prazo legal de 7 (sete) dias, contado da
+                contratação, observadas as condições previstas na legislação aplicável.
+              </p>
+
+              <p className="mt-3">
+                Quando houver exercício válido do direito de arrependimento, os valores sujeitos à restituição serão
+                devolvidos conforme a legislação aplicável e os procedimentos técnicos do meio de pagamento utilizado.
+              </p>
+
+              <p className="mt-3">
+                Fora das situações em que a legislação assegure restituição obrigatória, o simples cancelamento da
+                renovação não implica automaticamente reembolso proporcional de período de assinatura já iniciado, salvo
+                quando houver condição comercial diferente expressamente apresentada ao Usuário.
+              </p>
+
+              <p className="mt-3">
+                Nenhuma disposição destes Termos pretende restringir direitos obrigatórios assegurados ao consumidor
+                pela legislação aplicável.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-foreground">11. Responsabilidade sobre dados inseridos</h2>
 
               <p className="mt-3">
                 O Usuário é responsável por possuir fundamento legítimo para registrar e utilizar dados pessoais de
@@ -203,10 +264,16 @@ export default function TermsPage() {
                 O Usuário não deve inserir dados desnecessários, informações obtidas ilegalmente, dados que violem
                 direitos de terceiros ou conteúdos cuja utilização não esteja autorizada pela legislação aplicável.
               </p>
+
+              <p className="mt-3">
+                Quando o Bom Trato tratar dados pessoais exclusivamente de acordo com as instruções do Usuário ou de sua
+                organização, caberá ao respectivo controlador definir as finalidades e fundamentos legais aplicáveis a
+                esse tratamento.
+              </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">11. Uso aceitável</h2>
+              <h2 className="text-xl font-semibold text-foreground">12. Uso aceitável</h2>
 
               <p className="mt-3">
                 É proibido utilizar o Bom Trato para atividades ilegais, fraudulentas, abusivas, discriminatórias,
@@ -216,42 +283,52 @@ export default function TermsPage() {
 
               <p className="mt-3">
                 Também é proibido tentar obter acesso não autorizado a contas, sistemas ou informações de terceiros,
-                explorar vulnerabilidades, contornar mecanismos de segurança ou utilizar a plataforma de forma capaz de
-                causar prejuízo técnico a outros usuários.
+                explorar vulnerabilidades, contornar mecanismos de segurança, automatizar acessos de forma abusiva ou
+                utilizar a plataforma de maneira capaz de causar prejuízo técnico a outros usuários.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">12. Serviços de terceiros</h2>
+              <h2 className="text-xl font-semibold text-foreground">13. Serviços de terceiros</h2>
 
               <p className="mt-3">
                 Algumas funcionalidades dependem de terceiros, como provedores de autenticação, processamento de
-                pagamentos, envio de e-mails, hospedagem, armazenamento e infraestrutura em nuvem.
+                pagamentos, envio de e-mails, hospedagem, banco de dados, monitoramento, armazenamento e infraestrutura
+                em nuvem.
               </p>
 
               <p className="mt-3">
-                A utilização desses serviços poderá estar sujeita também aos termos e políticas dos respectivos
-                fornecedores.
+                A utilização desses serviços poderá estar sujeita também aos termos, políticas de privacidade,
+                disponibilidade e limitações técnicas dos respectivos fornecedores.
+              </p>
+
+              <p className="mt-3">
+                O Bom Trato poderá substituir fornecedores tecnológicos ao longo do tempo, desde que preserve as
+                obrigações legais e contratuais aplicáveis ao serviço.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">13. Disponibilidade e evolução do serviço</h2>
+              <h2 className="text-xl font-semibold text-foreground">14. Disponibilidade e evolução do serviço</h2>
 
               <p className="mt-3">
-                O Bom Trato busca manter a plataforma disponível e segura, mas não garante funcionamento ininterrupto ou
-                livre de falhas. Manutenções, incidentes técnicos, atualizações ou indisponibilidades de terceiros podem
-                afetar temporariamente o serviço.
+                O Bom Trato busca manter a plataforma disponível, segura e funcional, mas não garante funcionamento
+                ininterrupto ou totalmente livre de falhas.
               </p>
 
               <p className="mt-3">
-                Funcionalidades poderão ser atualizadas, substituídas ou descontinuadas conforme a evolução do produto,
-                observados os direitos contratuais e legais aplicáveis.
+                Manutenções, incidentes técnicos, atualizações, falhas de conectividade ou indisponibilidades de
+                terceiros podem afetar temporariamente o serviço.
+              </p>
+
+              <p className="mt-3">
+                Funcionalidades poderão ser atualizadas, substituídas, aprimoradas ou descontinuadas conforme a evolução
+                do produto, observados os direitos contratuais e legais aplicáveis.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">14. Propriedade intelectual</h2>
+              <h2 className="text-xl font-semibold text-foreground">15. Propriedade intelectual</h2>
 
               <p className="mt-3">
                 A marca Bom Trato, identidade visual, software, interfaces, textos, estrutura, funcionalidades e demais
@@ -262,10 +339,16 @@ export default function TermsPage() {
                 Estes Termos não transferem ao Usuário qualquer direito de propriedade intelectual sobre o Bom Trato. O
                 Usuário mantém os direitos que possuir sobre conteúdos legítimos inseridos por ele na plataforma.
               </p>
+
+              <p className="mt-3">
+                O Usuário concede ao Bom Trato as autorizações tecnicamente necessárias para armazenar, processar,
+                reproduzir e disponibilizar seus conteúdos exclusivamente para execução das funcionalidades da
+                plataforma e cumprimento das finalidades relacionadas ao serviço.
+              </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">15. Privacidade e proteção de dados</h2>
+              <h2 className="text-xl font-semibold text-foreground">16. Privacidade e proteção de dados</h2>
 
               <p className="mt-3">
                 O tratamento de dados pessoais relacionado ao Bom Trato é detalhado no{' '}
@@ -274,10 +357,15 @@ export default function TermsPage() {
                 </Link>
                 .
               </p>
+
+              <p className="mt-3">
+                O Usuário deverá observar a legislação de proteção de dados ao inserir ou utilizar informações de
+                clientes, colaboradores ou terceiros na plataforma.
+              </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">16. Suspensão e encerramento</h2>
+              <h2 className="text-xl font-semibold text-foreground">17. Suspensão e encerramento</h2>
 
               <p className="mt-3">
                 O Usuário poderá deixar de utilizar o serviço e, quando aplicável, solicitar o cancelamento da
@@ -285,14 +373,21 @@ export default function TermsPage() {
               </p>
 
               <p className="mt-3">
-                O Bom Trato poderá limitar ou suspender acessos em situações de fraude, risco de segurança, violação
-                grave destes Termos, obrigação legal ou necessidade de proteção da plataforma e de terceiros, observados
-                os direitos aplicáveis e a proporcionalidade da medida.
+                O Bom Trato poderá limitar ou suspender acessos em situações de fraude, risco de segurança,
+                inadimplência relacionada a funcionalidades pagas, violação grave destes Termos, obrigação legal ou
+                necessidade de proteção da plataforma e de terceiros, observados os direitos aplicáveis e a
+                proporcionalidade da medida.
+              </p>
+
+              <p className="mt-3">
+                O encerramento da conta não implica necessariamente a eliminação imediata de todos os registros quando
+                sua conservação for necessária para cumprimento de obrigação legal, exercício de direitos, segurança,
+                prevenção de fraude ou outras hipóteses permitidas pela legislação.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">17. Limitação de responsabilidade</h2>
+              <h2 className="text-xl font-semibold text-foreground">18. Limitação de responsabilidade</h2>
 
               <p className="mt-3">
                 O Bom Trato é uma ferramenta de gestão e não garante aumento de vendas, obtenção de clientes,
@@ -313,7 +408,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">18. Alterações destes Termos</h2>
+              <h2 className="text-xl font-semibold text-foreground">19. Alterações destes Termos</h2>
 
               <p className="mt-3">
                 Estes Termos poderão ser atualizados para refletir mudanças legais, comerciais, de segurança ou
@@ -328,7 +423,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">19. Legislação aplicável</h2>
+              <h2 className="text-xl font-semibold text-foreground">20. Legislação aplicável</h2>
 
               <p className="mt-3">
                 Estes Termos são regidos pela legislação brasileira. Eventuais controvérsias serão submetidas ao foro
@@ -338,10 +433,11 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-foreground">20. Contato</h2>
+              <h2 className="text-xl font-semibold text-foreground">21. Contato</h2>
 
               <p className="mt-3">
-                Dúvidas relacionadas a estes Termos podem ser encaminhadas para {legalIdentity.supportEmail}.
+                Dúvidas, solicitações relacionadas a estes Termos e pedidos relacionados à assinatura podem ser
+                encaminhados para {legalIdentity.supportEmail}.
               </p>
             </section>
           </div>
@@ -362,6 +458,10 @@ export default function TermsPage() {
             <Link href="/privacidade" className="hover:text-foreground">
               Privacidade
             </Link>
+
+            <a href={`mailto:${legalIdentity.supportEmail}`} className="hover:text-foreground">
+              Suporte
+            </a>
           </div>
         </div>
       </footer>

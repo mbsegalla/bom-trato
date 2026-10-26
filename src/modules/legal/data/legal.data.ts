@@ -1,10 +1,10 @@
 export const legalIdentity = {
   serviceName: 'Bom Trato',
-  providerName: 'PREENCHER RAZÃO SOCIAL OU NOME COMPLETO',
-  document: 'PREENCHER CPF OU CNPJ',
-  address: 'PREENCHER ENDEREÇO DO RESPONSÁVEL',
-  supportEmail: 'PREENCHER E-MAIL DE CONTATO',
-  privacyEmail: 'PREENCHER E-MAIL PARA ASSUNTOS DE PRIVACIDADE',
+  providerName: 'MB tecnologia LTDA',
+  document: 'CNPJ 00.000.000/0001-00',
+  address: 'Avenida Manuel Lucio, 520, Minas Gerais, Uberlândia, Brasil',
+  supportEmail: 'suporte@bomtratomb.com.br',
+  privacyEmail: 'privacidade@bomtratomb.com.br',
 };
 
 export const legalDocuments = {

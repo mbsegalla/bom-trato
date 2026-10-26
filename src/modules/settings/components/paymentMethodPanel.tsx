@@ -18,6 +18,7 @@ const stripePromise = loadStripe(getStripeConfig().publishableKey);
 
 interface PaymentMethodPanelProps {
   organizationId: string;
+  returnPath?: string;
   onClose(): void;
   onSaved(): void;
 }
@@ -25,10 +26,16 @@ interface PaymentMethodPanelProps {
 interface PaymentMethodFormProps {
   organizationId: string;
   update: PaymentMethodUpdate;
+  returnPath: string;
   onSaved(): void;
 }
 
-export function PaymentMethodPanel({ organizationId, onClose, onSaved }: PaymentMethodPanelProps) {
+export function PaymentMethodPanel({
+  organizationId,
+  returnPath = '/settings/billing/return',
+  onClose,
+  onSaved,
+}: PaymentMethodPanelProps) {
   const [accepted, setAccepted] = useState(false);
   const [starting, setStarting] = useState(false);
   const [update, setUpdate] = useState<PaymentMethodUpdate | null>(null);
@@ -145,7 +152,12 @@ export function PaymentMethodPanel({ organizationId, onClose, onSaved }: Payment
                 },
               }}
             >
-              <PaymentMethodForm organizationId={organizationId} update={update} onSaved={onSaved} />
+              <PaymentMethodForm
+                organizationId={organizationId}
+                update={update}
+                returnPath={returnPath}
+                onSaved={onSaved}
+              />
             </Elements>
           ) : (
             <div className="space-y-3">
@@ -160,7 +172,7 @@ export function PaymentMethodPanel({ organizationId, onClose, onSaved }: Payment
   );
 }
 
-function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFormProps) {
+function PaymentMethodForm({ organizationId, update, returnPath, onSaved }: PaymentMethodFormProps) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -178,7 +190,7 @@ function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFor
     setError(null);
 
     try {
-      const returnUrl = new URL('/settings/billing/return', window.location.origin);
+      const returnUrl = new URL(returnPath, window.location.origin);
 
       returnUrl.searchParams.set('organizationId', organizationId);
       returnUrl.searchParams.set('operationId', update.updateId);
@@ -244,9 +256,9 @@ function PaymentMethodForm({ organizationId, update, onSaved }: PaymentMethodFor
           <Image
             src="/stripe/powered-by-stripe.svg"
             alt="Powered by Stripe"
-            width={88}
-            height={20}
-            className="h-5 w-auto"
+            width={150}
+            height={34}
+            className="h-6 w-auto"
           />
         </a>
       </div>
