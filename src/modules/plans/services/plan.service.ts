@@ -3,7 +3,9 @@ import { getApiConfig } from '@/config/api.config';
 import { planListResponseSchema } from '../schemas/plan.schema';
 import type { PlanListResult } from '../types/plan.types';
 
-export async function listPlans(): Promise<PlanListResult> {
+let plansRequest: Promise<PlanListResult> | null = null;
+
+async function requestPlans(): Promise<PlanListResult> {
   try {
     const { baseUrl, timeoutMs } = getApiConfig();
 
@@ -24,6 +26,7 @@ export async function listPlans(): Promise<PlanListResult> {
     }
 
     const payload: unknown = await response.json();
+
     const result = planListResponseSchema.safeParse(payload);
 
     if (!result.success) {
@@ -43,4 +46,24 @@ export async function listPlans(): Promise<PlanListResult> {
       message: 'Não foi possível carregar os planos. Tente novamente.',
     };
   }
+}
+
+export function listPlans(): Promise<PlanListResult> {
+  if (plansRequest) {
+    return plansRequest;
+  }
+
+  const request = requestPlans();
+
+  plansRequest = request;
+
+  const cleanup = () => {
+    if (plansRequest === request) {
+      plansRequest = null;
+    }
+  };
+
+  void request.then(cleanup, cleanup);
+
+  return request;
 }

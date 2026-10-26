@@ -16,6 +16,7 @@ import { QuoteStatusHistory } from '@/modules/quotes/components/quoteStatusHisto
 import { isQuoteExpired } from '@/modules/quotes/constants/quote.constants';
 import type { QuoteConfirmation } from '@/modules/quotes/helpers/quoteConfirmation.helper';
 import { getQuoteConfirmationContent } from '@/modules/quotes/helpers/quoteConfirmation.helper';
+import { createQuoteWhatsAppMessage, createQuoteWhatsAppUrl } from '@/modules/quotes/helpers/quoteWhatsapp.helper';
 import {
   approveQuote,
   cancelQuote,
@@ -100,6 +101,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
 
     try {
       let updated: Quote;
+
       switch (confirmation.kind) {
         case 'SEND':
           updated = await sendQuote(organizationId, quote.id, quote.version);
@@ -146,6 +148,16 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     } finally {
       setDownloadingPdf(false);
     }
+  }
+
+  function handleWhatsApp(url: string): void {
+    if (!quote) return;
+
+    const message = createQuoteWhatsAppMessage(quote, url);
+
+    const whatsappUrl = createQuoteWhatsAppUrl(quote.customerPhone, message);
+
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 
   async function copyShareUrl(url: string): Promise<void> {
@@ -264,6 +276,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
           onCreate={() => void handleCreateShare()}
           onRevoke={() => void handleRevokeShare()}
           onCopy={(url) => void copyShareUrl(url)}
+          onWhatsApp={handleWhatsApp}
         />
       )}
 

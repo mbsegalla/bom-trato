@@ -18,6 +18,7 @@ export function useNotificationStream({ organizationId, onNotification }: UseNot
   useEffect(() => {
     let disposed = false;
     let source: EventSource | null = null;
+    let initialConnectTimer: number | null = null;
     let reconnectTimer: number | null = null;
     let reconnectAttempts = 0;
 
@@ -38,6 +39,10 @@ export function useNotificationStream({ organizationId, onNotification }: UseNot
     }
 
     async function connect(): Promise<void> {
+      if (disposed) {
+        return;
+      }
+
       try {
         const { ticket } = await createNotificationStreamTicket(organizationId);
 
@@ -60,9 +65,12 @@ export function useNotificationStream({ organizationId, onNotification }: UseNot
           scheduleReconnect();
         };
       } catch (cause: unknown) {
+        if (disposed) {
+          return;
+        }
+
         if (cause instanceof SessionError && cause.status === 401) {
           router.replace('/login');
-
           return;
         }
 
@@ -70,16 +78,25 @@ export function useNotificationStream({ organizationId, onNotification }: UseNot
       }
     }
 
-    void connect();
+    initialConnectTimer = window.setTimeout(() => {
+      initialConnectTimer = null;
+
+      void connect();
+    }, 0);
 
     return () => {
       disposed = true;
+
+      if (initialConnectTimer !== null) {
+        window.clearTimeout(initialConnectTimer);
+      }
 
       if (reconnectTimer !== null) {
         window.clearTimeout(reconnectTimer);
       }
 
       source?.close();
+      source = null;
     };
   }, [organizationId, onNotification, router]);
 }
