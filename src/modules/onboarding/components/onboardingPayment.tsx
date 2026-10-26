@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getStripeConfig } from '@/config/stripe.config';
 import { startCheckout } from '@/modules/billing/services/checkout.service';
+import { findSelectedPlan } from '@/modules/plans/helpers/plan.helper';
+import { getPricePeriodLabel, getRecurringBillingLabel } from '@/modules/plans/helpers/planPrice.helper';
 import { listPlans } from '@/modules/plans/services/plan.service';
 import type { Plan, PlanPrice } from '@/modules/plans/types/plan.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
@@ -27,6 +29,12 @@ interface CheckoutLoaderProps extends OnboardingPaymentProps {
 interface SelectedPlan {
   plan: Plan;
   price: PlanPrice;
+}
+
+interface PlanSummaryProps {
+  selectedPlan: SelectedPlan | null;
+  loading: boolean;
+  error: string | null;
 }
 
 const stripePromise = loadStripe(getStripeConfig().publishableKey);
@@ -174,15 +182,7 @@ function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoader
   );
 }
 
-function PlanSummary({
-  selectedPlan,
-  loading,
-  error,
-}: {
-  selectedPlan: SelectedPlan | null;
-  loading: boolean;
-  error: string | null;
-}) {
+function PlanSummary({ selectedPlan, loading, error }: PlanSummaryProps) {
   if (loading) {
     return <PlanSummarySkeleton />;
   }
@@ -388,51 +388,4 @@ function PaymentForm() {
       </div>
     </form>
   );
-}
-
-function findSelectedPlan(plans: Plan[], planPriceId: string): SelectedPlan | null {
-  for (const plan of plans) {
-    const price = plan.prices.find((item) => item.id === planPriceId);
-
-    if (price) {
-      return {
-        plan,
-        price,
-      };
-    }
-  }
-
-  return null;
-}
-
-function getPricePeriodLabel(price: PlanPrice): string {
-  if (price.interval === 'MONTH' && price.intervalCount === 1) {
-    return '/ mês';
-  }
-
-  if (price.interval === 'YEAR' && price.intervalCount === 1) {
-    return '/ ano';
-  }
-
-  if (price.interval === 'MONTH') {
-    return `/ ${price.intervalCount} meses`;
-  }
-
-  return `/ ${price.intervalCount} anos`;
-}
-
-function getRecurringBillingLabel(price: PlanPrice): string {
-  if (price.interval === 'MONTH' && price.intervalCount === 1) {
-    return 'Cobrança recorrente mensal. Você pode cancelar a renovação quando quiser.';
-  }
-
-  if (price.interval === 'YEAR' && price.intervalCount === 1) {
-    return 'Cobrança recorrente anual. Você pode cancelar a renovação quando quiser.';
-  }
-
-  if (price.interval === 'MONTH') {
-    return `Cobrança recorrente a cada ${price.intervalCount} meses. Você pode cancelar a renovação quando quiser.`;
-  }
-
-  return `Cobrança recorrente a cada ${price.intervalCount} anos. Você pode cancelar a renovação quando quiser.`;
 }
