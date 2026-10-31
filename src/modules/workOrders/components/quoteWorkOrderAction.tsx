@@ -50,7 +50,7 @@ export function QuoteWorkOrderAction({ organizationId, quoteId }: QuoteWorkOrder
         ) : (
           <ClipboardList aria-hidden="true" className="size-4" />
         )}
-        Abrir ordem de serviço
+        Ver ordem de serviço
       </Button>
 
       {error && <p className="mt-2 max-w-64 text-xs text-destructive">{error}</p>}

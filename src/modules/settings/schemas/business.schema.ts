@@ -18,6 +18,7 @@ export const businessProfileSchema = z.object({
   city: z.string().nullable(),
   state: z.string().nullable(),
   postalCode: z.string().nullable(),
+  defaultReceivableDueDays: z.number().int().min(0).max(365),
 });
 
 export const businessProfileResponseSchema = apiResponseSchema(businessProfileSchema);
@@ -93,6 +94,11 @@ export const businessProfileFormSchema = z
         .regex(/^\d{8}$/, 'Informe um CEP com 8 dígitos.')
         .nullable(),
     ),
+    defaultReceivableDueDays: z.coerce
+      .number()
+      .int()
+      .min(0, 'O prazo não pode ser negativo.')
+      .max(365, 'O prazo máximo é de 365 dias.'),
   })
   .superRefine((data, context) => {
     if ((data.documentType === null) !== (data.document === null)) {

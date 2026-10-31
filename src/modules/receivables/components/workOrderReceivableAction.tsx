@@ -54,7 +54,7 @@ export function WorkOrderReceivableAction({ organizationId, workOrderId, title }
       <div>
         <Button type="button" disabled={checking} onClick={() => void handleClick()} className="cursor-pointer">
           {checking ? <LoaderCircle className="size-4 animate-spin" /> : <WalletCards className="size-4" />}
-          Recebível
+          Ver recebível
         </Button>
 
         {error && <p className="mt-2 max-w-64 text-xs text-destructive">{error}</p>}

@@ -103,9 +103,6 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
       let updated: Quote;
 
       switch (confirmation.kind) {
-        case 'SEND':
-          updated = await sendQuote(organizationId, quote.id, quote.version);
-          break;
         case 'APPROVE':
           updated = await approveQuote(organizationId, quote.id, quote.version);
           break;
@@ -169,6 +166,17 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     }
   }
 
+  function getQuoteShareExpiration(quote: Quote): string {
+    const maxExpiration = Date.now() + 7 * 24 * 60 * 60 * 1000 - 60_000;
+
+    const expiresAt =
+      quote.validUntil === null
+        ? new Date(maxExpiration)
+        : new Date(Math.min(maxExpiration, quote.validUntil.getTime()));
+
+    return expiresAt.toISOString();
+  }
+
   async function handleCreateShare(): Promise<void> {
     if (!quote || sharing) return;
 
@@ -177,12 +185,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     setShareMessage(null);
 
     try {
-      const maxExpiration = Date.now() + 7 * 24 * 60 * 60 * 1000 - 60_000;
-      const expiresAt =
-        quote.validUntil === null
-          ? new Date(maxExpiration)
-          : new Date(Math.min(maxExpiration, quote.validUntil.getTime()));
-      const share = await createQuoteShare(organizationId, quote.id, quote.version, expiresAt.toISOString());
+      const share = await createQuoteShare(organizationId, quote.id, quote.version, getQuoteShareExpiration(quote));
 
       setShareUrl(share.url);
 
@@ -208,6 +211,56 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     } catch (cause: unknown) {
       setActionError(cause instanceof Error ? cause.message : 'Não foi possível revogar o link.');
     } finally {
+      setSharing(false);
+    }
+  }
+
+  async function handleSendQuoteToWhatsApp(): Promise<void> {
+    if (!quote || operationLoading || sharing) {
+      return;
+    }
+    const whatsappWindow = window.open('about:blank', '_blank');
+
+    if (whatsappWindow !== null) {
+      whatsappWindow.opener = null;
+    }
+
+    setOperationLoading(true);
+    setSharing(true);
+    setActionError(null);
+    setShareMessage(null);
+
+    try {
+      const sentQuote = await sendQuote(organizationId, quote.id, quote.version);
+
+      applyQuote(sentQuote);
+
+      const share = await createQuoteShare(
+        organizationId,
+        sentQuote.id,
+        sentQuote.version,
+        getQuoteShareExpiration(sentQuote),
+      );
+
+      setShareUrl(share.url);
+
+      const message = createQuoteWhatsAppMessage(sentQuote, share.url);
+
+      const whatsappUrl = createQuoteWhatsAppUrl(sentQuote.customerPhone, message);
+
+      setShareMessage('Orçamento preparado para envio.');
+
+      if (whatsappWindow !== null) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.assign(whatsappUrl);
+      }
+    } catch (cause: unknown) {
+      whatsappWindow?.close();
+
+      setActionError(cause instanceof Error ? cause.message : 'Não foi possível preparar o orçamento para envio.');
+    } finally {
+      setOperationLoading(false);
       setSharing(false);
     }
   }
@@ -254,9 +307,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
         approved={approved}
         expired={expired}
         downloadingPdf={downloadingPdf}
+        sending={operationLoading || sharing}
         onPdf={() => void handlePdf()}
         onEdit={() => setEditingDetails(true)}
-        onSend={() => setConfirmation({ kind: 'SEND' })}
+        onSend={() => void handleSendQuoteToWhatsApp()}
         onApprove={() => setConfirmation({ kind: 'APPROVE' })}
         onDecline={() => setConfirmation({ kind: 'DECLINE' })}
         onCancel={() => setConfirmation({ kind: 'CANCEL' })}
