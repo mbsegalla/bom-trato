@@ -18,7 +18,17 @@ import {
   getWorkOrderConfirmationContent,
   type WorkOrderConfirmation,
 } from '../../helpers/workOrderConfirmation.helper';
-import { completeWorkOrder, getWorkOrder, startWorkOrder } from '../../services/workOrder.service';
+import {
+  createWorkOrderReviewUrl,
+  createWorkOrderReviewWhatsAppMessage,
+  createWorkOrderReviewWhatsAppUrl,
+} from '../../helpers/workOrderReviewWhatsapp.helper';
+import {
+  completeWorkOrder,
+  getWorkOrder,
+  sendWorkOrderReviewInvitation,
+  startWorkOrder,
+} from '../../services/workOrder.service';
 import type { WorkOrder } from '../../types/workOrder.types';
 import { WorkOrderAssignPanel } from '../workOrderAssignPanel';
 import { WorkOrderCancelDialog } from '../workOrderCancelDialog';
@@ -72,6 +82,8 @@ function OrganizationWorkOrderDetails({
   const [cancelOpen, setCancelOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<WorkOrderConfirmation | null>(null);
   const [operationLoading, setOperationLoading] = useState(false);
+  const [sendingReview, setSendingReview] = useState(false);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -103,6 +115,57 @@ function OrganizationWorkOrderDetails({
   function applyWorkOrder(workOrder: WorkOrder): void {
     setState((current) => (current === null ? current : { ...current, workOrder }));
     setActionError(null);
+    setActionMessage(null);
+  }
+
+  async function handleSendReview(): Promise<void> {
+    if (!state || sendingReview) {
+      return;
+    }
+
+    const { workOrder } = state;
+
+    const whatsappWindow = workOrder.customerEmail === null ? window.open('about:blank', '_blank') : null;
+
+    if (whatsappWindow !== null) {
+      whatsappWindow.opener = null;
+    }
+
+    setSendingReview(true);
+    setActionError(null);
+    setActionMessage(null);
+
+    try {
+      const delivery = await sendWorkOrderReviewInvitation(organizationId, workOrder.id);
+
+      if (delivery.channel === 'EMAIL') {
+        whatsappWindow?.close();
+
+        setActionMessage(`Avaliação enviada por e-mail para ${delivery.recipient}.`);
+
+        return;
+      }
+
+      const reviewUrl = createWorkOrderReviewUrl(delivery.token);
+
+      const message = createWorkOrderReviewWhatsAppMessage(workOrder, delivery.organizationName, reviewUrl);
+
+      const whatsappUrl = createWorkOrderReviewWhatsAppUrl(delivery.recipient, message);
+
+      if (whatsappWindow !== null) {
+        whatsappWindow.location.href = whatsappUrl;
+      } else {
+        window.location.assign(whatsappUrl);
+      }
+
+      setActionMessage('Mensagem de avaliação preparada no WhatsApp.');
+    } catch (cause: unknown) {
+      whatsappWindow?.close();
+
+      setActionError(cause instanceof Error ? cause.message : 'Não foi possível preparar a avaliação.');
+    } finally {
+      setSendingReview(false);
+    }
   }
 
   async function executeConfirmation(): Promise<void> {
@@ -159,7 +222,7 @@ function OrganizationWorkOrderDetails({
   const ready = workOrder.assignedToId !== null && workOrder.serviceAddress !== null;
   const canStart = planningEditable && ready;
   const canProgress = workOrder.status === 'IN_PROGRESS';
-  const canCreateReceivable = workOrder.status === 'COMPLETED';
+  const completed = workOrder.status === 'COMPLETED';
   const confirmationContent = getWorkOrderConfirmationContent(confirmation);
 
   return (
@@ -179,18 +242,27 @@ function OrganizationWorkOrderDetails({
         ready={ready}
         canStart={canStart}
         canProgress={canProgress}
-        canCreateReceivable={canCreateReceivable}
+        canCreateReceivable={completed}
+        canSendReview={completed}
+        sendingReview={sendingReview}
         onOpenPlanning={() => setPlanningOpen(true)}
         onOpenAssign={() => setAssignOpen(true)}
         onOpenSchedule={() => setScheduleOpen(true)}
         onStart={() => setConfirmation({ kind: 'START' })}
         onComplete={() => setConfirmation({ kind: 'COMPLETE' })}
         onCancel={() => setCancelOpen(true)}
+        onSendReview={() => void handleSendReview()}
       />
 
       {actionError && (
         <p className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
           {actionError}
+        </p>
+      )}
+
+      {actionMessage && (
+        <p role="status" className="mt-5 rounded-xl bg-success-surface p-4 text-sm text-success">
+          {actionMessage}
         </p>
       )}
 

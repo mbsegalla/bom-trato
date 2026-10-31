@@ -208,3 +208,20 @@ export const workOrderCancelFormSchema = z.object({
     .min(5, 'Informe um motivo com pelo menos 5 caracteres.')
     .max(1000, 'O motivo deve ter no máximo 1000 caracteres.'),
 });
+
+export const workOrderReviewDeliverySchema = z.discriminatedUnion('channel', [
+  z.object({
+    channel: z.literal('EMAIL'),
+    recipient: z.string().email(),
+    token: z.null(),
+    organizationName: z.string().min(1),
+  }),
+  z.object({
+    channel: z.literal('WHATSAPP'),
+    recipient: z.string().min(1),
+    token: z.string().min(1),
+    organizationName: z.string().min(1),
+  }),
+]);
+
+export const workOrderReviewDeliveryResponseSchema = apiResponseSchema(workOrderReviewDeliverySchema);

@@ -1,4 +1,4 @@
-import { CalendarClock, Check, Pencil, Play, Users, X } from 'lucide-react';
+import { CalendarClock, Check, LoaderCircle, Pencil, Play, Star, Users, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { WorkOrderReceivableAction } from '@/modules/receivables/components/workOrderReceivableAction';
@@ -16,12 +16,15 @@ interface WorkOrderDetailsHeaderProps {
   canStart: boolean;
   canProgress: boolean;
   canCreateReceivable: boolean;
+  canSendReview: boolean;
+  sendingReview: boolean;
   onOpenPlanning: () => void;
   onOpenAssign: () => void;
   onOpenSchedule: () => void;
   onStart: () => void;
   onComplete: () => void;
   onCancel: () => void;
+  onSendReview: () => void;
 }
 
 export function WorkOrderDetailsHeader({
@@ -32,12 +35,15 @@ export function WorkOrderDetailsHeader({
   canStart,
   canProgress,
   canCreateReceivable,
+  canSendReview,
+  sendingReview,
   onOpenPlanning,
   onOpenAssign,
   onOpenSchedule,
   onStart,
   onComplete,
   onCancel,
+  onSendReview,
 }: WorkOrderDetailsHeaderProps) {
   return (
     <div className="mt-5 flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
@@ -85,6 +91,24 @@ export function WorkOrderDetailsHeader({
             workOrderId={workOrder.id}
             title={workOrder.title}
           />
+        )}
+
+        {canSendReview && (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={sendingReview}
+            onClick={onSendReview}
+            className="cursor-pointer"
+          >
+            {sendingReview ? (
+              <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+            ) : (
+              <Star aria-hidden="true" className="size-4" />
+            )}
+
+            {sendingReview ? 'Preparando...' : 'Enviar avaliação'}
+          </Button>
         )}
 
         {canStart && (

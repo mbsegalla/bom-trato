@@ -4,14 +4,15 @@ import { isValidBrazilianPhone, normalizeBrazilianPhone } from '@/shared/formatt
 
 export function createQuoteWhatsAppMessage(quote: Quote, shareUrl: string): string {
   return [
-    `Olá, ${quote.customerName}! 👋`,
+    `Olá, ${quote.customerName}!`,
     '',
     'Segue o orçamento solicitado:',
     '',
-    `📋 ${quote.title}`,
-    `💰 Valor: ${formatBrlCurrency(quote.totalInCents)}`,
+    quote.title,
+    `Valor: ${formatBrlCurrency(quote.totalInCents)}`,
     '',
     'Você pode visualizar, baixar o PDF e aprovar ou recusar o orçamento pelo link abaixo:',
+    '',
     shareUrl,
     '',
     'Qualquer dúvida, estou à disposição.',

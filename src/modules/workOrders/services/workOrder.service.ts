@@ -2,6 +2,7 @@ import { authenticatedFetch, SessionError } from '@/modules/auth/services/sessio
 
 import {
   workOrderResponseSchema,
+  workOrderReviewDeliveryResponseSchema,
   workOrderScheduleHistoryResponseSchema,
   workOrdersResponseSchema,
   workOrderStatusHistoryResponseSchema,
@@ -12,6 +13,7 @@ import type {
   WorkOrderListParams,
   WorkOrderPage,
   WorkOrderPlanningInput,
+  WorkOrderReviewDelivery,
   WorkOrderScheduleHistoryPage,
   WorkOrderScheduleInput,
   WorkOrderStatusHistory,
@@ -444,4 +446,57 @@ export function getWorkOrderScheduleHistory(
   void request.then(cleanup, cleanup);
 
   return request;
+}
+
+export async function sendWorkOrderReviewInvitation(
+  organizationId: string,
+  workOrderId: string,
+): Promise<WorkOrderReviewDelivery> {
+  const response = await authenticatedFetch(
+    `${organizationWorkOrdersPath(organizationId)}/${encodeURIComponent(workOrderId)}/review-invitation`,
+    {
+      method: 'POST',
+    },
+  );
+
+  if (response.status === 401) {
+    throw new SessionError('Sua sessão expirou. Entre novamente.', 401);
+  }
+
+  if (!response.ok) {
+    if (response.status === 409) {
+      const payload:
+        | {
+            error?: {
+              code?: string;
+            };
+          }
+        | undefined = await response.json().catch(() => undefined);
+
+      switch (payload?.error?.code) {
+        case 'WORK_ORDER_NOT_COMPLETED':
+          throw new Error('Conclua o serviço antes de solicitar uma avaliação.');
+        case 'CUSTOMER_CONTACT_REQUIRED':
+          throw new Error('Este cliente não possui e-mail ou telefone cadastrado.');
+        case 'REVIEW_PUBLIC_PROFILE_REQUIRED':
+          throw new Error('Publique o perfil do negócio antes de solicitar avaliações.');
+        case 'REVIEW_ALREADY_SUBMITTED':
+          throw new Error('Este serviço já foi avaliado pelo cliente.');
+        case 'REVIEW_RECIPIENT_NOT_ALLOWED':
+          throw new Error('Este contato não pode ser usado para enviar a avaliação.');
+      }
+    }
+
+    throw new Error(getWorkOrderErrorMessage(response.status, 'Não foi possível preparar a avaliação.'));
+  }
+
+  const payload: unknown = await response.json();
+
+  const parsed = workOrderReviewDeliveryResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error('Não foi possível interpretar o envio da avaliação.');
+  }
+
+  return parsed.data;
 }
