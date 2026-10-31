@@ -45,9 +45,7 @@ export function QuotesTable({ data, page, onPrevious, onNext }: QuotesTableProps
                 </td>
 
                 <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(quote.validUntil)}</td>
-
                 <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(quote.totalInCents)}</td>
-
                 <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(quote.updatedAt)}</td>
               </tr>
             ))}

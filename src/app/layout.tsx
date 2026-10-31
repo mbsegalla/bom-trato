@@ -43,11 +43,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning className={`${montserrat.variable} ${geistMono.variable}`}>
-      <head>
-        <ThemeScript />
-      </head>
-
       <body>
+        <ThemeScript />
+
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
