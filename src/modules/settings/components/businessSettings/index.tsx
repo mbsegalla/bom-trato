@@ -122,6 +122,7 @@ function OrganizationBusinessSettings({
       city: String(formData.get('city') ?? ''),
       state: String(formData.get('state') ?? ''),
       postalCode: String(formData.get('postalCode') ?? ''),
+      defaultReceivableDueDays: String(formData.get('defaultReceivableDueDays') ?? '7'),
     });
 
     if (!parsed.success) {
@@ -188,6 +189,7 @@ function OrganizationBusinessSettings({
     profile.city,
     profile.state,
     profile.postalCode,
+    profile.defaultReceivableDueDays,
   ]);
 
   return (

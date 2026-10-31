@@ -50,6 +50,7 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
       name: String(formData.get('name') ?? ''),
       email: String(formData.get('email') ?? ''),
       phone: String(formData.get('phone') ?? ''),
+      defaultServiceAddress: String(formData.get('defaultServiceAddress') ?? ''),
       notes: String(formData.get('notes') ?? ''),
     });
 
@@ -60,6 +61,7 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
         name: firstError(errors.name),
         email: firstError(errors.email),
         phone: firstError(errors.phone),
+        defaultServiceAddress: firstError(errors.defaultServiceAddress),
         notes: firstError(errors.notes),
       });
 
@@ -220,6 +222,30 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                     {fieldErrors.phone}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customer-service-address">Endereço padrão do serviço</Label>
+
+                <Textarea
+                  id="customer-service-address"
+                  name="defaultServiceAddress"
+                  defaultValue={customer?.defaultServiceAddress ?? ''}
+                  maxLength={500}
+                  placeholder="Rua, número, complemento, bairro e cidade"
+                  aria-invalid={fieldErrors.defaultServiceAddress ? true : undefined}
+                  className="min-h-24 rounded-xl"
+                />
+
+                {fieldErrors.defaultServiceAddress && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fieldErrors.defaultServiceAddress}
+                  </p>
+                )}
+
+                <p className="text-xs text-muted-foreground">
+                  Novas ordens de serviço deste cliente usarão este endereço automaticamente.
+                </p>
               </div>
 
               <div className="space-y-2">

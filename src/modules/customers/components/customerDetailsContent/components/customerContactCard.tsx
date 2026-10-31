@@ -1,4 +1,4 @@
-import { Mail, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 
 import type { CustomerOverview } from '@/modules/customers/types/customer.types';
 import { formatDate } from '@/shared/formatters/date.formatter';
@@ -54,6 +54,20 @@ export function CustomerContactCard({ customer }: CustomerContactCardProps) {
               ) : (
                 <p className="mt-1 text-sm font-medium">{formattedPhone}</p>
               )
+            ) : (
+              <p className="mt-1 text-sm text-muted-foreground">Não informado</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <MapPin aria-hidden="true" className="mt-0.5 size-4 text-muted-foreground" />
+
+          <div>
+            <p className="text-xs text-muted-foreground">Endereço padrão do serviço</p>
+
+            {customer.defaultServiceAddress ? (
+              <p className="mt-1 text-sm font-medium">{customer.defaultServiceAddress}</p>
             ) : (
               <p className="mt-1 text-sm text-muted-foreground">Não informado</p>
             )}

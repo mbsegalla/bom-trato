@@ -13,6 +13,7 @@ interface QuoteDetailsHeaderProps {
   approved: boolean;
   expired: boolean;
   downloadingPdf: boolean;
+  sending: boolean;
   onPdf: () => void;
   onEdit: () => void;
   onSend: () => void;
@@ -29,6 +30,7 @@ export function QuoteDetailsHeader({
   approved,
   expired,
   downloadingPdf,
+  sending,
   onPdf,
   onEdit,
   onSend,
@@ -66,9 +68,19 @@ export function QuoteDetailsHeader({
               <Pencil aria-hidden="true" className="size-4" />
               Editar
             </Button>
-            <Button type="button" disabled={quote.items.length === 0} onClick={onSend} className="cursor-pointer">
-              <Send aria-hidden="true" className="size-4" />
-              Marcar como enviado
+            <Button
+              type="button"
+              disabled={quote.items.length === 0 || sending}
+              onClick={onSend}
+              className="cursor-pointer"
+            >
+              {sending ? (
+                <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+              ) : (
+                <Send aria-hidden="true" className="size-4" />
+              )}
+
+              {sending ? 'Preparando...' : 'Enviar orçamento'}
             </Button>
           </>
         )}

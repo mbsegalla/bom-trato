@@ -42,6 +42,11 @@ const nullableNotesSchema = z.preprocess(
   z.string().max(5000, 'As observações devem ter no máximo 5000 caracteres.').nullable(),
 );
 
+const nullableServiceAddressSchema = z.preprocess(
+  nullableText,
+  z.string().max(500, 'O endereço deve ter no máximo 500 caracteres.').nullable(),
+);
+
 export const customerStatusSchema = z.enum(['ACTIVE', 'ARCHIVED', 'ALL']);
 
 export const customerSchema = z.object({
@@ -50,6 +55,7 @@ export const customerSchema = z.object({
   name: z.string().min(1),
   email: z.string().email().nullable(),
   phone: z.string().nullable(),
+  defaultServiceAddress: z.string().nullable(),
   notes: z.string().nullable(),
   archivedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
@@ -64,6 +70,7 @@ export const customerFormSchema = z.object({
     .max(100, 'O nome deve ter no máximo 100 caracteres.'),
   email: nullableEmailSchema,
   phone: nullablePhoneSchema,
+  defaultServiceAddress: nullableServiceAddressSchema,
   notes: nullableNotesSchema,
 });
 

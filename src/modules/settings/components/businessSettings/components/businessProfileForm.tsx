@@ -138,6 +138,22 @@ export function BusinessProfileForm({
               />
             </div>
 
+            <Input
+              id="business-default-receivable-due-days"
+              name="defaultReceivableDueDays"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={365}
+              defaultValue={profile.defaultReceivableDueDays}
+              readOnly={!owner}
+              className="h-12 rounded-xl"
+            />
+
+            <p className="text-xs leading-relaxed text-muted-foreground">
+              Ao concluir uma ordem de serviço, o Bom Trato criará automaticamente o recebível com este prazo.
+            </p>
+
             <div className="space-y-2">
               <Label htmlFor="business-document-type">Tipo de documento</Label>
               <select

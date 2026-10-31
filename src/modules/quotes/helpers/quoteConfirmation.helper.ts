@@ -2,9 +2,6 @@ import type { QuoteItem } from '../types/quote.types';
 
 export type QuoteConfirmation =
   | {
-      kind: 'SEND';
-    }
-  | {
       kind: 'APPROVE';
     }
   | {
@@ -38,15 +35,6 @@ export function getQuoteConfirmationContent(confirmation: QuoteConfirmation | nu
         confirmLabel: 'Remover item',
         destructive: true,
       };
-
-    case 'SEND':
-      return {
-        title: 'Marcar orçamento como enviado?',
-        description: 'O rascunho deixará de ser editável. Depois você poderá gerar um link para o cliente.',
-        confirmLabel: 'Marcar como enviado',
-        destructive: false,
-      };
-
     case 'APPROVE':
       return {
         title: 'Registrar aprovação?',
@@ -54,7 +42,6 @@ export function getQuoteConfirmationContent(confirmation: QuoteConfirmation | nu
         confirmLabel: 'Registrar aprovação',
         destructive: false,
       };
-
     case 'DECLINE':
       return {
         title: 'Registrar recusa?',
@@ -62,7 +49,6 @@ export function getQuoteConfirmationContent(confirmation: QuoteConfirmation | nu
         confirmLabel: 'Registrar recusa',
         destructive: true,
       };
-
     case 'CANCEL':
       return {
         title: 'Cancelar orçamento?',
