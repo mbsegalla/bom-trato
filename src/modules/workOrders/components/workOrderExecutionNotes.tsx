@@ -65,12 +65,15 @@ export function WorkOrderExecutionNotes({ workOrder, onSaved }: WorkOrderExecuti
   };
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section className="border-t border-border pt-8">
       <div className="flex items-center gap-3">
         <StickyNote aria-hidden="true" className="size-5 text-primary" />
-
-        <h2 className="font-heading text-lg font-semibold">Observações da execução</h2>
+        <h2 className="font-heading text-xl font-semibold">Observações da execução</h2>
       </div>
+
+      <p className="mt-1 text-sm text-muted-foreground">
+        Registre informações importantes sobre o andamento e a conclusão do serviço.
+      </p>
 
       <form onSubmit={handleSubmit} className="mt-5">
         <Textarea
@@ -78,7 +81,7 @@ export function WorkOrderExecutionNotes({ workOrder, onSaved }: WorkOrderExecuti
           defaultValue={workOrder.executionNotes ?? ''}
           readOnly={!editable}
           maxLength={10000}
-          className="min-h-36 rounded-xl"
+          className="min-h-36"
           placeholder="Registre informações importantes durante a execução do serviço."
         />
 

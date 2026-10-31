@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { NotificationCenter } from '@/modules/notifications/components/notificationCenter';
-import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
 import { formatLongDate } from '@/shared/formatters/date.formatter';
 
 import { useApp } from './appProvider';
@@ -16,6 +15,7 @@ interface AppHeaderProps {
 
 const pageNames: Record<string, string> = {
   '/dashboard': 'Visão geral',
+  '/leads': 'Oportunidades',
   '/customers': 'Clientes',
   '/services-catalog': 'Catálogo de serviços',
   '/quotes': 'Orçamentos',
@@ -53,7 +53,9 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
           </Button>
 
           <div className="flex min-w-0 items-center gap-3 text-sm">
-            <span className="hidden text-muted-foreground sm:inline">Seu negócio</span>
+            <span title={activeOrganization.name} className="hidden max-w-48 truncate text-muted-foreground sm:inline">
+              {activeOrganization.name}
+            </span>
 
             <span className="hidden text-border sm:inline">/</span>
 
@@ -69,13 +71,6 @@ export function AppHeader({ onOpenNavigation }: AppHeaderProps) {
           </div>
 
           <NotificationCenter key={activeOrganization.id} organizationId={activeOrganization.id} />
-
-          <OrganizationLogo
-            name={activeOrganization.name}
-            logoUrl={activeOrganization.logoUrl}
-            variant="initials"
-            className="rounded-full"
-          />
         </div>
       </div>
     </header>

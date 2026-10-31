@@ -52,7 +52,13 @@ export function WorkOrderReceivableAction({ organizationId, workOrderId, title }
   return (
     <>
       <div>
-        <Button type="button" disabled={checking} onClick={() => void handleClick()} className="cursor-pointer">
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={checking}
+          onClick={() => void handleClick()}
+          className="cursor-pointer"
+        >
           {checking ? <LoaderCircle className="size-4 animate-spin" /> : <WalletCards className="size-4" />}
           Ver recebível
         </Button>

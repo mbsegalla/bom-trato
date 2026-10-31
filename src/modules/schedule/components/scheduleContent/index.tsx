@@ -26,11 +26,13 @@ interface ScheduleState {
 
 export function ScheduleContent() {
   const { activeOrganization } = useApp();
+
   return <OrganizationScheduleContent key={activeOrganization.id} organizationId={activeOrganization.id} />;
 }
 
 function OrganizationScheduleContent({ organizationId }: { organizationId: string }) {
   const router = useRouter();
+
   const [month, setMonth] = useState(() => createMonthDate(new Date()));
   const [assignedToId, setAssignedToId] = useState('ALL');
   const [status, setStatus] = useState<ScheduleStatusFilter>('ALL');
@@ -42,6 +44,7 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
   const [error, setError] = useState<string | null>(null);
 
   const range = getMonthRange(month);
+
   const requestKey = [
     organizationId,
     range.from.toISOString(),
@@ -102,6 +105,7 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
 
         setError(cause instanceof Error ? cause.message : 'Não foi possível carregar os agendamentos.');
       });
+
     return () => {
       active = false;
     };
@@ -121,13 +125,14 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
     <div className="mx-auto max-w-7xl">
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Agendamentos</h1>
+
         <p className="mt-2 text-muted-foreground">Visualize os serviços programados e acompanhe a rotina da equipe.</p>
       </div>
 
       <div className="mt-8">{data ? <ScheduleSummary data={data} /> : <ScheduleSummarySkeleton />}</div>
 
-      <section className="mt-6 rounded-2xl border border-border bg-card shadow-sm">
-        <div className="border-b border-border p-5 sm:p-6">
+      <section className="mt-8">
+        <div className="border-y border-border py-4">
           <ScheduleToolbar
             month={month}
             loading={!data && error === null}
@@ -136,7 +141,8 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
             onToday={() => setMonth(createMonthDate(new Date()))}
             onRefresh={() => setRefreshVersion((value) => value + 1)}
           />
-          <div className="mt-5 border-t border-border pt-5">
+
+          <div className="mt-4 border-t border-border pt-4">
             <ScheduleFilters
               members={members}
               assignedToId={assignedToId}
@@ -147,16 +153,18 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
               onLateChange={setLate}
               onClear={clearFilters}
             />
+
             {membersError && <p className="mt-3 text-sm text-destructive">{membersError}</p>}
           </div>
         </div>
 
-        <div className="p-4 sm:p-6">
+        <div className="pt-6">
           {error ? (
-            <div className="py-14 text-center">
+            <div className="py-12 text-center">
               <p role="alert" className="text-sm text-destructive">
                 {error}
               </p>
+
               <Button
                 type="button"
                 variant="outline"
@@ -171,10 +179,11 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
           ) : (
             <>
               {data.items.length === 0 && (
-                <div className="mb-5 rounded-xl border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+                <div className="mb-5 border-l-2 border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
                   Nenhum serviço corresponde aos filtros selecionados neste mês.
                 </div>
               )}
+
               <div
                 aria-busy={refreshing}
                 className={
@@ -185,6 +194,7 @@ function OrganizationScheduleContent({ organizationId }: { organizationId: strin
               >
                 <ScheduleCalendar month={month} items={data.items} />
               </div>
+
               <p className="mt-4 text-right text-xs text-muted-foreground">
                 Agenda atualizada em {formatDateTime(data.generatedAt)}
               </p>

@@ -40,7 +40,7 @@ export function ScheduleFilters({
           id="schedule-assignee"
           value={assignedToId}
           onChange={(event) => onAssignedToChange(event.target.value)}
-          className="h-11 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="ALL">Todos os responsáveis</option>
           {members.map((member) => (
@@ -59,7 +59,7 @@ export function ScheduleFilters({
           id="schedule-status"
           value={status}
           onChange={(event) => onStatusChange(event.target.value as ScheduleStatusFilter)}
-          className="h-11 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="ALL">Todos os status</option>
           <option value="SCHEDULED">Agendados</option>
@@ -75,7 +75,7 @@ export function ScheduleFilters({
           id="schedule-late"
           value={late}
           onChange={(event) => onLateChange(event.target.value as ScheduleLateFilter)}
-          className="h-11 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 w-full cursor-pointer rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="ALL">Todos</option>
           <option value="LATE">Somente atrasados</option>
@@ -83,13 +83,7 @@ export function ScheduleFilters({
         </select>
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        disabled={!filtered}
-        onClick={onClear}
-        className="h-11 cursor-pointer rounded-xl px-4"
-      >
+      <Button type="button" variant="ghost" disabled={!filtered} onClick={onClear} className="h-10 cursor-pointer">
         <FilterX aria-hidden="true" className="size-4" />
         Limpar
       </Button>

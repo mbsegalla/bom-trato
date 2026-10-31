@@ -89,7 +89,12 @@
   }
 
   html {
-    @apply font-sans;
+    @apply bg-background font-sans;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
   }
 
   body {

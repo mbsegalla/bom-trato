@@ -14,11 +14,11 @@ interface MemberListProps {
   organizationId: string;
   currentUserId: string;
   members: OrganizationMember[];
-  owner: boolean;
+  isOwner: boolean;
   onChanged(): void;
 }
 
-export function MemberList({ organizationId, currentUserId, members, owner, onChanged }: MemberListProps) {
+export function MemberList({ organizationId, currentUserId, members, isOwner, onChanged }: MemberListProps) {
   const [removing, setRemoving] = useState<OrganizationMember | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,13 +57,13 @@ export function MemberList({ organizationId, currentUserId, members, owner, onCh
       <div className="divide-y divide-border">
         {members.map((member) => {
           const current = member.userId === currentUserId;
-          const isOwner = member.role === 'OWNER';
+          const isMemberOWner = member.role === 'OWNER';
 
           return (
             <div key={member.id} className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand-muted text-primary">
-                  {isOwner ? (
+                  {isMemberOWner ? (
                     <ShieldCheck aria-hidden="true" className="size-5" />
                   ) : (
                     <UserRound aria-hidden="true" className="size-5" />
@@ -79,7 +79,7 @@ export function MemberList({ organizationId, currentUserId, members, owner, onCh
                   </p>
                 </div>
               </div>
-              {owner && !isOwner && (
+              {isOwner && !isMemberOWner && (
                 <Button
                   type="button"
                   variant="ghost"

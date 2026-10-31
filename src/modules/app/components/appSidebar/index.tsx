@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { logout } from '@/modules/auth/services/session.service';
 
 import { useApp } from '../appProvider';
-import { OrganizationSwitcher } from './components/organizationSwitcher';
+import { OrganizationIdentity } from './components/organizationIdentity';
 import { SidebarFooter } from './components/sidebarFooter';
 import { SidebarNavigation } from './components/sidebarNavigation';
 
@@ -23,7 +23,9 @@ interface AppSidebarProps {
 export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, organizations, activeOrganization, switchingOrganization, switchOrganization } = useApp();
+
+  const { user, activeOrganization } = useApp();
+
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
@@ -35,6 +37,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
 
     try {
       await logout();
+
       router.replace('/login');
     } catch (cause: unknown) {
       setLogoutError(cause instanceof Error ? cause.message : 'Não foi possível sair agora.');
@@ -69,6 +72,7 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
           >
             <BrandLogo alt="" priority className="w-40" />
           </Link>
+
           <Button
             type="button"
             variant="ghost"
@@ -81,13 +85,10 @@ export function AppSidebar({ mobileOpen, onMobileClose }: AppSidebarProps) {
           </Button>
         </div>
 
-        <OrganizationSwitcher
-          organizations={organizations}
-          activeOrganization={activeOrganization}
-          switching={switchingOrganization}
-          onSwitch={(id) => void switchOrganization(id)}
-        />
+        <OrganizationIdentity organization={activeOrganization} />
+
         <SidebarNavigation pathname={pathname} onNavigate={onMobileClose} />
+
         <SidebarFooter
           pathname={pathname}
           user={user}

@@ -1,6 +1,5 @@
 'use client';
 
-import { TrendingUp } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import type { DashboardFinancialTrend } from '@/modules/dashboard/types/dashboard.types';
@@ -40,18 +39,12 @@ export function FinancialTrendChart({ trend }: FinancialTrendChartProps) {
   const hasReceipts = data.some((item) => item.amountInCents > 0);
 
   return (
-    <section className="mt-5 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <section className="mt-8">
       <div className="flex flex-col gap-4 border-b border-border pb-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-success-surface text-success">
-            <TrendingUp aria-hidden="true" className="size-5" />
-          </div>
+        <div>
+          <h2 className="font-heading text-xl font-semibold">Recebimentos nos últimos 6 meses</h2>
 
-          <div>
-            <h2 className="font-heading text-lg font-semibold">Recebimentos nos últimos 6 meses</h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">Evolução dos pagamentos recebidos e não estornados.</p>
-          </div>
+          <p className="mt-1 text-sm text-muted-foreground">Evolução dos pagamentos recebidos e não estornados.</p>
         </div>
 
         <div className="sm:text-right">
@@ -103,7 +96,7 @@ export function FinancialTrendChart({ trend }: FinancialTrendChartProps) {
                 }}
                 formatter={(value) => [formatBrlCurrency(Number(value)), 'Recebido']}
                 contentStyle={{
-                  borderRadius: '0.75rem',
+                  borderRadius: '0.625rem',
                   border: '1px solid var(--border)',
                   background: 'var(--popover)',
                   color: 'var(--popover-foreground)',
@@ -114,12 +107,12 @@ export function FinancialTrendChart({ trend }: FinancialTrendChartProps) {
                 }}
               />
 
-              <Bar dataKey="amountInCents" fill="var(--primary)" maxBarSize={56} radius={[8, 8, 2, 2]} />
+              <Bar dataKey="amountInCents" fill="var(--primary)" maxBarSize={56} radius={[6, 6, 2, 2]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="mt-6 flex h-72 items-center justify-center rounded-xl bg-muted/30 px-6 text-center">
+        <div className="mt-6 flex h-64 items-center justify-center border-y border-border px-6 text-center">
           <div>
             <p className="text-sm font-medium">Ainda não há recebimentos neste período</p>
 

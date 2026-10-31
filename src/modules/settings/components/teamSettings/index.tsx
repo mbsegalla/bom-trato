@@ -27,6 +27,12 @@ interface TeamErrorState {
   message: string;
 }
 
+interface OrganizationTeamSettingsProps {
+  organizationId: string;
+  isOwner: boolean;
+  currentUserId: string;
+}
+
 export function TeamSettings() {
   const { user, activeOrganization } = useApp();
 
@@ -34,21 +40,13 @@ export function TeamSettings() {
     <OrganizationTeamSettings
       key={activeOrganization.id}
       organizationId={activeOrganization.id}
-      owner={activeOrganization.role === 'OWNER'}
+      isOwner={activeOrganization.role === 'OWNER'}
       currentUserId={user.id}
     />
   );
 }
 
-function OrganizationTeamSettings({
-  organizationId,
-  owner,
-  currentUserId,
-}: {
-  organizationId: string;
-  owner: boolean;
-  currentUserId: string;
-}) {
+function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: OrganizationTeamSettingsProps) {
   const router = useRouter();
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [state, setState] = useState<TeamState | null>(null);
@@ -60,7 +58,7 @@ function OrganizationTeamSettings({
   useEffect(() => {
     let active = true;
 
-    const invitationsRequest = owner ? listOrganizationInvitations(organizationId) : Promise.resolve([]);
+    const invitationsRequest = isOwner ? listOrganizationInvitations(organizationId) : Promise.resolve([]);
 
     void Promise.all([listOrganizationMembers(organizationId), invitationsRequest, getTeamEntitlements(organizationId)])
       .then(([members, invitations, entitlements]) => {
@@ -86,7 +84,7 @@ function OrganizationTeamSettings({
     return () => {
       active = false;
     };
-  }, [organizationId, owner, refreshVersion, requestKey, router]);
+  }, [organizationId, isOwner, refreshVersion, requestKey, router]);
 
   const data = state?.data ?? null;
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
@@ -95,7 +93,7 @@ function OrganizationTeamSettings({
   const refresh = () => setRefreshVersion((value) => value + 1);
 
   if (!data && !error) {
-    <TeamSettingsSkeleton />;
+    return <TeamSettingsSkeleton />;
   }
 
   if (!data && error)
@@ -119,11 +117,11 @@ function OrganizationTeamSettings({
 
   let restrictionMessage: string | null = null;
 
-  if (owner && !entitlements.hasAccess) {
+  if (isOwner && !entitlements.hasAccess) {
     restrictionMessage = 'É necessária uma assinatura ativa para adicionar membros.';
-  } else if (owner && !entitlements.teamManagementEnabled) {
+  } else if (isOwner && !entitlements.teamManagementEnabled) {
     restrictionMessage = 'Seu plano atual não inclui gerenciamento de equipe.';
-  } else if (owner && entitlements.maxUsers > 0 && entitlements.memberCount >= entitlements.maxUsers) {
+  } else if (isOwner && entitlements.maxUsers > 0 && entitlements.memberCount >= entitlements.maxUsers) {
     restrictionMessage = 'O limite de usuários do seu plano foi atingido.';
   }
 
@@ -162,7 +160,7 @@ function OrganizationTeamSettings({
             </div>
           </div>
 
-          {owner && (
+          {isOwner && (
             <Button
               type="button"
               disabled={!entitlements.canAddMember}
@@ -203,7 +201,7 @@ function OrganizationTeamSettings({
           </div>
         )}
 
-        {!owner && (
+        {!isOwner && (
           <p className="mt-5 text-sm text-muted-foreground">
             Somente o administrador do negócio pode convidar ou remover membros.
           </p>
@@ -214,11 +212,11 @@ function OrganizationTeamSettings({
         organizationId={organizationId}
         currentUserId={currentUserId}
         members={members}
-        owner={owner}
+        isOwner={isOwner}
         onChanged={refresh}
       />
 
-      {owner && <InvitationList organizationId={organizationId} invitations={invitations} onChanged={refresh} />}
+      {isOwner && <InvitationList organizationId={organizationId} invitations={invitations} onChanged={refresh} />}
 
       {inviteOpen && (
         <InviteMemberPanel

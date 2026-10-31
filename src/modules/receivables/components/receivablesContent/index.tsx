@@ -20,7 +20,11 @@ import { ReceivablesSummary } from './components/receivablesSummary';
 import { ReceivablesTable } from './components/receivablesTable';
 
 type ListState = { requestKey: string; data: ReceivablePage };
-type ReceivableListErrorState = { requestKey: string; message: string };
+
+type ReceivableListErrorState = {
+  requestKey: string;
+  message: string;
+};
 
 export function ReceivablesContent() {
   const { activeOrganization } = useApp();
@@ -30,6 +34,7 @@ export function ReceivablesContent() {
 
 function OrganizationReceivablesContent({ organizationId }: { organizationId: string }) {
   const router = useRouter();
+
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<ReceivableListStatus>('ALL');
   const [overdue, setOverdue] = useState<OverdueFilter>('ALL');
@@ -37,6 +42,7 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
   const [listState, setListState] = useState<ListState | null>(null);
   const [financial, setFinancial] = useState<ReceivableFinancial | null>(null);
   const [errorState, setErrorState] = useState<ReceivableListErrorState | null>(null);
+
   const requestKey = `${organizationId}:${page}:${status}:${overdue}:${refreshVersion}`;
 
   useEffect(() => {
@@ -96,6 +102,7 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
     <div className="mx-auto max-w-7xl">
       <div>
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Recebíveis</h1>
+
         <p className="mt-2 text-muted-foreground">
           Acompanhe valores a receber, pagamentos registrados e cobranças em atraso.
         </p>
@@ -105,9 +112,9 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
         <ReceivablesSummary financial={financial} />
       </div>
 
-      <section className="relative mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+      <section className="relative mt-8">
         {refreshing && (
-          <Skeleton className="absolute inset-x-0 top-0 z-10 h-1 rounded-none motion-reduce:animate-none" />
+          <Skeleton className="absolute inset-x-0 top-0 z-10 h-0.5 rounded-none motion-reduce:animate-none" />
         )}
 
         <ReceivablesFilters
@@ -124,9 +131,11 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
         />
 
         {error && !data ? (
-          <div className="p-8 text-center">
+          <div className="border-b border-border py-10 text-center">
             <p className="text-sm text-destructive">{error}</p>
+
             <Button
+              type="button"
               variant="outline"
               onClick={() => setRefreshVersion((value) => value + 1)}
               className="mt-5 cursor-pointer"
@@ -139,7 +148,10 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
         ) : (
           <>
             {error && (
-              <p className="m-5 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+              <p
+                role="alert"
+                className="my-4 border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              >
                 {error}
               </p>
             )}

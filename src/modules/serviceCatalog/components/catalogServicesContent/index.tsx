@@ -21,6 +21,7 @@ interface CatalogServiceListState {
   requestKey: string;
   data: CatalogServicePage;
 }
+
 interface CatalogServiceListErrorState {
   requestKey: string;
   message: string;
@@ -28,6 +29,7 @@ interface CatalogServiceListErrorState {
 
 export function CatalogServicesContent() {
   const { activeOrganization } = useApp();
+
   return <OrganizationCatalogServicesContent key={activeOrganization.id} organizationId={activeOrganization.id} />;
 }
 
@@ -41,6 +43,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
   const [formOpen, setFormOpen] = useState(false);
   const [listState, setListState] = useState<CatalogServiceListState | null>(null);
   const [errorState, setErrorState] = useState<CatalogServiceListErrorState | null>(null);
+
   const requestKey = `${organizationId}:${page}:${status}:${search}:${refreshVersion}`;
 
   useEffect(() => {
@@ -66,6 +69,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
           message: cause instanceof Error ? cause.message : 'Não foi possível carregar seu catálogo.',
         });
       });
+
     return () => {
       active = false;
     };
@@ -82,6 +86,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
 
   function changeStatus(nextStatus: CatalogServiceStatus): void {
     if (status === nextStatus) return;
+
     setPage(1);
     setStatus(nextStatus);
   }
@@ -95,7 +100,7 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
     <div className="mx-auto max-w-7xl">
       <CatalogServicesHeader onCreate={() => setFormOpen(true)} />
 
-      <section className="mt-8 rounded-2xl border border-border bg-card shadow-sm">
+      <section className="mt-8">
         <CatalogServicesToolbar
           searchDraft={searchDraft}
           search={search}
@@ -111,15 +116,16 @@ function OrganizationCatalogServicesContent({ organizationId }: { organizationId
         />
 
         {error ? (
-          <div className="p-8 text-center">
+          <div className="border-b border-border py-10 text-center">
             <p role="alert" className="text-sm text-destructive">
               {error}
             </p>
+
             <Button
               type="button"
               variant="outline"
               onClick={() => setRefreshVersion((value) => value + 1)}
-              className="mt-5 min-h-11 cursor-pointer rounded-xl"
+              className="mt-5 cursor-pointer"
             >
               Tentar novamente
             </Button>

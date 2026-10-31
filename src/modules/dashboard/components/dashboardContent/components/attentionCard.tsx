@@ -13,17 +13,15 @@ interface AttentionCardProps {
 
 export function AttentionCard({ items }: AttentionCardProps) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-4">
-        <div className="flex items-center gap-3">
-          <AlertTriangle aria-hidden="true" className="size-5 text-warning" />
-          <h2 className="font-heading text-lg font-semibold">Precisa da sua atenção</h2>
-        </div>
+    <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
+      <div className="flex items-center gap-3 border-b border-border pb-4">
+        <AlertTriangle aria-hidden="true" className="size-5 text-warning" />
+        <h2 className="font-heading text-lg font-semibold">Precisa da sua atenção</h2>
       </div>
 
       {items.length === 0 ? (
-        <div className="py-10 text-center">
-          <CircleCheck aria-hidden="true" className="mx-auto size-8 text-success" />
+        <div className="py-8 text-center">
+          <CircleCheck aria-hidden="true" className="mx-auto size-6 text-success" />
           <p className="mt-3 text-sm text-muted-foreground">Tudo em ordem por aqui.</p>
         </div>
       ) : (

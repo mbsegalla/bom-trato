@@ -84,10 +84,9 @@ export function WorkOrderScheduleHistory({
   }
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section>
       <div className="flex items-center gap-3">
         <CalendarClock aria-hidden="true" className="size-5 text-primary" />
-
         <h2 className="font-heading text-lg font-semibold">Histórico de agenda</h2>
       </div>
 
@@ -99,9 +98,11 @@ export function WorkOrderScheduleHistory({
         <p className="mt-5 text-sm text-muted-foreground">Nenhuma alteração de agenda registrada.</p>
       ) : (
         <>
-          <div className="mt-5 space-y-4">
+          <div className="mt-5 space-y-5">
             {data.items.map((entry) => (
-              <div key={entry.id} className="border-l-2 border-border pl-4">
+              <div key={entry.id} className="relative pl-5">
+                <span className="absolute top-1.5 left-0 size-2 rounded-full bg-primary" />
+
                 <p className="text-sm font-medium">
                   {entry.toStartAt === null
                     ? 'Agendamento removido'
@@ -120,7 +121,7 @@ export function WorkOrderScheduleHistory({
           <div className="mt-5 flex justify-end gap-2">
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="icon"
               disabled={page <= 1}
               onClick={() => setPage((value) => Math.max(1, value - 1))}
@@ -131,7 +132,7 @@ export function WorkOrderScheduleHistory({
 
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="icon"
               disabled={!data.hasMore}
               onClick={() => setPage((value) => value + 1)}

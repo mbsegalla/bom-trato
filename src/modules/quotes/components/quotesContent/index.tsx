@@ -23,18 +23,22 @@ interface QuoteListState {
 
 export function QuotesContent() {
   const { activeOrganization } = useApp();
+
   return <OrganizationQuotesContent key={activeOrganization.id} organizationId={activeOrganization.id} />;
 }
 
 function OrganizationQuotesContent({ organizationId }: { organizationId: string }) {
   const router = useRouter();
+
   const searchParams = useSearchParams();
+
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState<QuoteListStatus>('ALL');
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [createOpen, setCreateOpen] = useState(() => searchParams.get('new') === '1');
   const [state, setState] = useState<QuoteListState | null>(null);
   const [error, setError] = useState<string | null>(null);
+
   const requestKey = `${organizationId}:${page}:${status}:${refreshVersion}`;
 
   useEffect(() => {
@@ -57,6 +61,7 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
 
         setError(cause instanceof Error ? cause.message : 'Não foi possível carregar os orçamentos.');
       });
+
     return () => {
       active = false;
     };
@@ -71,6 +76,7 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
 
   function closeCreate(): void {
     setCreateOpen(false);
+
     if (searchParams.get('new') === '1') router.replace('/quotes');
   }
 
@@ -78,11 +84,13 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
     <div className="mx-auto max-w-7xl">
       <QuotesHeader onCreate={() => setCreateOpen(true)} />
 
-      <section className="mt-8 rounded-2xl border border-border bg-card shadow-sm">
+      <section className="mt-8">
         <QuotesFilters status={status} onChange={changeStatus} />
+
         {error ? (
-          <div className="p-8 text-center">
+          <div className="border-b border-border py-10 text-center">
             <p className="text-sm text-destructive">{error}</p>
+
             <Button
               type="button"
               variant="outline"

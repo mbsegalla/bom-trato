@@ -16,7 +16,7 @@ export function CustomerArchivedNotice({
   onConfirm,
 }: CustomerArchivedNoticeProps) {
   return (
-    <div className="mt-5 flex flex-col gap-4 rounded-2xl border border-warning/30 bg-warning-surface p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mt-5 flex flex-col gap-4 border-l-2 border-warning bg-warning-surface/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="font-medium">Arquivar {customerName}?</p>
         <p className="mt-1 text-sm text-muted-foreground">
