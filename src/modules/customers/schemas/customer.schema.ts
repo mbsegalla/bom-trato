@@ -18,23 +18,18 @@ const nullableEmailSchema = z.preprocess(
   z.string().email('Informe um e-mail válido.').max(254, 'O e-mail deve ter no máximo 254 caracteres.').nullable(),
 );
 
-function nullablePhone(value: unknown): unknown {
-  if (typeof value !== 'string') {
-    return value;
-  }
+const requiredPhoneSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') {
+      return value;
+    }
 
-  const normalized = value.trim();
-
-  if (!normalized) {
-    return null;
-  }
-
-  return normalizeBrazilianPhone(normalized);
-}
-
-const nullablePhoneSchema = z.preprocess(
-  nullablePhone,
-  z.string().refine(isValidBrazilianPhone, 'Informe um telefone válido com DDD.').nullable(),
+    return normalizeBrazilianPhone(value.trim());
+  },
+  z
+    .string()
+    .min(1, 'Informe o telefone do cliente.')
+    .refine(isValidBrazilianPhone, 'Informe um telefone válido com DDD.'),
 );
 
 const nullableNotesSchema = z.preprocess(
@@ -54,7 +49,10 @@ export const customerSchema = z.object({
   organizationId: z.uuid(),
   name: z.string().min(1),
   email: z.string().email().nullable(),
-  phone: z.string().nullable(),
+  phone: z
+    .string()
+    .min(1, 'Informe o telefone do cliente.')
+    .refine(isValidBrazilianPhone, 'Informe um telefone válido com DDD.'),
   defaultServiceAddress: z.string().nullable(),
   notes: z.string().nullable(),
   archivedAt: z.coerce.date().nullable(),
@@ -69,7 +67,7 @@ export const customerFormSchema = z.object({
     .min(2, 'Informe um nome com pelo menos 2 caracteres.')
     .max(100, 'O nome deve ter no máximo 100 caracteres.'),
   email: nullableEmailSchema,
-  phone: nullablePhoneSchema,
+  phone: requiredPhoneSchema,
   defaultServiceAddress: nullableServiceAddressSchema,
   notes: nullableNotesSchema,
 });

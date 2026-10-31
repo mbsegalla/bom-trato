@@ -140,6 +140,7 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                     name="name"
                     defaultValue={customer?.name ?? ''}
                     autoComplete="name"
+                    required
                     autoFocus
                     maxLength={100}
                     aria-invalid={fieldErrors.name ? true : undefined}
@@ -150,6 +151,47 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                 {fieldErrors.name && (
                   <p role="alert" className="text-sm text-destructive">
                     {fieldErrors.name}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="customer-phone">Telefone *</Label>
+
+                <div className="relative">
+                  <Phone
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+
+                  <Input
+                    id="customer-phone"
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    required
+                    autoComplete="tel"
+                    maxLength={15}
+                    placeholder="(34) 99999-9999"
+                    aria-invalid={fieldErrors.phone ? true : undefined}
+                    onChange={(event) => {
+                      setPhone(formatBrazilianPhoneInput(event.currentTarget.value));
+
+                      if (fieldErrors.phone) {
+                        setFieldErrors((current) => ({
+                          ...current,
+                          phone: undefined,
+                        }));
+                      }
+                    }}
+                    className="h-12 rounded-xl pl-11"
+                  />
+                </div>
+
+                {fieldErrors.phone && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fieldErrors.phone}
                   </p>
                 )}
               </div>
@@ -180,46 +222,6 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                 {fieldErrors.email && (
                   <p role="alert" className="text-sm text-destructive">
                     {fieldErrors.email}
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="customer-phone">Telefone</Label>
-
-                <div className="relative">
-                  <Phone
-                    aria-hidden="true"
-                    className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground"
-                  />
-
-                  <Input
-                    id="customer-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    value={phone}
-                    autoComplete="tel"
-                    maxLength={15}
-                    placeholder="(34) 99999-9999"
-                    aria-invalid={fieldErrors.phone ? true : undefined}
-                    onChange={(event) => {
-                      setPhone(formatBrazilianPhoneInput(event.currentTarget.value));
-
-                      if (fieldErrors.phone) {
-                        setFieldErrors((current) => ({
-                          ...current,
-                          phone: undefined,
-                        }));
-                      }
-                    }}
-                    className="h-12 rounded-xl pl-11"
-                  />
-                </div>
-
-                {fieldErrors.phone && (
-                  <p role="alert" className="text-sm text-destructive">
-                    {fieldErrors.phone}
                   </p>
                 )}
               </div>
