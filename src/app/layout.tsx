@@ -45,7 +45,6 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html lang="pt-BR" suppressHydrationWarning className={`${montserrat.variable} ${geistMono.variable}`}>
       <body>
         <ThemeScript />
-
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
