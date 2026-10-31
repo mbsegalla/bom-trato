@@ -1,4 +1,16 @@
-import { ArrowRight, Check, ChevronDown, ClipboardList, FileText, Users, Wallet } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarCheck2,
+  Check,
+  ChevronDown,
+  ClipboardCheck,
+  FileCheck2,
+  FileText,
+  MapPin,
+  ReceiptText,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -34,36 +46,62 @@ export const metadata: Metadata = {
 const features = [
   {
     icon: Users,
-    title: 'Cada cliente tem uma história.',
-    description: 'Mantenha contatos e informações organizados para continuar o atendimento de onde parou.',
+    title: 'Tudo começa pelo cliente.',
+    description:
+      'Mantenha contatos, informações e histórico organizados para continuar cada atendimento de onde parou.',
   },
   {
     icon: FileText,
-    title: 'Uma proposta. O próximo passo.',
-    description: 'Organize os orçamentos e acompanhe a evolução do trabalho até a ordem de serviço.',
+    title: 'O orçamento vira trabalho.',
+    description:
+      'Crie propostas, acompanhe a resposta do cliente e transforme aprovações em ordens de serviço sem recomeçar do zero.',
   },
   {
     icon: Wallet,
-    title: 'Saiba o que entrou. E o que falta.',
-    description: 'Registre pagamentos e acompanhe os recebimentos sem depender de anotações espalhadas.',
+    title: 'O serviço continua até o recebimento.',
+    description: 'Conclua o trabalho, acompanhe os valores a receber e mantenha os pagamentos dentro do mesmo fluxo.',
   },
 ];
 
-const steps = [
+const workflow = [
   {
-    number: '01',
-    title: 'Comece pelas pessoas.',
-    description: 'Cadastre seus clientes e os serviços que você oferece.',
+    icon: FileCheck2,
+    title: 'Orçamento aprovado',
+    description: 'A aprovação prepara o próximo passo do atendimento.',
   },
   {
-    number: '02',
-    title: 'Transforme conversas em propostas.',
-    description: 'Monte seus orçamentos e organize os próximos trabalhos.',
+    icon: ClipboardCheck,
+    title: 'Ordem de serviço criada',
+    description: 'Cliente, serviços e outras informações seguem com o trabalho.',
   },
   {
-    number: '03',
-    title: 'Acompanhe até o pagamento.',
-    description: 'Gerencie a execução e mantenha os recebimentos em dia.',
+    icon: CalendarCheck2,
+    title: 'Planejamento e execução',
+    description: 'Organize responsável, endereço, agenda e andamento do serviço.',
+  },
+  {
+    icon: ReceiptText,
+    title: 'Recebimento',
+    description: 'Ao concluir o serviço, o acompanhamento financeiro continua no recebível.',
+  },
+];
+
+const automations = [
+  {
+    icon: MapPin,
+    title: 'Menos redigitação',
+    description: 'Informações já cadastradas podem seguir para as próximas etapas, como cliente, endereço e serviços.',
+  },
+  {
+    icon: ClipboardCheck,
+    title: 'O próximo passo já começa preparado',
+    description: 'A aprovação de um orçamento pode gerar a ordem de serviço sem exigir que você monte tudo novamente.',
+  },
+  {
+    icon: ReceiptText,
+    title: 'Cobrança dentro do fluxo',
+    description:
+      'Ao concluir uma ordem de serviço, o recebível correspondente é criado para continuar o acompanhamento.',
   },
 ];
 
@@ -117,8 +155,8 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-                Menos informações espalhadas. Mais tempo para seus clientes. Organize seu negócio do primeiro contato ao
-                pagamento.
+                Clientes, orçamentos, ordens de serviço e recebimentos conectados em um único fluxo. Menos redigitação,
+                menos tarefas repetidas e mais tempo para o seu trabalho.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -134,7 +172,7 @@ export default function Home() {
 
               <p className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
                 <Check aria-hidden="true" className="size-4 shrink-0 text-primary" />
-                Do primeiro contato ao próximo bom trato.
+                Do primeiro contato ao recebimento, sem perder o contexto.
               </p>
             </div>
 
@@ -147,12 +185,12 @@ export default function Home() {
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-16">
               <h2 className="max-w-lg font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
                 O trabalho já exige bastante.
-                <span className="text-primary"> A gestão pode ser simples.</span>
+                <span className="text-primary"> O sistema pode cuidar do fluxo.</span>
               </h2>
 
               <p className="max-w-lg self-end leading-relaxed text-muted-foreground">
-                Um lugar para reunir as informações que ajudam você a atender melhor, acompanhar os serviços e entender
-                sua rotina.
+                Reúna as informações do seu negócio e deixe cada etapa preparar a próxima, sem espalhar o atendimento
+                entre planilhas, conversas e anotações.
               </p>
             </div>
 
@@ -170,33 +208,42 @@ export default function Home() {
           </div>
         </section>
 
-        <Suspense fallback={null}>
-          <FeaturedProfessionalsSection />
-        </Suspense>
-
         <section id="how-it-works" className="scroll-mt-24 px-4 py-8 sm:px-6 lg:px-10">
-          <div className="mx-auto max-w-7xl rounded-[2rem] bg-brand px-6 py-12 text-brand-foreground sm:px-10 sm:py-16 lg:px-14">
-            <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-              <div>
-                <ClipboardList aria-hidden="true" className="size-8 text-brand-muted" strokeWidth={1.5} />
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-brand text-brand-foreground">
+            <div className="grid lg:grid-cols-[0.72fr_1.28fr]">
+              <div className="px-6 py-12 sm:px-10 sm:py-16 lg:border-r lg:border-brand-foreground/15 lg:px-14">
+                <ClipboardCheck aria-hidden="true" className="size-8 text-brand-muted" strokeWidth={1.5} />
 
-                <h2 className="mt-6 font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
-                  Uma rotina mais leve começa com o próximo passo.
+                <p className="mt-8 text-xs font-semibold tracking-widest text-brand-muted uppercase">
+                  Um fluxo conectado
+                </p>
+
+                <h2 className="mt-4 font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
+                  Um passo prepara o próximo.
                 </h2>
 
-                <p className="mt-5 leading-relaxed text-brand-muted">
-                  Organize o essencial e construa seu jeito de trabalhar.
+                <p className="mt-5 max-w-md leading-relaxed text-brand-muted">
+                  O Bom Trato acompanha o atendimento para que você não precise reconstruir as mesmas informações em
+                  cada etapa.
                 </p>
               </div>
 
-              <ol className="divide-y divide-brand-foreground/15">
-                {steps.map((step) => (
-                  <li key={step.number} className="flex gap-5 py-7 first:pt-0 last:pb-0">
-                    <span className="pt-1 text-sm font-medium text-brand-muted">{step.number}</span>
+              <ol className="divide-y divide-brand-foreground/15 px-6 sm:px-10 lg:px-12">
+                {workflow.map(({ icon: Icon, title, description }, index) => (
+                  <li key={title} className="grid gap-5 py-7 sm:grid-cols-[3rem_1fr] sm:items-start">
+                    <div className="flex items-center gap-3 sm:block">
+                      <span className="text-xs font-medium text-brand-muted">{String(index + 1).padStart(2, '0')}</span>
+
+                      <Icon
+                        aria-hidden="true"
+                        className="mt-2 size-5 text-brand-foreground sm:mt-3"
+                        strokeWidth={1.5}
+                      />
+                    </div>
 
                     <div>
-                      <h3 className="text-lg font-semibold">{step.title}</h3>
-                      <p className="mt-2 leading-relaxed text-brand-muted">{step.description}</p>
+                      <h3 className="text-lg font-semibold">{title}</h3>
+                      <p className="mt-2 leading-relaxed text-brand-muted">{description}</p>
                     </div>
                   </li>
                 ))}
@@ -204,6 +251,39 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <section className="px-6 py-20 sm:py-24 lg:px-10">
+          <div className="mx-auto max-w-7xl">
+            <div className="max-w-2xl">
+              <p className="text-xs font-semibold tracking-widest text-primary uppercase">Menos tarefas repetidas</p>
+
+              <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
+                O sistema trabalha junto com a sua rotina.
+              </h2>
+
+              <p className="mt-4 leading-relaxed text-muted-foreground">
+                Algumas informações já existem antes do próximo passo. O Bom Trato aproveita esse contexto para reduzir
+                trabalho manual e manter o atendimento conectado.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+              {automations.map(({ icon: Icon, title, description }) => (
+                <article key={title} className="border-t border-border pt-6">
+                  <Icon aria-hidden="true" className="size-6 text-primary" strokeWidth={1.5} />
+
+                  <h3 className="mt-5 font-semibold">{title}</h3>
+
+                  <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <Suspense fallback={null}>
+          <FeaturedProfessionalsSection />
+        </Suspense>
 
         <Suspense fallback={<PricingSectionSkeleton />}>
           <PublicPricingSection />
@@ -246,10 +326,12 @@ export default function Home() {
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-secondary px-7 py-12 text-secondary-foreground sm:px-12 lg:flex-row lg:items-center">
             <div className="max-w-2xl">
               <h2 className="font-heading text-3xl leading-tight font-semibold tracking-tight">
-                Seu próximo bom trato começa com organização.
+                Seu próximo bom trato começa com um fluxo mais simples.
               </h2>
 
-              <p className="mt-4 text-sm leading-relaxed">Encontre o plano que acompanha o seu momento.</p>
+              <p className="mt-4 text-sm leading-relaxed">
+                Organize o atendimento, acompanhe o serviço e mantenha o recebimento no mesmo lugar.
+              </p>
             </div>
 
             <MarketingLink href="#pricing" className="shrink-0">

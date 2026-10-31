@@ -23,7 +23,7 @@ function resolveSiteUrl(): URL {
 export const siteConfig = {
   name: 'Bom Trato',
   description:
-    'Organize clientes, orçamentos, ordens de serviço, agenda e recebimentos em um só lugar com o Bom Trato.',
+    'Conecte clientes, orçamentos, ordens de serviço, agenda e recebimentos em um único fluxo com o Bom Trato.',
   url: resolveSiteUrl(),
   locale: 'pt_BR',
   language: 'pt-BR',
