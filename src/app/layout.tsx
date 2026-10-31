@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import { Geist_Mono, Montserrat } from 'next/font/google';
 
 import { siteConfig } from '@/config/site.config';
+import { ThemeProvider } from '@/modules/theme/components/themeProvider';
+import { ThemeScript } from '@/modules/theme/components/themeScript';
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -40,8 +42,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="pt-BR" className={`${montserrat.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+    <html lang="pt-BR" suppressHydrationWarning className={`${montserrat.variable} ${geistMono.variable}`}>
+      <head>
+        <ThemeScript />
+      </head>
+
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

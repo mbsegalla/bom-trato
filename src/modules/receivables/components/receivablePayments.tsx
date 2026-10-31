@@ -82,8 +82,8 @@ export function ReceivablePayments({ receivable, onReceivableSaved }: Receivable
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-      <h2 className="font-heading text-lg font-semibold">Pagamentos</h2>
+    <section>
+      <h2 className="font-heading text-xl font-semibold">Pagamentos</h2>
 
       <p className="mt-1 text-sm text-muted-foreground">Histórico de pagamentos e estornos deste recebível.</p>
 
@@ -93,14 +93,27 @@ export function ReceivablePayments({ receivable, onReceivableSaved }: Receivable
         ) : !data ? (
           <ReceivablePaymentsSkeleton />
         ) : data.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nenhum pagamento registrado.</p>
+          <div className="border-y border-border py-8">
+            <p className="font-medium">Nenhum pagamento registrado.</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Os pagamentos registrados para este recebível aparecerão aqui.
+            </p>
+          </div>
         ) : (
           <div className="space-y-5">
             {data.items.map((payment) => {
               const reversed = payment.reversedAt !== null;
 
               return (
-                <div key={payment.id} className="flex items-start justify-between gap-4 border-l-2 border-border pl-4">
+                <div key={payment.id} className="relative flex items-start justify-between gap-4 pl-5">
+                  <span
+                    className={
+                      reversed
+                        ? 'absolute top-1.5 left-0 size-2 rounded-full bg-muted-foreground'
+                        : 'absolute top-1.5 left-0 size-2 rounded-full bg-success'
+                    }
+                  />
+
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
                       <p className={reversed ? 'font-medium line-through opacity-60' : 'font-medium'}>
@@ -137,7 +150,7 @@ export function ReceivablePayments({ receivable, onReceivableSaved }: Receivable
                       onClick={() => setReversingPayment(payment)}
                       className="cursor-pointer"
                     >
-                      <RotateCcw className="size-4" />
+                      <RotateCcw aria-hidden="true" className="size-4" />
                       Estornar
                     </Button>
                   )}
@@ -145,23 +158,27 @@ export function ReceivablePayments({ receivable, onReceivableSaved }: Receivable
               );
             })}
 
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-2 border-t border-border pt-4">
               <Button
-                variant="outline"
+                type="button"
+                variant="ghost"
                 size="icon"
                 disabled={page <= 1}
                 onClick={() => setPage((value) => Math.max(1, value - 1))}
+                className="cursor-pointer"
               >
-                <ChevronLeft className="size-4" />
+                <ChevronLeft aria-hidden="true" className="size-4" />
               </Button>
 
               <Button
-                variant="outline"
+                type="button"
+                variant="ghost"
                 size="icon"
                 disabled={!data.hasMore}
                 onClick={() => setPage((value) => value + 1)}
+                className="cursor-pointer"
               >
-                <ChevronRight className="size-4" />
+                <ChevronRight aria-hidden="true" className="size-4" />
               </Button>
             </div>
           </div>

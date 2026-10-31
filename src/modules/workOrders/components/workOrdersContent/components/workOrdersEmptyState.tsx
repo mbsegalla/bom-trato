@@ -1,22 +1,17 @@
-import { ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 
 export function WorkOrdersEmptyState() {
   return (
-    <div className="px-6 py-14 text-center">
-      <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-muted text-primary">
-        <ClipboardList aria-hidden="true" className="size-6" />
-      </div>
+    <div className="border-b border-border py-10">
+      <h2 className="font-heading text-lg font-semibold">Nenhuma ordem de serviço por aqui</h2>
 
-      <h2 className="mt-5 font-heading text-xl font-semibold">Nenhuma ordem de serviço por aqui</h2>
-
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-        Uma ordem de serviço pode ser criada a partir de um orçamento aprovado.
+      <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
+        As ordens de serviço são criadas automaticamente a partir dos orçamentos aprovados.
       </p>
 
       <Link
         href="/quotes"
-        className="mt-6 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+        className="mt-5 inline-flex h-8 items-center justify-center rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
       >
         Ver orçamentos
       </Link>

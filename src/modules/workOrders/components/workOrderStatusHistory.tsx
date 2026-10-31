@@ -68,10 +68,9 @@ export function WorkOrderStatusHistory({ organizationId, workOrderId, version }:
   const history = state?.requestKey === requestKey ? state.data : null;
 
   return (
-    <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <section>
       <div className="flex items-center gap-3">
         <History aria-hidden="true" className="size-5 text-primary" />
-
         <h2 className="font-heading text-lg font-semibold">Histórico de status</h2>
       </div>
 
@@ -80,9 +79,11 @@ export function WorkOrderStatusHistory({ organizationId, workOrderId, version }:
       ) : !history ? (
         <HistoryRowsSkeleton label="Carregando histórico da ordem de serviço" />
       ) : (
-        <div className="mt-5 space-y-4">
+        <div className="mt-5 space-y-5">
           {history.map((entry) => (
-            <div key={entry.id} className="border-l-2 border-border pl-4">
+            <div key={entry.id} className="relative pl-5">
+              <span className="absolute top-1.5 left-0 size-2 rounded-full bg-primary" />
+
               <p className="text-sm font-medium">
                 {entry.fromStatus === null
                   ? `Criada como ${getWorkOrderStatusLabel(entry.toStatus)}`

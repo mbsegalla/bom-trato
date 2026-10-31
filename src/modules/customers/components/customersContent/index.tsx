@@ -87,6 +87,7 @@ function OrganizationCustomersContent({ organizationId }: { organizationId: stri
 
   function changeStatus(nextStatus: CustomerStatus): void {
     if (status === nextStatus) return;
+
     setPage(1);
     setStatus(nextStatus);
   }
@@ -100,7 +101,7 @@ function OrganizationCustomersContent({ organizationId }: { organizationId: stri
     <div className="mx-auto max-w-7xl">
       <CustomersHeader onCreate={() => setFormOpen(true)} />
 
-      <section className="mt-8 rounded-2xl border border-border bg-card shadow-sm">
+      <section className="mt-8">
         <CustomersToolbar
           searchDraft={searchDraft}
           search={search}
@@ -116,7 +117,7 @@ function OrganizationCustomersContent({ organizationId }: { organizationId: stri
         />
 
         {error ? (
-          <div className="p-8 text-center">
+          <div className="border-b border-border py-10 text-center">
             <p role="alert" className="text-sm text-destructive">
               {error}
             </p>
@@ -125,7 +126,7 @@ function OrganizationCustomersContent({ organizationId }: { organizationId: stri
               type="button"
               variant="outline"
               onClick={() => setRefreshVersion((value) => value + 1)}
-              className="mt-5 min-h-11 cursor-pointer rounded-xl"
+              className="mt-5 cursor-pointer"
             >
               Tentar novamente
             </Button>

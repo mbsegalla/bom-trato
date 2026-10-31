@@ -1,4 +1,4 @@
-import { Archive, Plus, Users } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import type { CustomerStatus } from '@/modules/customers/types/customer.types';
@@ -11,16 +11,8 @@ interface CustomersEmptyStateProps {
 
 export function CustomersEmptyState({ search, status, onCreate }: CustomersEmptyStateProps) {
   return (
-    <div className="px-6 py-14 text-center">
-      <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-brand-muted text-primary">
-        {status === 'ARCHIVED' ? (
-          <Archive aria-hidden="true" className="size-6" />
-        ) : (
-          <Users aria-hidden="true" className="size-6" />
-        )}
-      </div>
-
-      <h2 className="mt-5 font-heading text-xl font-semibold">
+    <div className="border-b border-border py-10">
+      <h2 className="font-heading text-lg font-semibold">
         {search
           ? 'Nenhum cliente encontrado'
           : status === 'ARCHIVED'
@@ -28,7 +20,7 @@ export function CustomersEmptyState({ search, status, onCreate }: CustomersEmpty
             : 'Ainda não há clientes por aqui'}
       </h2>
 
-      <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
         {search
           ? 'Tente outro nome ou limpe a busca para visualizar seus clientes.'
           : status === 'ARCHIVED'
@@ -37,7 +29,7 @@ export function CustomersEmptyState({ search, status, onCreate }: CustomersEmpty
       </p>
 
       {!search && status === 'ACTIVE' && (
-        <Button type="button" onClick={onCreate} className="mt-6 min-h-11 cursor-pointer rounded-xl px-5">
+        <Button type="button" onClick={onCreate} className="mt-5 cursor-pointer">
           <Plus aria-hidden="true" className="size-4" />
           Cadastrar cliente
         </Button>

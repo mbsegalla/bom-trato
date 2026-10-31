@@ -20,37 +20,26 @@ export function CustomerDetailsHeader({
   onRestore,
 }: CustomerDetailsHeaderProps) {
   return (
-    <div className="mt-5 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-      <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{customer.name}</h1>
+    <header className="mt-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{customer.name}</h1>
 
-          {customer.archivedAt ? (
-            <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">Arquivado</span>
-          ) : (
-            <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-medium text-success">Ativo</span>
-          )}
+            {customer.archivedAt ? (
+              <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                Arquivado
+              </span>
+            ) : (
+              <span className="rounded-full bg-success-surface px-3 py-1 text-xs font-medium text-success">Ativo</span>
+            )}
+          </div>
+
+          <p className="mt-2 text-sm text-muted-foreground">Cliente desde {formatDate(customer.createdAt)}</p>
         </div>
 
-        <p className="mt-2 text-sm text-muted-foreground">Cliente desde {formatDate(customer.createdAt)}</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {!customer.archivedAt && (
-          <Button type="button" variant="outline" onClick={onEdit} className="min-h-11 cursor-pointer rounded-xl px-4">
-            <Pencil aria-hidden="true" className="size-4" />
-            Editar
-          </Button>
-        )}
-
         {customer.archivedAt ? (
-          <Button
-            type="button"
-            variant="outline"
-            disabled={changingStatus}
-            onClick={onRestore}
-            className="min-h-11 cursor-pointer rounded-xl px-4"
-          >
+          <Button type="button" disabled={changingStatus} onClick={onRestore} className="cursor-pointer">
             {changingStatus ? (
               <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
             ) : (
@@ -59,18 +48,27 @@ export function CustomerDetailsHeader({
             Restaurar cliente
           </Button>
         ) : (
-          <Button
-            type="button"
-            variant="outline"
-            disabled={changingStatus}
-            onClick={onArchive}
-            className="min-h-11 cursor-pointer rounded-xl px-4"
-          >
-            <Archive aria-hidden="true" className="size-4" />
-            Arquivar
+          <Button type="button" onClick={onEdit} className="cursor-pointer">
+            <Pencil aria-hidden="true" className="size-4" />
+            Editar cliente
           </Button>
         )}
       </div>
-    </div>
+
+      {!customer.archivedAt && (
+        <div className="mt-5 flex border-y border-border py-2">
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={changingStatus}
+            onClick={onArchive}
+            className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Archive aria-hidden="true" className="size-4" />
+            Arquivar cliente
+          </Button>
+        </div>
+      )}
+    </header>
   );
 }

@@ -181,7 +181,7 @@ function OrganizationCustomerDetails({ organizationId, customerId }: { organizat
       {actionError && (
         <p
           role="alert"
-          className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+          className="mt-5 border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm leading-relaxed text-destructive"
         >
           {actionError}
         </p>
@@ -198,12 +198,12 @@ function OrganizationCustomerDetails({ organizationId, customerId }: { organizat
 
       <CustomerMetrics summary={summary} />
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_1.3fr]">
+      <div className="mt-10 grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <CustomerContactCard customer={customer} />
         <CustomerNotesCard notes={customer.notes} />
       </div>
 
-      <p className="mt-5 text-right text-xs text-muted-foreground">
+      <p className="mt-10 border-t border-border pt-4 text-right text-xs text-muted-foreground">
         Resumo atualizado em {formatDate(overview.generatedAt)}
       </p>
 

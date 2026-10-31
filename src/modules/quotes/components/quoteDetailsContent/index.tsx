@@ -219,6 +219,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     if (!quote || operationLoading || sharing) {
       return;
     }
+
     const whatsappWindow = window.open('about:blank', '_blank');
 
     if (whatsappWindow !== null) {
@@ -231,9 +232,17 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     setShareMessage(null);
 
     try {
-      const sentQuote = await sendQuote(organizationId, quote.id, quote.version);
+      let sentQuote = quote;
 
-      applyQuote(sentQuote);
+      if (sentQuote.status === 'DRAFT') {
+        sentQuote = await sendQuote(organizationId, sentQuote.id, sentQuote.version);
+
+        applyQuote(sentQuote);
+      }
+
+      if (sentQuote.status !== 'SENT') {
+        throw new Error('Este orçamento não pode mais ser enviado.');
+      }
 
       const share = await createQuoteShare(
         organizationId,
@@ -317,7 +326,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
       />
 
       {actionError && (
-        <p className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <p
+          role="alert"
+          className="mt-5 border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive"
+        >
           {actionError}
         </p>
       )}
@@ -351,7 +363,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
         <QuoteSummarySidebar quote={quote} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-10 border-t border-border pt-8">
         <QuoteStatusHistory organizationId={organizationId} quoteId={quote.id} quoteVersion={quote.version} />
       </div>
 

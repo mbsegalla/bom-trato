@@ -74,11 +74,11 @@ function OrganizationWorkOrdersContent({ organizationId }: { organizationId: str
     <div className="mx-auto max-w-7xl">
       <WorkOrdersHeader />
 
-      <section className="mt-8 rounded-2xl border border-border bg-card shadow-sm">
+      <section className="mt-8">
         <WorkOrdersFilters status={status} onStatusChange={changeStatus} />
 
         {error ? (
-          <div className="p-8 text-center">
+          <div className="border-b border-border py-10 text-center">
             <p className="text-sm text-destructive">{error}</p>
 
             <Button

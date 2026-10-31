@@ -43,14 +43,17 @@ export function SidebarFooter({
         Configurações
       </Link>
 
-      <div className="flex items-center gap-3 px-2">
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-muted text-sm font-semibold text-primary">
+      <div className="flex items-center gap-3 px-2 py-1">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-secondary-foreground">
           {getUserInitials(user.name)}
         </div>
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{user.name}</p>
-          <p className="truncate text-xs text-muted-foreground">{getOrganizationRoleLabel(activeOrganization.role)}</p>
+
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {getOrganizationRoleLabel(activeOrganization.role)}
+          </p>
         </div>
 
         <Button

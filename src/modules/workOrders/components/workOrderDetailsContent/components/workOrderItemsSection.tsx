@@ -6,9 +6,9 @@ import type { WorkOrder } from '../../../types/workOrder.types';
 
 export function WorkOrderItemsSection({ workOrder }: { workOrder: WorkOrder }) {
   return (
-    <section className="rounded-2xl border border-border bg-card shadow-sm">
-      <div className="border-b border-border p-5">
-        <h2 className="font-heading text-lg font-semibold">Serviços</h2>
+    <section>
+      <div className="border-b border-border pb-4">
+        <h2 className="font-heading text-xl font-semibold">Serviços</h2>
         <p className="mt-1 text-sm text-muted-foreground">Itens originados do orçamento aprovado.</p>
       </div>
 
@@ -16,17 +16,18 @@ export function WorkOrderItemsSection({ workOrder }: { workOrder: WorkOrder }) {
         {[...workOrder.items]
           .sort((left, right) => left.position - right.position)
           .map((item) => (
-            <div key={item.id} className="p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
+            <div key={item.id} className="py-5">
+              <div className="flex items-start justify-between gap-6">
+                <div className="min-w-0">
                   <p className="font-medium">{item.name}</p>
+
                   <p className="mt-1 text-sm text-muted-foreground">
                     {formatQuantity(item.quantityInThousandths)} {getServiceUnitLabel(item.unit)} ·{' '}
                     {formatBrlCurrency(item.unitAmountInCents)} por unidade
                   </p>
 
                   {item.description && (
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+                    <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                   )}
                 </div>
 

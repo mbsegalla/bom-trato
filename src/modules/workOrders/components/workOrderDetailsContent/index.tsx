@@ -199,8 +199,10 @@ function OrganizationWorkOrderDetails({
           <ArrowLeft aria-hidden="true" className="size-4" />
           Voltar para ordens de serviço
         </Link>
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
+
+        <div className="mt-6 rounded-xl border border-border bg-card p-8 text-center">
           <p className="text-sm text-destructive">{loadError}</p>
+
           <Button
             type="button"
             variant="outline"
@@ -220,9 +222,6 @@ function OrganizationWorkOrderDetails({
   const assignedMember = members.find((member) => member.userId === workOrder.assignedToId);
   const planningEditable = isWorkOrderPlanningEditable(workOrder.status);
   const ready = workOrder.assignedToId !== null && workOrder.serviceAddress !== null;
-  const canStart = planningEditable && ready;
-  const canProgress = workOrder.status === 'IN_PROGRESS';
-  const completed = workOrder.status === 'COMPLETED';
   const confirmationContent = getWorkOrderConfirmationContent(confirmation);
 
   return (
@@ -240,10 +239,6 @@ function OrganizationWorkOrderDetails({
         workOrder={workOrder}
         planningEditable={planningEditable}
         ready={ready}
-        canStart={canStart}
-        canProgress={canProgress}
-        canCreateReceivable={completed}
-        canSendReview={completed}
         sendingReview={sendingReview}
         onOpenPlanning={() => setPlanningOpen(true)}
         onOpenAssign={() => setAssignOpen(true)}
@@ -255,31 +250,37 @@ function OrganizationWorkOrderDetails({
       />
 
       {actionError && (
-        <p className="mt-5 rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive">
+        <p
+          role="alert"
+          className="mt-5 border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive"
+        >
           {actionError}
         </p>
       )}
 
       {actionMessage && (
-        <p role="status" className="mt-5 rounded-xl bg-success-surface p-4 text-sm text-success">
+        <p
+          role="status"
+          className="mt-5 border-l-2 border-success bg-success-surface/60 px-4 py-3 text-sm text-success"
+        >
           {actionMessage}
         </p>
       )}
 
       {planningEditable && <WorkOrderReadinessNotice workOrder={workOrder} ready={ready} />}
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[1.5fr_0.8fr]">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
         <WorkOrderItemsSection workOrder={workOrder} />
         <WorkOrderOverviewSidebar workOrder={workOrder} assignedMember={assignedMember} />
       </div>
 
-      <div className="mt-5">
+      <div className="mt-10">
         <WorkOrderExecutionNotes key={workOrder.version} workOrder={workOrder} onSaved={applyWorkOrder} />
       </div>
 
       {workOrder.cancellationReason && <WorkOrderCancellationNotice reason={workOrder.cancellationReason} />}
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+      <div className="mt-10 grid gap-10 border-t border-border pt-8 lg:grid-cols-2">
         <WorkOrderStatusHistory
           organizationId={organizationId}
           workOrderId={workOrder.id}

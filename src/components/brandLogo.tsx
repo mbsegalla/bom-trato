@@ -2,7 +2,9 @@ import Image from 'next/image';
 
 import { cn } from '@/lib/utils';
 
-type BrandLogoVariant = 'horizontal' | 'horizontal-light' | 'vertical' | 'mark' | 'app';
+type BrandLogoVariant = 'auto' | 'horizontal' | 'horizontal-light' | 'vertical' | 'mark' | 'app';
+
+type BrandLogoAssetVariant = Exclude<BrandLogoVariant, 'auto'>;
 
 interface BrandLogoProps {
   variant?: BrandLogoVariant;
@@ -12,7 +14,7 @@ interface BrandLogoProps {
 }
 
 const assets: Record<
-  BrandLogoVariant,
+  BrandLogoAssetVariant,
   {
     src: string;
     width: number;
@@ -46,7 +48,34 @@ const assets: Record<
   },
 };
 
-export function BrandLogo({ variant = 'horizontal', alt = 'Bom Trato', className, priority = false }: BrandLogoProps) {
+export function BrandLogo({ variant = 'auto', alt = 'Bom Trato', className, priority = false }: BrandLogoProps) {
+  if (variant === 'auto') {
+    const lightAsset = assets.horizontal;
+    const darkAsset = assets['horizontal-light'];
+
+    return (
+      <>
+        <Image
+          src={lightAsset.src}
+          alt={alt}
+          width={lightAsset.width}
+          height={lightAsset.height}
+          priority={priority}
+          className={cn('h-auto object-contain dark:hidden', className)}
+        />
+
+        <Image
+          src={darkAsset.src}
+          alt={alt}
+          width={darkAsset.width}
+          height={darkAsset.height}
+          priority={priority}
+          className={cn('hidden h-auto object-contain dark:block', className)}
+        />
+      </>
+    );
+  }
+
   const asset = assets[variant];
 
   return (

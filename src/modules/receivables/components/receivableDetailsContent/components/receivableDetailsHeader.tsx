@@ -25,38 +25,49 @@ export function ReceivableDetailsHeader({
   onCancel,
 }: ReceivableDetailsHeaderProps) {
   return (
-    <div className="mt-5 flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
-      <div>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{receivable.title}</h1>
-          <ReceivableStatusBadge status={receivable.status} overdue={receivable.overdue} />
+    <header className="mt-6">
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">{receivable.title}</h1>
+            <ReceivableStatusBadge status={receivable.status} overdue={receivable.overdue} />
+          </div>
+
+          <p className="mt-2 text-sm text-muted-foreground">
+            {receivable.customerName} · vencimento {formatDate(receivable.dueAt)}
+          </p>
         </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {receivable.customerName} · vencimento {formatDate(receivable.dueAt)}
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {editable && (
-          <Button variant="outline" onClick={onEdit} className="cursor-pointer">
-            <Pencil className="size-4" />
-            Editar
-          </Button>
-        )}
 
         {canReceive && (
-          <Button onClick={onReceive} className="cursor-pointer">
-            <CircleDollarSign className="size-4" />
+          <Button type="button" onClick={onReceive} className="cursor-pointer">
+            <CircleDollarSign aria-hidden="true" className="size-4" />
             Registrar pagamento
           </Button>
         )}
-
-        {canCancel && (
-          <Button variant="destructive" onClick={onCancel} className="cursor-pointer">
-            <X className="size-4" />
-            Cancelar
-          </Button>
-        )}
       </div>
-    </div>
+
+      {(editable || canCancel) && (
+        <div className="mt-5 flex flex-wrap items-center gap-1 border-y border-border py-2">
+          {editable && (
+            <Button type="button" variant="ghost" onClick={onEdit} className="cursor-pointer">
+              <Pencil aria-hidden="true" className="size-4" />
+              Editar
+            </Button>
+          )}
+
+          {canCancel && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              className="ml-auto cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive"
+            >
+              <X aria-hidden="true" className="size-4" />
+              Cancelar recebível
+            </Button>
+          )}
+        </div>
+      )}
+    </header>
   );
 }

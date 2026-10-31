@@ -21,8 +21,14 @@ import { ReceivableContextCards } from './components/receivableContextCards';
 import { ReceivableDetailsHeader } from './components/receivableDetailsHeader';
 import { ReceivableMetrics } from './components/receivableMetrics';
 
+interface OrganizationReceivableDetailsProps {
+  organizationId: string;
+  receivableId: string;
+}
+
 export function ReceivableDetailsContent({ receivableId }: { receivableId: string }) {
   const { activeOrganization } = useApp();
+
   return (
     <OrganizationReceivableDetails
       key={`${activeOrganization.id}:${receivableId}`}
@@ -32,14 +38,9 @@ export function ReceivableDetailsContent({ receivableId }: { receivableId: strin
   );
 }
 
-function OrganizationReceivableDetails({
-  organizationId,
-  receivableId,
-}: {
-  organizationId: string;
-  receivableId: string;
-}) {
+function OrganizationReceivableDetails({ organizationId, receivableId }: OrganizationReceivableDetailsProps) {
   const router = useRouter();
+
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [receivable, setReceivable] = useState<Receivable | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +68,7 @@ function OrganizationReceivableDetails({
 
         setError(cause instanceof Error ? cause.message : 'Não foi possível carregar o recebível.');
       });
+
     return () => {
       active = false;
     };
@@ -80,13 +82,23 @@ function OrganizationReceivableDetails({
   if (error && !receivable) {
     return (
       <div className="mx-auto max-w-7xl">
-        <Link href="/receivables" className="inline-flex items-center gap-2 text-sm font-medium text-primary">
-          <ArrowLeft className="size-4" />
+        <Link
+          href="/receivables"
+          className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+        >
+          <ArrowLeft aria-hidden="true" className="size-4" />
           Voltar para recebíveis
         </Link>
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
+
+        <div className="mt-6 rounded-xl border border-border bg-card p-8 text-center">
           <p className="text-sm text-destructive">{error}</p>
-          <Button variant="outline" onClick={() => setRefreshVersion((value) => value + 1)} className="mt-5">
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setRefreshVersion((value) => value + 1)}
+            className="mt-5 cursor-pointer"
+          >
             Tentar novamente
           </Button>
         </div>
@@ -107,9 +119,10 @@ function OrganizationReceivableDetails({
         href="/receivables"
         className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft aria-hidden="true" className="size-4" />
         Voltar para recebíveis
       </Link>
+
       <ReceivableDetailsHeader
         receivable={receivable}
         editable={editable}
@@ -121,22 +134,25 @@ function OrganizationReceivableDetails({
       />
 
       {error && (
-        <p className="mt-5 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
+        <p
+          role="alert"
+          className="mt-5 border-l-2 border-destructive bg-destructive/5 px-4 py-3 text-sm text-destructive"
+        >
           {error}
         </p>
       )}
 
       <ReceivableMetrics receivable={receivable} />
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-[1.4fr_0.8fr]">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
         <ReceivablePayments receivable={receivable} onReceivableSaved={applyReceivable} />
         <ReceivableContextCards receivable={receivable} />
       </div>
 
       {receivable.cancellationReason && (
-        <section className="mt-5 rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
-          <h2 className="font-heading text-lg font-semibold text-destructive">Motivo do cancelamento</h2>
-          <p className="mt-3 text-sm">{receivable.cancellationReason}</p>
+        <section className="mt-8 border-l-2 border-destructive bg-destructive/5 px-4 py-3">
+          <h2 className="font-heading font-semibold text-destructive">Motivo do cancelamento</h2>
+          <p className="mt-2 text-sm leading-relaxed">{receivable.cancellationReason}</p>
         </section>
       )}
 

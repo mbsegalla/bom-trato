@@ -24,7 +24,7 @@ export function OrganizationLogo({ name, logoUrl, variant = 'initials', classNam
     <div
       title={name}
       className={cn(
-        'flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-brand-muted text-sm font-semibold text-primary',
+        'flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary text-sm font-semibold text-secondary-foreground',
         className,
       )}
     >

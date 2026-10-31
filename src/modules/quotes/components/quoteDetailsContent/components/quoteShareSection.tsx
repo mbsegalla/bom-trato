@@ -23,24 +23,24 @@ export function QuoteShareSection({
   onWhatsApp,
 }: QuoteShareSectionProps) {
   return (
-    <section className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="mt-6 border-l-2 border-primary bg-muted/30 px-4 py-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="font-heading text-lg font-semibold">Compartilhar com o cliente</h2>
+          <h2 className="font-heading font-semibold">Compartilhar com o cliente</h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
             Gere um link seguro para visualização, PDF, aprovação ou recusa.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1">
           {shareUrl && (
-            <Button type="button" variant="outline" disabled={sharing} onClick={onRevoke} className="cursor-pointer">
+            <Button type="button" variant="ghost" disabled={sharing} onClick={onRevoke} className="cursor-pointer">
               Revogar link
             </Button>
           )}
 
-          <Button type="button" disabled={sharing} onClick={onCreate} className="cursor-pointer">
+          <Button type="button" variant="ghost" disabled={sharing} onClick={onCreate} className="cursor-pointer">
             {sharing ? (
               <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
             ) : (
@@ -53,8 +53,8 @@ export function QuoteShareSection({
       </div>
 
       {shareUrl && (
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-          <Input readOnly value={shareUrl} className="h-11 rounded-xl" />
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <Input readOnly value={shareUrl} />
 
           <Button type="button" variant="outline" onClick={() => onCopy(shareUrl)} className="cursor-pointer">
             <Clipboard aria-hidden="true" className="size-4" />
