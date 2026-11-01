@@ -2,6 +2,7 @@ import { Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import type { SelectedPlan } from '@/modules/plans/helpers/plan.helper';
+import { getPlanUserLimitLabel } from '@/modules/plans/helpers/plan.helper';
 import { getPricePeriodLabel, getRecurringBillingLabel } from '@/modules/plans/helpers/planPrice.helper';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 
@@ -68,9 +69,7 @@ export function PlanSummary({ selectedPlan, loading, error, onChangePlan }: Plan
           <li className="flex items-start gap-2">
             <Check className="mt-0.5 size-4 shrink-0 text-primary" />
 
-            <span>
-              Até {plan.maxUsers} {plan.maxUsers === 1 ? 'usuário' : 'usuários'}
-            </span>
+            <span>{getPlanUserLimitLabel(plan)}</span>
           </li>
 
           <li className="flex items-start gap-2">

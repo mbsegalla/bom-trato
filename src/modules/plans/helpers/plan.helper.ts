@@ -19,3 +19,15 @@ export function findSelectedPlan(plans: Plan[], planPriceId: string): SelectedPl
 
   return null;
 }
+
+export function getPlanUserLimitLabel(plan: Plan): string {
+  if (plan.maxUsers > 999) {
+    return 'Usuários ilimitados';
+  }
+
+  if (plan.maxUsers === 1) {
+    return 'Até 1 usuário';
+  }
+
+  return `Até ${plan.maxUsers.toLocaleString('pt-BR')} usuários`;
+}

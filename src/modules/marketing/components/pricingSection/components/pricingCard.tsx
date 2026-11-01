@@ -2,20 +2,35 @@ import { ArrowRight, Check } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import {
+  getAnnualSavingsPercentage,
+  getMonthlyEquivalentAmount,
+  getPlanPriceByInterval,
+  getPricePeriodLabel,
+} from '@/modules/plans/helpers/planPrice.helper';
 import type { Plan, PricingInterval } from '@/modules/plans/types/plan.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 
 import { MarketingLink } from '../../marketingLink';
 import { getPlanFeatures } from '../helpers/pricingSection.helper';
 
-export function PricingCard({ plan, interval }: { plan: Plan; interval: PricingInterval }) {
-  const price = plan.prices.find((item) => item.interval === interval && item.intervalCount === 1);
+interface PricingCardProps {
+  plan: Plan;
+  interval: PricingInterval;
+}
+
+export function PricingCard({ plan, interval }: PricingCardProps) {
+  const price = getPlanPriceByInterval(plan, interval);
   const featured = plan.code === 'TEAM';
+
+  const monthlyEquivalent = price ? getMonthlyEquivalentAmount(price) : null;
+
+  const annualSavings = interval === 'YEAR' ? getAnnualSavingsPercentage(plan) : null;
 
   return (
     <article
       className={cn(
-        'flex flex-col rounded-3xl border bg-card p-7 text-card-foreground sm:p-8',
+        'flex h-full flex-col rounded-3xl border bg-card p-7 text-card-foreground sm:p-8',
         featured && 'border-primary shadow-lg shadow-primary/10',
       )}
     >
@@ -26,26 +41,47 @@ export function PricingCard({ plan, interval }: { plan: Plan; interval: PricingI
           </span>
         )}
       </div>
+
       <h3 className="mt-5 font-heading text-xl font-semibold">{plan.name}</h3>
+
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{plan.description}</p>
+
       <div className="mt-7">
         {price ? (
-          <p>
-            <span className="text-4xl font-semibold tracking-tight">{formatBrlCurrency(price.amountInCents)}</span>
-            <span className="ml-2 text-sm text-muted-foreground">/ {interval === 'YEAR' ? 'ano' : 'mês'}</span>
-          </p>
+          <>
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="text-4xl font-semibold tracking-tight whitespace-nowrap">
+                {formatBrlCurrency(price.amountInCents)}
+              </span>
+
+              <span className="text-sm whitespace-nowrap text-muted-foreground">{getPricePeriodLabel(price)}</span>
+            </div>
+
+            {monthlyEquivalent !== null && (
+              <p className="mt-2 text-sm text-muted-foreground">
+                Equivale a {formatBrlCurrency(monthlyEquivalent)} por mês
+              </p>
+            )}
+
+            {annualSavings !== null && (
+              <p className="mt-2 text-sm font-semibold text-primary">Economize {annualSavings}% no anual</p>
+            )}
+          </>
         ) : (
           <p className="text-lg font-medium text-muted-foreground">Indisponível neste período</p>
         )}
       </div>
+
       <ul className="my-8 space-y-3">
         {getPlanFeatures(plan).map((feature) => (
           <li key={feature} className="flex gap-3 text-sm">
             <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+
             <span>{feature}</span>
           </li>
         ))}
       </ul>
+
       <div className="mt-auto">
         {price ? (
           <MarketingLink
