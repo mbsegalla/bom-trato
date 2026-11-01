@@ -2,6 +2,7 @@
 
 import { LoaderCircle, UserRound, X } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import type { OrganizationMember } from '@/modules/organizations/types/organization.types';
@@ -48,10 +49,15 @@ export function WorkOrderAssignPanel({ workOrder, members, onClose, onSaved }: W
         assignedToId || null,
       );
 
+      toast.success('Responsável atualizado com sucesso.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atribuir o responsável.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível atribuir o responsável.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -55,10 +56,15 @@ export function WorkOrderCancelDialog({ workOrder, onClose, onCanceled }: WorkOr
         parsed.data.reason,
       );
 
+      toast.success('Ordem de serviço cancelada.');
+
       onCanceled(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível cancelar a ordem de serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível cancelar a ordem de serviço.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

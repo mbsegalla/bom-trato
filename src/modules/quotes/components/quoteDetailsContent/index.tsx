@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
@@ -99,6 +100,15 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     setOperationLoading(true);
     setActionError(null);
 
+    const successMessage =
+      confirmation.kind === 'APPROVE'
+        ? 'Orçamento aprovado com sucesso.'
+        : confirmation.kind === 'DECLINE'
+          ? 'Orçamento recusado.'
+          : confirmation.kind === 'CANCEL'
+            ? 'Orçamento cancelado.'
+            : 'Item removido do orçamento.';
+
     try {
       let updated: Quote;
 
@@ -119,8 +129,12 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
 
       applyQuote(updated);
       setConfirmation(null);
+      toast.success(successMessage);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível concluir a operação.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível concluir a operação.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setOperationLoading(false);
     }
@@ -141,7 +155,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
       anchor.click();
       URL.revokeObjectURL(url);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível baixar o PDF.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível baixar o PDF.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setDownloadingPdf(false);
     }
@@ -160,9 +177,12 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
   async function copyShareUrl(url: string): Promise<void> {
     try {
       await navigator.clipboard.writeText(url);
+
       setShareMessage('Link copiado.');
+      toast.success('Link copiado.');
     } catch {
       setShareMessage('Link criado. Copie manualmente abaixo.');
+      toast.error('Não foi possível copiar o link automaticamente.');
     }
   }
 
@@ -191,7 +211,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
 
       await copyShareUrl(share.url);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível gerar o link.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível gerar o link.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setSharing(false);
     }
@@ -208,8 +231,13 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
 
       setShareUrl(null);
       setShareMessage('Links de compartilhamento revogados.');
+
+      toast.success('Links de compartilhamento revogados.');
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível revogar o link.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível revogar o link.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setSharing(false);
     }
@@ -258,6 +286,7 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
       const whatsappUrl = createQuoteWhatsAppUrl(sentQuote.customerPhone, message);
 
       setShareMessage('Orçamento preparado para envio.');
+      toast.success('Orçamento preparado para envio.');
 
       if (whatsappWindow !== null) {
         whatsappWindow.location.href = whatsappUrl;
@@ -267,7 +296,10 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
     } catch (cause: unknown) {
       whatsappWindow?.close();
 
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível preparar o orçamento para envio.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível preparar o orçamento para envio.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setOperationLoading(false);
       setSharing(false);

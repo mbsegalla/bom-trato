@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
@@ -100,28 +101,41 @@ function OrganizationCatalogServiceDetails({
 
     setChangingStatus(true);
     setActionError(null);
+
     try {
       await restoreCatalogService(organizationId, serviceId);
 
+      toast.success('Serviço restaurado com sucesso.');
+
       setRefreshVersion((value) => value + 1);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível restaurar o serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível restaurar o serviço.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setChangingStatus(false);
     }
   }
+
   async function handleArchive(): Promise<void> {
     if (changingStatus) return;
 
     setChangingStatus(true);
     setActionError(null);
+
     try {
       await archiveCatalogService(organizationId, serviceId);
+
+      toast.success('Serviço arquivado com sucesso.');
 
       setConfirmArchive(false);
       setRefreshVersion((value) => value + 1);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível arquivar o serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível arquivar o serviço.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setChangingStatus(false);
     }

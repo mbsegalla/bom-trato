@@ -3,6 +3,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Geist_Mono, Montserrat } from 'next/font/google';
 
+import { AppToaster } from '@/components/appToaster';
 import { siteConfig } from '@/config/site.config';
 import { ThemeProvider } from '@/modules/theme/components/themeProvider';
 import { ThemeScript } from '@/modules/theme/components/themeScript';
@@ -45,7 +46,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     <html lang="pt-BR" suppressHydrationWarning className={`${montserrat.variable} ${geistMono.variable}`}>
       <body>
         <ThemeScript />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <AppToaster />
+        </ThemeProvider>
       </body>
     </html>
   );

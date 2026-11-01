@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/datePicker';
@@ -52,10 +53,15 @@ export function ReceivableEditPanel({ receivable, onClose, onSaved }: Receivable
     try {
       const updated = await updateReceivable(receivable.organizationId, receivable.id, receivable.version, parsed.data);
 
+      toast.success('Recebível atualizado com sucesso.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar o recebível.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível atualizar o recebível.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

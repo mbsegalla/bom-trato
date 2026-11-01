@@ -3,6 +3,7 @@
 import { LoaderCircle } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -61,10 +62,15 @@ export function ReceivableReversePaymentDialog({
         parsed.data.reason,
       );
 
+      toast.success('Pagamento estornado com sucesso.');
+
       onSaved(result.receivable);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível estornar o pagamento.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível estornar o pagamento.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

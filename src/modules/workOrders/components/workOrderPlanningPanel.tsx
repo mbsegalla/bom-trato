@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -67,10 +68,15 @@ export function WorkOrderPlanningPanel({ workOrder, onClose, onSaved }: WorkOrde
     try {
       const updated = await updateWorkOrder(workOrder.organizationId, workOrder.id, workOrder.version, parsed.data);
 
+      toast.success('Planejamento atualizado com sucesso.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar a ordem de serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível atualizar a ordem de serviço.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

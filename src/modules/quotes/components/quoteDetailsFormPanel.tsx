@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/datePicker';
@@ -81,10 +82,15 @@ export function QuoteDetailsFormPanel({ quote, onClose, onSaved }: QuoteDetailsF
     try {
       const updated = await updateQuote(quote.organizationId, quote.id, quote.version, parsed.data);
 
+      toast.success('Orçamento atualizado com sucesso.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar o orçamento.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível atualizar o orçamento.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

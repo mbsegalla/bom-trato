@@ -3,6 +3,7 @@
 import { LoaderCircle } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -50,10 +51,15 @@ export function ReceivableCancelDialog({ receivable, onClose, onSaved }: Receiva
         parsed.data.reason,
       );
 
+      toast.success('Recebível cancelado.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível cancelar o recebível.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível cancelar o recebível.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
