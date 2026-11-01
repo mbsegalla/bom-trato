@@ -12,28 +12,70 @@ import type { SelectedPlan } from '@/modules/plans/helpers/plan.helper';
 import { findSelectedPlan } from '@/modules/plans/helpers/plan.helper';
 import { listPlans } from '@/modules/plans/services/plan.service';
 
+import type { OnboardingState } from '../../types/onboarding.types';
+import { OnboardingPlanSelection } from '../onboardingPlanSelection';
 import { PaymentForm } from './components/paymentForm';
 import { PlanSummary } from './components/planSummary';
 
 interface OnboardingPaymentProps {
   organizationId: string;
   planPriceId: string;
+  onStateChange(state: OnboardingState): void;
 }
 
-interface CheckoutLoaderProps extends OnboardingPaymentProps {
+interface CheckoutLoaderProps {
+  organizationId: string;
+  planPriceId: string;
+  onChangePlan(): void;
   onRetry(): void;
 }
 
 const stripePromise = loadStripe(getStripeConfig().publishableKey);
 
-export function OnboardingPayment({ organizationId, planPriceId }: OnboardingPaymentProps) {
+export function OnboardingPayment({ organizationId, planPriceId, onStateChange }: OnboardingPaymentProps) {
   const [retryKey, setRetryKey] = useState(0);
+  const [changingPlan, setChangingPlan] = useState(false);
+
+  if (changingPlan) {
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="font-heading text-xl font-semibold tracking-tight">Escolha outro plano</h2>
+
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+              Escolha a nova opção. O checkout atual será atualizado automaticamente.
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setChangingPlan(false)}
+            className="cursor-pointer self-start"
+          >
+            Voltar ao pagamento
+          </Button>
+        </div>
+
+        <OnboardingPlanSelection
+          organizationId={organizationId}
+          selectedPlanPriceId={planPriceId}
+          onSelected={(state) => {
+            setChangingPlan(false);
+            onStateChange(state);
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <CheckoutLoader
       key={`${organizationId}:${planPriceId}:${retryKey}`}
       organizationId={organizationId}
       planPriceId={planPriceId}
+      onChangePlan={() => setChangingPlan(true)}
       onRetry={() => {
         setRetryKey((value) => value + 1);
       }}
@@ -41,7 +83,7 @@ export function OnboardingPayment({ organizationId, planPriceId }: OnboardingPay
   );
 }
 
-function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoaderProps) {
+function CheckoutLoader({ organizationId, planPriceId, onChangePlan, onRetry }: CheckoutLoaderProps) {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlan | null>(null);
   const [planLoading, setPlanLoading] = useState(true);
@@ -114,29 +156,30 @@ function CheckoutLoader({ organizationId, planPriceId, onRetry }: CheckoutLoader
     };
   }, [planPriceId]);
 
-  if (checkoutError) {
-    return (
-      <div className="space-y-4">
-        <p
-          role="alert"
-          className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
-        >
-          {checkoutError}
-        </p>
-
-        <Button type="button" variant="outline" onClick={onRetry} className="min-h-12 w-full cursor-pointer rounded-xl">
-          <RotateCcw className="size-4" />
-          Tentar novamente
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <PlanSummary selectedPlan={selectedPlan} loading={planLoading} error={planError} />
+      <PlanSummary selectedPlan={selectedPlan} loading={planLoading} error={planError} onChangePlan={onChangePlan} />
 
-      {!clientSecret ? (
+      {checkoutError ? (
+        <div className="space-y-4">
+          <p
+            role="alert"
+            className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 text-sm leading-relaxed text-destructive"
+          >
+            {checkoutError}
+          </p>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onRetry}
+            className="min-h-12 w-full cursor-pointer rounded-xl"
+          >
+            <RotateCcw className="size-4" />
+            Tentar novamente
+          </Button>
+        </div>
+      ) : !clientSecret ? (
         <div
           aria-busy="true"
           className="flex min-h-40 flex-col items-center justify-center rounded-2xl border border-border"
