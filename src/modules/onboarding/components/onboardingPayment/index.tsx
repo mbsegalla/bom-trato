@@ -2,7 +2,7 @@
 
 import { CheckoutElementsProvider } from '@stripe/react-stripe-js/checkout';
 import { loadStripe } from '@stripe/stripe-js';
-import { LoaderCircle, RotateCcw } from 'lucide-react';
+import { ArrowLeft, LoaderCircle, RotateCcw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -50,10 +50,11 @@ export function OnboardingPayment({ organizationId, planPriceId, onStateChange }
 
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => setChangingPlan(false)}
             className="cursor-pointer self-start"
           >
+            <ArrowLeft aria-hidden="true" className="size-4" />
             Voltar ao pagamento
           </Button>
         </div>
