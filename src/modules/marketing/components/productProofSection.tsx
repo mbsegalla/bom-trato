@@ -33,7 +33,7 @@ const productProofs = [
 
 export function ProductProofSection() {
   return (
-    <section className="px-6 py-20 sm:py-24 lg:px-10">
+    <section className="px-6 py-12 sm:py-16 lg:px-10">
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:gap-20">
           <div className="max-w-lg">
@@ -56,8 +56,8 @@ export function ProductProofSection() {
                 key={title}
                 className={
                   index === 0
-                    ? 'grid gap-5 py-7 sm:grid-cols-[3rem_1fr]'
-                    : 'grid gap-5 border-t border-border py-7 sm:grid-cols-[3rem_1fr]'
+                    ? 'grid gap-5 py-6 sm:grid-cols-[3rem_1fr]'
+                    : 'grid gap-5 border-t border-border py-6 sm:grid-cols-[3rem_1fr]'
                 }
               >
                 <div className="flex size-10 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">

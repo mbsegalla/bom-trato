@@ -123,8 +123,8 @@ export default function Home() {
       <JsonLd data={homeJsonLd} />
 
       <main id="main-content" tabIndex={-1}>
-        <section className="overflow-hidden px-6 pt-14 pb-20 sm:pt-20 sm:pb-28 lg:px-10">
-          <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
+        <section className="overflow-hidden px-6 pt-12 pb-12 sm:pt-16 sm:pb-16 lg:px-10">
+          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
             <div className="max-w-xl">
               <p className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground">
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
@@ -174,7 +174,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="features" className="scroll-mt-24 px-6 py-16 sm:py-24 lg:px-10">
+        <section id="features" className="scroll-mt-24 px-6 py-12 sm:py-16 lg:px-10">
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-8 lg:grid-cols-2 lg:gap-20">
               <h2 className="max-w-xl font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
@@ -188,7 +188,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+            <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
               {benefits.map(({ icon: Icon, title, description }) => (
                 <article key={title} className="border-t border-border pt-6">
                   <Icon aria-hidden="true" className="size-7 text-primary" strokeWidth={1.5} />
@@ -202,13 +202,13 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="how-it-works" className="scroll-mt-24 px-4 py-8 sm:px-6 lg:px-10">
+        <section id="how-it-works" className="scroll-mt-24 px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
           <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-brand text-brand-foreground">
             <div className="grid lg:grid-cols-[0.72fr_1.28fr]">
-              <div className="px-6 py-12 sm:px-10 sm:py-16 lg:border-r lg:border-brand-foreground/15 lg:px-14">
+              <div className="px-6 py-10 sm:px-10 sm:py-14 lg:border-r lg:border-brand-foreground/15 lg:px-14">
                 <ClipboardCheck aria-hidden="true" className="size-8 text-brand-muted" strokeWidth={1.5} />
 
-                <p className="mt-8 text-xs font-semibold tracking-widest text-brand-muted uppercase">
+                <p className="mt-7 text-xs font-semibold tracking-widest text-brand-muted uppercase">
                   Um fluxo conectado
                 </p>
 
@@ -224,7 +224,7 @@ export default function Home() {
 
               <ol className="divide-y divide-brand-foreground/15 px-6 sm:px-10 lg:px-12">
                 {workflow.map(({ icon: Icon, title, description }, index) => (
-                  <li key={title} className="grid gap-5 py-7 sm:grid-cols-[3rem_1fr] sm:items-start">
+                  <li key={title} className="grid gap-5 py-6 sm:grid-cols-[3rem_1fr] sm:items-start">
                     <div className="flex items-center gap-3 sm:block">
                       <span className="text-xs font-medium text-brand-muted">{String(index + 1).padStart(2, '0')}</span>
 
@@ -257,7 +257,7 @@ export default function Home() {
           <PublicPricingSection />
         </Suspense>
 
-        <section id="faq" className="scroll-mt-24 border-t border-border px-6 py-20 sm:py-24 lg:px-10">
+        <section id="faq" className="scroll-mt-24 border-t border-border px-6 py-12 sm:py-16 lg:px-10">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>
               <p className="text-xs font-semibold tracking-widest text-primary uppercase">Antes do próximo passo</p>
@@ -290,8 +290,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="px-6 pb-20 lg:px-10">
-          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-secondary px-7 py-12 text-secondary-foreground sm:px-12 lg:flex-row lg:items-center">
+        <section className="px-6 pb-12 sm:pb-16 lg:px-10">
+          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-secondary px-7 py-10 text-secondary-foreground sm:px-12 lg:flex-row lg:items-center">
             <div className="max-w-2xl">
               <h2 className="font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
                 Cuide do serviço.

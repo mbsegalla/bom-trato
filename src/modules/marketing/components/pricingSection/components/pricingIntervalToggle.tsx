@@ -9,8 +9,9 @@ interface PricingIntervalToggleProps {
 
 export function PricingIntervalToggle({ periods, activeInterval, onChange }: PricingIntervalToggleProps) {
   if (periods.length <= 1) return null;
+
   return (
-    <div className="mt-8 flex justify-center">
+    <div className="mt-6 flex justify-center">
       <div role="group" aria-label="Período de cobrança" className="inline-flex gap-1 rounded-xl border bg-card p-1">
         {periods.map((period) => (
           <Button
