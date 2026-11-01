@@ -34,12 +34,17 @@ export const marketingFaqs = [
   {
     question: 'O que acontece quando um orçamento é aprovado?',
     answer:
-      'A ordem de serviço pode ser criada automaticamente a partir do orçamento aprovado, reaproveitando as informações do cliente e do serviço.',
+      'A ordem de serviço pode ser criada a partir do orçamento aprovado, reaproveitando informações como cliente, endereço e serviços.',
   },
   {
     question: 'E quando um serviço é concluído?',
     answer:
       'Ao concluir uma ordem de serviço, o Bom Trato cria o recebível correspondente para que o acompanhamento financeiro continue no mesmo fluxo.',
+  },
+  {
+    question: 'O Bom Trato faz tudo automaticamente?',
+    answer:
+      'Não. O sistema automatiza e prepara etapas que podem ser conectadas com segurança, mas ações que dependem do trabalho real continuam sob seu controle, como iniciar ou concluir um serviço e registrar um pagamento.',
   },
   {
     question: 'Posso trabalhar com minha equipe?',
@@ -48,6 +53,11 @@ export const marketingFaqs = [
   },
   {
     question: 'O que consigo acompanhar nos recebimentos?',
-    answer: 'Você pode registrar pagamentos e acompanhar os valores recebidos e os que ainda estão em aberto.',
+    answer: 'Você pode registrar pagamentos e acompanhar os valores recebidos, pendentes e em atraso.',
+  },
+  {
+    question: 'Como funcionam as avaliações dos profissionais?',
+    answer:
+      'Depois de um serviço concluído, o profissional pode convidar o cliente para avaliar o atendimento. As avaliações vinculadas a serviços realizados ajudam a construir uma reputação mais confiável na vitrine pública.',
   },
 ];

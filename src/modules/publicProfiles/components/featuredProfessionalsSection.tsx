@@ -20,24 +20,25 @@ export async function FeaturedProfessionalsSection() {
       className="scroll-mt-24 border-y border-border bg-muted/20 px-6 py-20 sm:py-24 lg:px-10"
     >
       <div className="mx-auto max-w-7xl">
-        <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold tracking-widest text-primary uppercase">Profissionais em destaque</p>
+            <p className="text-xs font-semibold tracking-widest text-primary uppercase">Além da gestão</p>
 
             <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
-              Quem faz bem feito merece ser encontrado.
+              Seu trabalho também pode ganhar visibilidade.
             </h2>
 
             <p className="mt-4 leading-relaxed text-muted-foreground">
-              Conheça profissionais com avaliações verificadas por serviços realizados através do Bom Trato.
+              A vitrine do Bom Trato ajuda clientes a conhecer profissionais, seus serviços e avaliações verificadas de
+              atendimentos realizados pela plataforma.
             </p>
           </div>
 
           <Link
             href="/profissionais"
-            className="inline-flex min-h-11 shrink-0 items-center gap-2 font-medium text-primary"
+            className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
-            Ver todos os profissionais
+            Explorar profissionais
             <ArrowRight aria-hidden="true" className="size-4" />
           </Link>
         </div>
