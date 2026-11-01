@@ -1,9 +1,8 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import { convertLeadResponseSchema, leadResponseSchema, leadsResponseSchema } from '../schemas/lead.schema';
 import type { ConvertLeadResult, Lead, LeadListParams, LeadPage } from '../types/lead.types';
-
-const DEFAULT_LIMIT = 20;
 
 const listFlights = new Map<string, Promise<LeadPage>>();
 
@@ -42,7 +41,7 @@ function leadListRequestKey(organizationId: string, params: LeadListParams): str
   return JSON.stringify({
     organizationId,
     page: params.page,
-    limit: params.limit ?? DEFAULT_LIMIT,
+    limit: params.limit ?? DEFAULT_PAGE_LIMIT,
     status: params.status ?? null,
     search: params.search?.trim() || null,
   });
@@ -53,7 +52,7 @@ async function requestLeads(organizationId: string, params: LeadListParams): Pro
 
   const query = new URLSearchParams({
     page: String(page),
-    limit: String(limit ?? DEFAULT_LIMIT),
+    limit: String(limit ?? DEFAULT_PAGE_LIMIT),
   });
 
   if (status) {

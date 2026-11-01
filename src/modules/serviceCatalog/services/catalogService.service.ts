@@ -1,4 +1,5 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import { catalogServiceResponseSchema, catalogServicesResponseSchema } from '../schemas/catalogService.schema';
 import type {
@@ -7,8 +8,6 @@ import type {
   CatalogServiceListParams,
   CatalogServicePage,
 } from '../types/catalogService.types';
-
-const DEFAULT_PAGE_LIMIT = 20;
 
 const catalogServiceListFlights = new Map<string, Promise<CatalogServicePage>>();
 const catalogServiceFlights = new Map<string, Promise<CatalogService>>();

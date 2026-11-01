@@ -74,12 +74,7 @@ export default async function ProfessionalsPage({ searchParams }: ProfessionalsP
 
   const page = Math.max(1, Number(single(params.page)) || 1);
 
-  const result = await getPublicProfessionals({
-    page,
-    limit: 12,
-    search,
-    city,
-  });
+  const result = await getPublicProfessionals({ page, search, city });
 
   return (
     <div className="min-h-dvh bg-background">

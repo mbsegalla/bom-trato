@@ -1,4 +1,5 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
   workOrderResponseSchema,
@@ -18,8 +19,6 @@ import type {
   WorkOrderScheduleInput,
   WorkOrderStatusHistory,
 } from '../types/workOrder.types';
-
-const DEFAULT_PAGE_LIMIT = 20;
 
 const workOrderListFlights = new Map<string, Promise<WorkOrderPage>>();
 const workOrderFlights = new Map<string, Promise<WorkOrder>>();

@@ -1,5 +1,6 @@
 import { getApiConfig } from '@/config/api.config';
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
   publicQuoteDecisionResponseSchema,
@@ -23,8 +24,6 @@ import type {
   QuoteStatusHistory,
   UpdateQuoteInput,
 } from '../types/quote.types';
-
-const DEFAULT_PAGE_LIMIT = 10;
 
 const quoteListFlights = new Map<string, Promise<QuotePage>>();
 const quoteFlights = new Map<string, Promise<Quote>>();

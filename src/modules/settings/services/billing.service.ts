@@ -1,6 +1,7 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 import { listPlans } from '@/modules/plans/services/plan.service';
 import type { Plan } from '@/modules/plans/types/plan.types';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
   billingApiErrorResponseSchema,
@@ -253,7 +254,7 @@ export function getBillingPaymentMethod(organizationId: string): Promise<Billing
 
 async function requestInvoices(organizationId: string, cursor?: string): Promise<BillingInvoicePage> {
   const query = new URLSearchParams({
-    limit: '20',
+    limit: String(DEFAULT_PAGE_LIMIT),
   });
 
   if (cursor) {

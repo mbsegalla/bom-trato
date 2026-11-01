@@ -1,4 +1,5 @@
 import { getApiConfig } from '@/config/api.config';
+import { PUBLIC_DIRECTORY_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import { publicProfessionalResponseSchema, publicProfessionalsResponseSchema } from '../schemas/publicProfile.schema';
 import type { PublicProfessional, PublicProfessionalPage } from '../types/publicProfile.types';
@@ -29,7 +30,7 @@ export async function getPublicProfessionals(params: PublicProfessionalsParams =
 
   const query = new URLSearchParams({
     page: String(page ?? 1),
-    limit: String(limit ?? 12),
+    limit: String(limit ?? PUBLIC_DIRECTORY_PAGE_LIMIT),
   });
 
   if (search?.trim()) {

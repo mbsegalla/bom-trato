@@ -1,4 +1,5 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
   receivableFinancialSchema,
@@ -18,9 +19,6 @@ import type {
   ReceivablePaymentsPage,
   UpdateReceivableInput,
 } from '../types/receivable.types';
-
-const DEFAULT_PAGE_LIMIT = 20;
-const PAYMENT_PAGE_LIMIT = 10;
 
 const receivableListFlights = new Map<string, Promise<ReceivablePage>>();
 const receivableFlights = new Map<string, Promise<Receivable>>();
@@ -265,7 +263,7 @@ async function requestReceivablePayments(
 ): Promise<ReceivablePaymentsPage> {
   const query = new URLSearchParams({
     page: String(page),
-    limit: String(PAYMENT_PAGE_LIMIT),
+    limit: String(DEFAULT_PAGE_LIMIT),
   });
 
   const response = await authenticatedFetch(
