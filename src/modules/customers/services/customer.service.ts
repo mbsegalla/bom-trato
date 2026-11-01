@@ -1,4 +1,5 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import { customerOverviewSchema, customerResponseSchema, customersResponseSchema } from '../schemas/customer.schema';
 import type {
@@ -8,8 +9,6 @@ import type {
   CustomerOverview,
   CustomerPage,
 } from '../types/customer.types';
-
-const DEFAULT_PAGE_LIMIT = 5;
 
 const customerListFlights = new Map<string, Promise<CustomerPage>>();
 const customerOverviewFlights = new Map<string, Promise<CustomerOverview>>();
