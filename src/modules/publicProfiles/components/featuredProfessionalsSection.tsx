@@ -17,7 +17,7 @@ export async function FeaturedProfessionalsSection() {
   return (
     <section
       id="professionals"
-      className="scroll-mt-24 border-y border-border bg-muted/20 px-6 py-20 sm:py-24 lg:px-10"
+      className="scroll-mt-24 border-y border-border bg-muted/20 px-6 py-12 sm:py-16 lg:px-10"
     >
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
@@ -43,7 +43,7 @@ export async function FeaturedProfessionalsSection() {
           </Link>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {page.items.map((professional) => (
             <ProfessionalCard key={professional.slug} professional={professional} />
           ))}
