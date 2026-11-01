@@ -1,4 +1,4 @@
-import { Building2, CircleCheck, LoaderCircle } from 'lucide-react';
+import { Building2, CalendarClock, CircleCheck, LoaderCircle } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useState } from 'react';
 
@@ -57,8 +57,10 @@ export function BusinessProfileForm({
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-muted text-primary">
             <Building2 aria-hidden="true" className="size-5" />
           </div>
+
           <div>
             <h2 className="font-heading text-xl font-semibold">Dados do negócio</h2>
+
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
               Informações utilizadas para identificar seu negócio no Bom Trato.
             </p>
@@ -94,6 +96,7 @@ export function BusinessProfileForm({
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="business-name">Nome do negócio *</Label>
+
               <Input
                 id="business-name"
                 name="name"
@@ -107,6 +110,7 @@ export function BusinessProfileForm({
 
             <div className="space-y-2">
               <Label htmlFor="business-email">E-mail comercial</Label>
+
               <Input
                 id="business-email"
                 name="email"
@@ -138,24 +142,9 @@ export function BusinessProfileForm({
               />
             </div>
 
-            <Input
-              id="business-default-receivable-due-days"
-              name="defaultReceivableDueDays"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              max={365}
-              defaultValue={profile.defaultReceivableDueDays}
-              readOnly={!owner}
-              className="h-12 rounded-xl"
-            />
-
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Ao concluir uma ordem de serviço, o Bom Trato criará automaticamente o recebível com este prazo.
-            </p>
-
             <div className="space-y-2">
               <Label htmlFor="business-document-type">Tipo de documento</Label>
+
               <select
                 id="business-document-type"
                 name="documentType"
@@ -174,6 +163,7 @@ export function BusinessProfileForm({
               <Label htmlFor="business-document">
                 {documentType === 'CPF' ? 'CPF' : documentType === 'CNPJ' ? 'CNPJ' : 'Documento'}
               </Label>
+
               <Input
                 id="business-document"
                 name="document"
@@ -196,6 +186,48 @@ export function BusinessProfileForm({
             </div>
 
             <BusinessAddressFields profile={profile} owner={owner} />
+
+            <div className="space-y-5 sm:col-span-2">
+              <div className="flex items-center gap-2 border-t border-border pt-6">
+                <CalendarClock aria-hidden="true" className="size-4 text-primary" />
+
+                <h3 className="font-medium">Automação de recebíveis</h3>
+              </div>
+
+              <div className="max-w-md space-y-2">
+                <Label htmlFor="business-default-receivable-due-days">Prazo padrão para vencimento</Label>
+
+                <div className="relative">
+                  <Input
+                    id="business-default-receivable-due-days"
+                    name="defaultReceivableDueDays"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={365}
+                    defaultValue={profile.defaultReceivableDueDays}
+                    readOnly={!owner}
+                    aria-describedby="business-default-receivable-due-days-description"
+                    className="h-12 rounded-xl pr-14"
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm text-muted-foreground"
+                  >
+                    dias
+                  </span>
+                </div>
+
+                <p
+                  id="business-default-receivable-due-days-description"
+                  className="text-sm leading-relaxed text-muted-foreground"
+                >
+                  Ao concluir uma ordem de serviço, o Bom Trato cria automaticamente um recebível. Este prazo define em
+                  quantos dias será o vencimento.
+                </p>
+              </div>
+            </div>
           </div>
 
           {owner && (
