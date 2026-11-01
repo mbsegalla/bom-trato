@@ -48,12 +48,18 @@ export function OnboardingStepContent({ state, refreshing, onStateChange, onRefr
   if (state.step === 'PAYMENT' && state.organizationId && state.selectedPlanPriceId) {
     return (
       <>
-        <h1 className="font-heading text-3xl font-semibold tracking-tight">Conclua sua assinatura</h1>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">Revise seu plano e conclua a assinatura</h1>
 
-        <p className="mt-3 leading-relaxed text-muted-foreground">Finalize o pagamento para liberar sua conta.</p>
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          Confira a opção escolhida e finalize o pagamento para liberar sua conta.
+        </p>
 
         <div className="mt-8">
-          <OnboardingPayment organizationId={state.organizationId} planPriceId={state.selectedPlanPriceId} />
+          <OnboardingPayment
+            organizationId={state.organizationId}
+            planPriceId={state.selectedPlanPriceId}
+            onStateChange={onStateChange}
+          />
         </div>
       </>
     );
@@ -90,6 +96,7 @@ export function OnboardingStepContent({ state, refreshing, onStateChange, onRefr
         </div>
 
         <h1 className="mt-6 font-heading text-3xl font-semibold tracking-tight">Pagamento confirmado</h1>
+
         <p className="mt-3 leading-relaxed text-muted-foreground">Agora conte como devemos chamar o seu negócio.</p>
 
         <div className="mt-8">
@@ -134,6 +141,7 @@ export function OnboardingStepContent({ state, refreshing, onStateChange, onRefr
     return (
       <>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">Fale com o responsável</h1>
+
         <p className="mt-3 leading-relaxed text-muted-foreground">
           O responsável pelo negócio precisa concluir esta etapa.
         </p>

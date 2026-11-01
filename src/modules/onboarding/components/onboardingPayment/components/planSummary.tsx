@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import type { SelectedPlan } from '@/modules/plans/helpers/plan.helper';
 import { getPricePeriodLabel, getRecurringBillingLabel } from '@/modules/plans/helpers/planPrice.helper';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
@@ -10,9 +11,10 @@ interface PlanSummaryProps {
   selectedPlan: SelectedPlan | null;
   loading: boolean;
   error: string | null;
+  onChangePlan(): void;
 }
 
-export function PlanSummary({ selectedPlan, loading, error }: PlanSummaryProps) {
+export function PlanSummary({ selectedPlan, loading, error, onChangePlan }: PlanSummaryProps) {
   if (loading) {
     return <PlanSummarySkeleton />;
   }
@@ -31,7 +33,19 @@ export function PlanSummary({ selectedPlan, loading, error }: PlanSummaryProps) 
 
   return (
     <section className="rounded-2xl border border-border bg-muted/20 p-5">
-      <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase">Plano selecionado</p>
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase">Plano selecionado</p>
+
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          onClick={onChangePlan}
+          className="h-auto cursor-pointer p-0 font-semibold"
+        >
+          Alterar plano
+        </Button>
+      </div>
 
       <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">

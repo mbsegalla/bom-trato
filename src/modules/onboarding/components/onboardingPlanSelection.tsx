@@ -4,6 +4,7 @@ import { Check, LoaderCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
+import { getPricePeriodLabel } from '@/modules/plans/helpers/planPrice.helper';
 import { listPlans } from '@/modules/plans/services/plan.service';
 import type { Plan, PlanPrice } from '@/modules/plans/types/plan.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
@@ -13,6 +14,7 @@ import type { OnboardingState } from '../types/onboarding.types';
 
 interface OnboardingPlanSelectionProps {
   organizationId: string;
+  selectedPlanPriceId?: string;
   onSelected(state: OnboardingState): void;
 }
 
@@ -23,7 +25,11 @@ function getPreferredPrice(plan: Plan): PlanPrice | undefined {
   );
 }
 
-export function OnboardingPlanSelection({ organizationId, onSelected }: OnboardingPlanSelectionProps) {
+export function OnboardingPlanSelection({
+  organizationId,
+  selectedPlanPriceId,
+  onSelected,
+}: OnboardingPlanSelectionProps) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectingPriceId, setSelectingPriceId] = useState<string | null>(null);
@@ -63,13 +69,14 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
   }, []);
 
   async function select(priceId: string): Promise<void> {
-    if (selectingPriceId !== null) {
+    if (selectingPriceId !== null || priceId === selectedPlanPriceId) {
       return;
     }
 
     setSelectingPriceId(priceId);
 
     setError(null);
+
     try {
       const state = await selectOnboardingPlan(organizationId, priceId);
 
@@ -110,28 +117,45 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
 
       <div className="grid gap-4 md:grid-cols-2">
         {plans.map((plan) => {
-          const price = getPreferredPrice(plan);
+          const selectedPrice = selectedPlanPriceId
+            ? plan.prices.find((price) => price.id === selectedPlanPriceId)
+            : undefined;
+
+          const price = selectedPrice ?? getPreferredPrice(plan);
 
           if (!price) {
             return null;
           }
 
+          const current = price.id === selectedPlanPriceId;
+
           return (
-            <article key={plan.id} className="flex flex-col rounded-2xl border border-border bg-card p-6">
-              <h3 className="text-lg font-semibold tracking-tight">{plan.name}</h3>
+            <article
+              key={plan.id}
+              className={
+                current
+                  ? 'flex flex-col rounded-2xl border border-primary/40 bg-primary/5 p-6'
+                  : 'flex flex-col rounded-2xl border border-border bg-card p-6'
+              }
+            >
+              <div className="flex items-start justify-between gap-4">
+                <h3 className="text-lg font-semibold tracking-tight">{plan.name}</h3>
+
+                {current && <span className="text-xs font-semibold text-primary">Selecionado</span>}
+              </div>
 
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{plan.description}</p>
 
               <p className="mt-5">
                 <span className="text-3xl font-semibold tracking-tight">{formatBrlCurrency(price.amountInCents)}</span>
-                <span className="ml-2 text-sm text-muted-foreground">
-                  / {price.interval === 'YEAR' ? 'ano' : 'mês'}
-                </span>
+
+                <span className="ml-2 text-sm text-muted-foreground">{getPricePeriodLabel(price)}</span>
               </p>
 
               <ul className="mt-5 space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+
                   <span>
                     Até {plan.maxUsers} {plan.maxUsers === 1 ? 'usuário' : 'usuários'}
                   </span>
@@ -139,12 +163,14 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
 
                 <li className="flex items-start gap-2">
                   <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+
                   <span>Clientes, orçamentos e serviços organizados</span>
                 </li>
 
                 {plan.teamManagementEnabled && (
                   <li className="flex items-start gap-2">
                     <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+
                     <span>Gestão de equipe</span>
                   </li>
                 )}
@@ -152,15 +178,20 @@ export function OnboardingPlanSelection({ organizationId, onSelected }: Onboardi
 
               <Button
                 type="button"
-                disabled={selectingPriceId !== null}
+                variant={current ? 'outline' : 'default'}
+                disabled={selectingPriceId !== null || current}
                 onClick={() => void select(price.id)}
                 className="mt-6 min-h-12 w-full rounded-xl"
               >
-                {selectingPriceId === price.id ? (
+                {current ? (
+                  'Plano atual'
+                ) : selectingPriceId === price.id ? (
                   <>
                     <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-                    Selecionando...
+                    Alterando...
                   </>
+                ) : selectedPlanPriceId ? (
+                  'Mudar para este plano'
                 ) : (
                   'Escolher plano'
                 )}
