@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { DatePicker } from '@/components/ui/datePicker';
@@ -61,9 +62,14 @@ export function ReceivableCreatePanel({
     try {
       const receivable = await createReceivableFromWorkOrder(organizationId, workOrderId, parsed.data);
 
+      toast.success('Recebível criado com sucesso.');
+
       onCreated(receivable);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível criar o recebível.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível criar o recebível.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
@@ -101,9 +102,14 @@ function OrganizationCustomerDetails({ organizationId, customerId }: { organizat
     try {
       await restoreCustomer(organizationId, customerId);
 
+      toast.success('Cliente restaurado com sucesso.');
+
       setRefreshVersion((value) => value + 1);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível restaurar o cliente.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível restaurar o cliente.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setChangingStatus(false);
     }
@@ -117,10 +123,16 @@ function OrganizationCustomerDetails({ organizationId, customerId }: { organizat
 
     try {
       await archiveCustomer(organizationId, customerId);
+
+      toast.success('Cliente arquivado com sucesso.');
+
       setConfirmArchive(false);
       setRefreshVersion((value) => value + 1);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível arquivar o cliente.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível arquivar o cliente.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setChangingStatus(false);
     }

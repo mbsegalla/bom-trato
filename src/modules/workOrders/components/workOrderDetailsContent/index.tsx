@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { DetailContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
@@ -174,6 +175,11 @@ function OrganizationWorkOrderDetails({
     setOperationLoading(true);
     setActionError(null);
 
+    const successMessage =
+      confirmation.kind === 'START'
+        ? 'Ordem de serviço iniciada com sucesso.'
+        : 'Ordem de serviço concluída com sucesso.';
+
     try {
       const updated =
         confirmation.kind === 'START'
@@ -182,8 +188,13 @@ function OrganizationWorkOrderDetails({
 
       applyWorkOrder(updated);
       setConfirmation(null);
+
+      toast.success(successMessage);
     } catch (cause: unknown) {
-      setActionError(cause instanceof Error ? cause.message : 'Não foi possível concluir a operação.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível concluir a operação.';
+
+      setActionError(message);
+      toast.error(message);
     } finally {
       setOperationLoading(false);
     }

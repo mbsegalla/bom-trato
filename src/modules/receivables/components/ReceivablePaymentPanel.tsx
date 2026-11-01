@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/datePicker';
@@ -74,10 +75,15 @@ export function ReceivablePaymentPanel({ receivable, onClose, onSaved }: Receiva
         parsed.data,
       );
 
+      toast.success('Pagamento registrado com sucesso.');
+
       onSaved(result.receivable);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível registrar o pagamento.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível registrar o pagamento.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

@@ -4,6 +4,7 @@ import { Archive, ArrowLeft, LoaderCircle, Mail, MessageCircle, MessageSquare, U
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
@@ -81,8 +82,13 @@ function OrganizationLeadDetails({ organizationId, leadId }: { organizationId: s
 
     try {
       setLead(await markLeadContacted(organizationId, leadId));
+
+      toast.success('Oportunidade marcada como contatada.');
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível atualizar a oportunidade.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível atualizar a oportunidade.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       setLoadingAction(null);
     }
@@ -95,9 +101,14 @@ function OrganizationLeadDetails({ organizationId, leadId }: { organizationId: s
     try {
       const result = await convertLead(organizationId, leadId);
 
+      toast.success('Oportunidade convertida em cliente e orçamento.');
+
       router.push(`/quotes/${result.quoteId}`);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível converter a oportunidade.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível converter a oportunidade.';
+
+      setError(message);
+      toast.error(message);
       setLoadingAction(null);
     }
   }
@@ -108,8 +119,13 @@ function OrganizationLeadDetails({ organizationId, leadId }: { organizationId: s
 
     try {
       setLead(await archiveLead(organizationId, leadId));
+
+      toast.success('Oportunidade arquivada.');
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível arquivar a oportunidade.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível arquivar a oportunidade.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       setLoadingAction(null);
     }

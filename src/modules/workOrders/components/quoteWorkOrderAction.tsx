@@ -3,6 +3,7 @@
 import { ClipboardList, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 
@@ -33,9 +34,14 @@ export function QuoteWorkOrderAction({ organizationId, quoteId }: QuoteWorkOrder
     try {
       const workOrder = await createWorkOrderFromQuote(organizationId, quoteId);
 
+      toast.success('Ordem de serviço criada com sucesso.');
+
       router.push(`/work-orders/${workOrder.id}`);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível abrir a ordem de serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível abrir a ordem de serviço.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

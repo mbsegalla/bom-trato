@@ -3,6 +3,7 @@
 import { LoaderCircle, Mail, Phone, StickyNote, UserRound, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,10 +80,15 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
         ? await updateCustomer(organizationId, customer.id, parsed.data)
         : await createCustomer(organizationId, parsed.data);
 
+      toast.success(editing ? 'Cliente atualizado com sucesso.' : 'Cliente cadastrado com sucesso.');
+
       onSaved(savedCustomer);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível salvar o cliente.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível salvar o cliente.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

@@ -3,6 +3,7 @@
 import { LoaderCircle, Save, StickyNote } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -55,9 +56,14 @@ export function WorkOrderExecutionNotes({ workOrder, onSaved }: WorkOrderExecuti
         parsed.data,
       );
 
+      toast.success('Observações salvas com sucesso.');
+
       onSaved(updated);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível salvar as observações.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível salvar as observações.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

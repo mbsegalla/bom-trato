@@ -3,6 +3,7 @@
 import { LoaderCircle, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { DateTimePicker } from '@/components/ui/datePicker';
@@ -65,10 +66,17 @@ export function WorkOrderSchedulePanel({ workOrder, onClose, onSaved }: WorkOrde
     try {
       const updated = await scheduleWorkOrder(workOrder.organizationId, workOrder.id, workOrder.version, parsed.data);
 
+      toast.success(
+        workOrder.status === 'SCHEDULED' ? 'Agendamento atualizado com sucesso.' : 'Serviço agendado com sucesso.',
+      );
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível agendar a ordem de serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível agendar a ordem de serviço.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

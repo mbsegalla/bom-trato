@@ -3,6 +3,7 @@
 import { LoaderCircle, StickyNote, Tag, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -80,10 +81,15 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
         await createCatalogService(organizationId, parsed.data);
       }
 
+      toast.success(editing ? 'Serviço atualizado com sucesso.' : 'Serviço cadastrado com sucesso.');
+
       onSaved();
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível salvar o serviço.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível salvar o serviço.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);

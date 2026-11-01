@@ -4,6 +4,7 @@ import { LoaderCircle, Search, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import { InlineOptionsSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
@@ -178,10 +179,15 @@ export function QuoteItemFormPanel({ quote, item, onClose, onSaved }: QuoteItemF
           ? await addQuoteItem(quote.organizationId, quote.id, input)
           : await replaceQuoteItem(quote.organizationId, quote.id, item.id, input);
 
+      toast.success(item === undefined ? 'Item adicionado ao orçamento.' : 'Item atualizado com sucesso.');
+
       onSaved(updated);
       onClose();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : 'Não foi possível salvar o item.');
+      const message = cause instanceof Error ? cause.message : 'Não foi possível salvar o item.';
+
+      setError(message);
+      toast.error(message);
     } finally {
       submittingRef.current = false;
       setSubmitting(false);
