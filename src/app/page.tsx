@@ -19,7 +19,7 @@ import { MarketingHeader } from '@/modules/marketing/components/marketingHeader'
 import { MarketingLink } from '@/modules/marketing/components/marketingLink';
 import { PricingSectionSkeleton } from '@/modules/marketing/components/pricingSectionSkeleton';
 import { ProductPreview } from '@/modules/marketing/components/productPreview';
-import { ProductProofSection } from '@/modules/marketing/components/productProofSection';
+import { ProductTour } from '@/modules/marketing/components/productTour';
 import { PublicPricingSection } from '@/modules/marketing/components/publicPricingSection';
 import { marketingFaqs } from '@/modules/marketing/data/marketing.data';
 import { FeaturedProfessionalsSection } from '@/modules/publicProfiles/components/featuredProfessionalsSection';
@@ -147,8 +147,8 @@ export default function Home() {
                   <ArrowRight aria-hidden="true" className="size-4" />
                 </MarketingLink>
 
-                <MarketingLink href="#how-it-works" variant="outline">
-                  Ver como funciona
+                <MarketingLink href="#product-tour" variant="outline">
+                  Ver o produto
                 </MarketingLink>
               </div>
 
@@ -247,7 +247,7 @@ export default function Home() {
           </div>
         </section>
 
-        <ProductProofSection />
+        <ProductTour />
 
         <Suspense fallback={null}>
           <FeaturedProfessionalsSection />
