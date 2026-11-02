@@ -38,6 +38,28 @@ const amountInCentsSchema = z
   })
   .pipe(z.number().int().min(0, 'O valor não pode ser negativo.').max(2147483647, 'O valor informado é muito alto.'));
 
+const estimatedDurationMinutesSchema = z
+  .string()
+  .trim()
+  .transform((value, context) => {
+    if (value.length === 0) {
+      return null;
+    }
+
+    const duration = Number(value);
+
+    if (!Number.isSafeInteger(duration) || duration < 1 || duration > 2147483647) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Informe uma duração válida.',
+      });
+
+      return z.NEVER;
+    }
+
+    return duration;
+  });
+
 export const serviceUnitSchema = z.enum(['SERVICE', 'HOUR', 'DAY', 'UNIT', 'SQUARE_METER']);
 
 export const catalogServiceStatusSchema = z.enum(['ACTIVE', 'ARCHIVED', 'ALL']);
@@ -49,6 +71,7 @@ export const catalogServiceSchema = z.object({
   description: z.string().nullable(),
   unit: serviceUnitSchema,
   amountInCents: z.number().int().nonnegative(),
+  estimatedDurationMinutes: z.number().int().positive().nullable(),
   currency: z.literal('brl'),
   archivedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
@@ -64,6 +87,7 @@ export const catalogServiceFormSchema = z.object({
   description: nullableDescriptionSchema,
   unit: serviceUnitSchema,
   amountInCents: amountInCentsSchema,
+  estimatedDurationMinutes: estimatedDurationMinutesSchema,
 });
 
 export const catalogServicesResponseSchema = apiResponseSchema(
