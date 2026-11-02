@@ -1,6 +1,6 @@
 'use client';
 
-import { LoaderCircle, StickyNote, Tag, X } from 'lucide-react';
+import { Clock3, LoaderCircle, StickyNote, Tag, X } from 'lucide-react';
 import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatBrlCurrencyInput, formatBrlCurrencyInputValue } from '@/shared/formatters/currency.formatter';
 
@@ -29,11 +30,45 @@ function firstError(errors: string[] | undefined): string | undefined {
   return errors?.[0];
 }
 
+function getInitialDurationHours(durationInMinutes?: number | null): string {
+  if (!durationInMinutes) {
+    return '';
+  }
+
+  return String(Math.floor(durationInMinutes / 60));
+}
+
+function getInitialDurationMinutes(durationInMinutes?: number | null): string {
+  if (!durationInMinutes) {
+    return '';
+  }
+
+  return String(durationInMinutes % 60);
+}
+
+function getEstimatedDurationInput(hoursValue: string, minutesValue: string): string {
+  const normalizedHours = hoursValue.trim();
+  const normalizedMinutes = minutesValue.trim();
+
+  const hours = normalizedHours.length === 0 ? 0 : Number(normalizedHours);
+  const minutes = normalizedMinutes.length === 0 ? 0 : Number(normalizedMinutes);
+
+  if (!Number.isSafeInteger(hours) || hours < 0 || !Number.isSafeInteger(minutes) || minutes < 0 || minutes > 59) {
+    return 'invalid';
+  }
+
+  const total = hours * 60 + minutes;
+
+  return total === 0 ? '' : String(total);
+}
+
 export function CatalogServiceFormPanel({ organizationId, service, onClose, onSaved }: CatalogServiceFormPanelProps) {
   const submittingRef = useRef(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [amount, setAmount] = useState(service === undefined ? '' : formatBrlCurrencyInput(service.amountInCents));
+  const [durationHours, setDurationHours] = useState(getInitialDurationHours(service?.estimatedDurationMinutes));
+  const [durationMinutes, setDurationMinutes] = useState(getInitialDurationMinutes(service?.estimatedDurationMinutes));
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<CatalogServiceFieldErrors>({});
 
@@ -53,6 +88,7 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
       description: String(formData.get('description') ?? ''),
       unit: String(formData.get('unit') ?? ''),
       amountInCents: String(formData.get('amountInCents') ?? ''),
+      estimatedDurationMinutes: getEstimatedDurationInput(durationHours, durationMinutes),
     });
 
     if (!parsed.success) {
@@ -63,6 +99,7 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
         description: firstError(errors.description),
         unit: firstError(errors.unit),
         amountInCents: firstError(errors.amountInCents),
+        estimatedDurationMinutes: firstError(errors.estimatedDurationMinutes),
       });
 
       return;
@@ -198,19 +235,23 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
                 <div className="space-y-2">
                   <Label htmlFor="catalog-service-unit">Unidade *</Label>
 
-                  <select
-                    id="catalog-service-unit"
-                    name="unit"
-                    defaultValue={service?.unit ?? 'SERVICE'}
-                    aria-invalid={fieldErrors.unit ? true : undefined}
-                    className="h-12 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
-                  >
-                    {serviceUnitOptions.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select name="unit" items={serviceUnitOptions} defaultValue={service?.unit ?? 'SERVICE'}>
+                    <SelectTrigger
+                      id="catalog-service-unit"
+                      aria-invalid={fieldErrors.unit ? true : undefined}
+                      className="h-12 rounded-xl"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      {serviceUnitOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   {fieldErrors.unit && (
                     <p role="alert" className="text-sm text-destructive">
@@ -220,7 +261,7 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="catalog-service-amount">Valor *</Label>
+                  <Label htmlFor="catalog-service-amount">Valor padrão *</Label>
 
                   <div className="relative">
                     <span
@@ -251,6 +292,65 @@ export function CatalogServiceFormPanel({ organizationId, service, onClose, onSa
                     </p>
                   )}
                 </div>
+              </div>
+
+              <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+                <div className="flex items-center gap-2">
+                  <Clock3 aria-hidden="true" className="size-4 text-primary" />
+
+                  <div>
+                    <p className="text-sm font-medium">Duração estimada</p>
+
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      Opcional. Use como referência para o planejamento do serviço.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="catalog-service-duration-hours">Horas</Label>
+
+                    <Input
+                      id="catalog-service-duration-hours"
+                      name="estimatedDurationHours"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      step={1}
+                      value={durationHours}
+                      onChange={(event) => setDurationHours(event.currentTarget.value)}
+                      placeholder="0"
+                      aria-invalid={fieldErrors.estimatedDurationMinutes ? true : undefined}
+                      className="h-12 rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="catalog-service-duration-minutes">Minutos</Label>
+
+                    <Input
+                      id="catalog-service-duration-minutes"
+                      name="estimatedDurationMinutesPart"
+                      type="number"
+                      inputMode="numeric"
+                      min={0}
+                      max={59}
+                      step={1}
+                      value={durationMinutes}
+                      onChange={(event) => setDurationMinutes(event.currentTarget.value)}
+                      placeholder="0"
+                      aria-invalid={fieldErrors.estimatedDurationMinutes ? true : undefined}
+                      className="h-12 rounded-xl"
+                    />
+                  </div>
+                </div>
+
+                {fieldErrors.estimatedDurationMinutes && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {fieldErrors.estimatedDurationMinutes}
+                  </p>
+                )}
               </div>
 
               {error && (

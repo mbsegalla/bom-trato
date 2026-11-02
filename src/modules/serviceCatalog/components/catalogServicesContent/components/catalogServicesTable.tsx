@@ -6,6 +6,7 @@ import { getServiceUnitLabel } from '@/modules/serviceCatalog/constants/catalogS
 import type { CatalogServicePage } from '@/modules/serviceCatalog/types/catalogService.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate } from '@/shared/formatters/date.formatter';
+import { formatDurationMinutes } from '@/shared/formatters/duration.formatter';
 
 interface CatalogServicesTableProps {
   data: CatalogServicePage;
@@ -18,12 +19,13 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
   return (
     <>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-210 border-collapse">
+        <table className="w-full min-w-240 border-collapse">
           <thead>
             <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
               <th className="px-5 py-3">Serviço</th>
               <th className="px-5 py-3">Unidade</th>
-              <th className="px-5 py-3">Valor</th>
+              <th className="px-5 py-3">Valor padrão</th>
+              <th className="px-5 py-3">Duração estimada</th>
               <th className="px-5 py-3">Status</th>
               <th className="px-5 py-3">Atualizado em</th>
               <th className="w-14 px-5 py-3">
@@ -51,6 +53,10 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
                 <td className="px-5 py-3.5 text-sm text-muted-foreground">{getServiceUnitLabel(service.unit)}</td>
 
                 <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(service.amountInCents)}</td>
+
+                <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                  {formatDurationMinutes(service.estimatedDurationMinutes)}
+                </td>
 
                 <td className="px-5 py-3.5">
                   {service.archivedAt ? (
