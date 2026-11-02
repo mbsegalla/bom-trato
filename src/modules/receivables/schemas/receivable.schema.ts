@@ -125,10 +125,13 @@ export const receivablePaymentMethodSchema = z.enum([
   'OTHER',
 ]);
 
+export const receivableKindSchema = z.enum(['FULL', 'DOWN_PAYMENT', 'REMAINING_BALANCE']);
+
 export const receivableSchema = z.object({
   id: z.uuid(),
   organizationId: z.uuid(),
   workOrderId: z.uuid(),
+  kind: receivableKindSchema,
   customerId: z.uuid(),
   customerName: z.string(),
   title: z.string(),

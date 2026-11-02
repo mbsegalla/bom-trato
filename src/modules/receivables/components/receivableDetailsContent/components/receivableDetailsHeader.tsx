@@ -2,6 +2,7 @@ import { CircleDollarSign, Pencil, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { ReceivableStatusBadge } from '@/modules/receivables/components/receivableStatusBadge';
+import { getReceivableKindLabel } from '@/modules/receivables/constants/receivable.constants';
 import type { Receivable } from '@/modules/receivables/types/receivable.types';
 import { formatDate } from '@/shared/formatters/date.formatter';
 
@@ -34,7 +35,8 @@ export function ReceivableDetailsHeader({
           </div>
 
           <p className="mt-2 text-sm text-muted-foreground">
-            {receivable.customerName} · vencimento {formatDate(receivable.dueAt)}
+            {receivable.customerName} · {getReceivableKindLabel(receivable.kind)} · vencimento{' '}
+            {formatDate(receivable.dueAt)}
           </p>
         </div>
 

@@ -26,13 +26,28 @@ type ReceivableListErrorState = {
   message: string;
 };
 
-export function ReceivablesContent() {
-  const { activeOrganization } = useApp();
-
-  return <OrganizationReceivablesContent key={activeOrganization.id} organizationId={activeOrganization.id} />;
+interface ReceivablesContentProps {
+  workOrderId?: string;
 }
 
-function OrganizationReceivablesContent({ organizationId }: { organizationId: string }) {
+export function ReceivablesContent({ workOrderId }: ReceivablesContentProps) {
+  const { activeOrganization } = useApp();
+
+  return (
+    <OrganizationReceivablesContent
+      key={`${activeOrganization.id}:${workOrderId ?? ''}`}
+      organizationId={activeOrganization.id}
+      workOrderId={workOrderId}
+    />
+  );
+}
+
+interface OrganizationReceivablesContentProps {
+  organizationId: string;
+  workOrderId?: string;
+}
+
+function OrganizationReceivablesContent({ organizationId, workOrderId }: OrganizationReceivablesContentProps) {
   const router = useRouter();
 
   const [page, setPage] = useState(1);
@@ -43,23 +58,31 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
   const [financial, setFinancial] = useState<ReceivableFinancial | null>(null);
   const [errorState, setErrorState] = useState<ReceivableListErrorState | null>(null);
 
-  const requestKey = `${organizationId}:${page}:${status}:${overdue}:${refreshVersion}`;
+  const requestKey = `${organizationId}:${page}:${status}:${overdue}:${workOrderId ?? ''}:${refreshVersion}`;
 
   useEffect(() => {
+    if (workOrderId) {
+      return;
+    }
+
     let active = true;
 
     void getReceivableFinancial(organizationId)
       .then((result) => {
-        if (active) setFinancial(result);
+        if (active) {
+          setFinancial(result);
+        }
       })
       .catch((cause: unknown) => {
-        if (cause instanceof SessionError && cause.status === 401) router.replace('/login');
+        if (cause instanceof SessionError && cause.status === 401) {
+          router.replace('/login');
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [organizationId, router]);
+  }, [organizationId, router, workOrderId]);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +91,7 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
       page,
       status,
       overdue: overdue === 'ALL' ? undefined : overdue === 'OVERDUE',
+      workOrderId,
     })
       .then((result) => {
         if (!active) return;
@@ -92,7 +116,7 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
     return () => {
       active = false;
     };
-  }, [organizationId, overdue, page, refreshVersion, requestKey, router, status]);
+  }, [organizationId, overdue, page, refreshVersion, requestKey, router, status, workOrderId]);
 
   const data = listState?.data ?? null;
   const error = errorState?.requestKey === requestKey ? errorState.message : null;
@@ -108,9 +132,27 @@ function OrganizationReceivablesContent({ organizationId }: { organizationId: st
         </p>
       </div>
 
-      <div className="mt-8">
-        <ReceivablesSummary financial={financial} />
-      </div>
+      {workOrderId && (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/30 px-4 py-3">
+          <p className="text-sm text-muted-foreground">Exibindo os recebíveis desta ordem de serviço.</p>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => router.replace('/receivables')}
+            className="cursor-pointer"
+          >
+            Ver todos
+          </Button>
+        </div>
+      )}
+
+      {!workOrderId && (
+        <div className="mt-8">
+          <ReceivablesSummary financial={financial} />
+        </div>
+      )}
 
       <section className="relative mt-8">
         {refreshing && (

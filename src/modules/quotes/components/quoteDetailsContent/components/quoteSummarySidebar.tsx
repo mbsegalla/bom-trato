@@ -1,10 +1,19 @@
 import Link from 'next/link';
 
+import {
+  getQuoteDownPaymentAmountInCents,
+  getQuotePaymentConditionDescription,
+  getQuotePaymentConditionLabel,
+} from '@/modules/quotes/constants/quote.constants';
 import type { Quote } from '@/modules/quotes/types/quote.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate, formatDateTime } from '@/shared/formatters/date.formatter';
 
 export function QuoteSummarySidebar({ quote }: { quote: Quote }) {
+  const downPaymentInCents = getQuoteDownPaymentAmountInCents(quote.totalInCents, quote.downPaymentPercentage);
+
+  const remainingBalanceInCents = quote.totalInCents - downPaymentInCents;
+
   return (
     <aside className="rounded-xl bg-muted/40 p-5 ring-1 ring-border/60">
       <section>
@@ -26,6 +35,30 @@ export function QuoteSummarySidebar({ quote }: { quote: Quote }) {
             <span className="text-primary">{formatBrlCurrency(quote.totalInCents)}</span>
           </div>
         </div>
+      </section>
+
+      <section className="mt-6 border-t border-border pt-6">
+        <h2 className="font-heading text-lg font-semibold">Pagamento</h2>
+
+        <p className="mt-4 text-sm font-medium">{getQuotePaymentConditionLabel(quote.paymentCondition)}</p>
+
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+          {getQuotePaymentConditionDescription(quote.paymentCondition, quote.downPaymentPercentage)}
+        </p>
+
+        {quote.paymentCondition === 'DOWN_PAYMENT_AND_BALANCE' && (
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Entrada ({quote.downPaymentPercentage}%)</span>
+              <span>{formatBrlCurrency(downPaymentInCents)}</span>
+            </div>
+
+            <div className="flex justify-between gap-4">
+              <span className="text-muted-foreground">Saldo restante</span>
+              <span>{formatBrlCurrency(remainingBalanceInCents)}</span>
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="mt-6 border-t border-border pt-6">

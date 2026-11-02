@@ -18,9 +18,10 @@ import { listCustomers } from '@/modules/customers/services/customer.service';
 import type { CustomerPage } from '@/modules/customers/types/customer.types';
 import { formatDateTimeLocalInput } from '@/shared/formatters/date.formatter';
 
+import { getQuotePaymentConditionDescription, quotePaymentConditionOptions } from '../constants/quote.constants';
 import { createQuoteFormSchema } from '../schemas/quote.schema';
 import { createQuote } from '../services/quote.service';
-import type { CreateQuoteInput, Quote } from '../types/quote.types';
+import type { CreateQuoteInput, Quote, QuotePaymentCondition } from '../types/quote.types';
 
 interface QuoteCreatePanelProps {
   organizationId: string;
@@ -48,12 +49,23 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerState, setCustomerState] = useState<CustomerState | null>(null);
   const [customerError, setCustomerError] = useState<string | null>(null);
+  const [paymentCondition, setPaymentCondition] = useState<QuotePaymentCondition>('AFTER_COMPLETION');
+  const [downPaymentPercentage, setDownPaymentPercentage] = useState('30');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [defaultValidity] = useState(() => formatDateTimeLocalInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)));
 
   const requestKey = `${organizationId}:${customerSearch}`;
+
+  const downPaymentPercentageNumber = Number(downPaymentPercentage);
+
+  const downPaymentPercentagePreview =
+    Number.isSafeInteger(downPaymentPercentageNumber) &&
+    downPaymentPercentageNumber >= 1 &&
+    downPaymentPercentageNumber <= 99
+      ? downPaymentPercentageNumber
+      : null;
 
   useEffect(() => {
     let active = true;
@@ -110,6 +122,8 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
       title: String(data.get('title') ?? ''),
       notes: String(data.get('notes') ?? ''),
       validUntil: String(data.get('validUntil') ?? ''),
+      paymentCondition: String(data.get('paymentCondition') ?? 'AFTER_COMPLETION'),
+      downPaymentPercentage: String(data.get('downPaymentPercentage') ?? ''),
     });
 
     if (!parsed.success) {
@@ -120,6 +134,8 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
         title: firstError(errors.title),
         notes: firstError(errors.notes),
         validUntil: firstError(errors.validUntil),
+        paymentCondition: firstError(errors.paymentCondition),
+        downPaymentPercentage: firstError(errors.downPaymentPercentage),
       });
 
       return;
@@ -282,6 +298,68 @@ export function QuoteCreatePanel({ organizationId, onClose, onCreated }: QuoteCr
                     {fieldErrors.validUntil}
                   </p>
                 )}
+              </div>
+
+              <div className="space-y-3 rounded-xl border border-border bg-muted/20 p-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quote-payment-condition">Condição de pagamento</Label>
+
+                  <select
+                    id="quote-payment-condition"
+                    name="paymentCondition"
+                    value={paymentCondition}
+                    onChange={(event) => setPaymentCondition(event.currentTarget.value as QuotePaymentCondition)}
+                    className="h-12 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    {quotePaymentConditionOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  {fieldErrors.paymentCondition && (
+                    <p className="text-sm text-destructive">{fieldErrors.paymentCondition}</p>
+                  )}
+                </div>
+
+                {paymentCondition === 'DOWN_PAYMENT_AND_BALANCE' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="quote-down-payment-percentage">Entrada</Label>
+
+                    <div className="relative">
+                      <Input
+                        id="quote-down-payment-percentage"
+                        name="downPaymentPercentage"
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={99}
+                        value={downPaymentPercentage}
+                        onChange={(event) => setDownPaymentPercentage(event.currentTarget.value)}
+                        className="h-12 rounded-xl pr-12"
+                      />
+
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute top-1/2 right-4 -translate-y-1/2 text-sm text-muted-foreground"
+                      >
+                        %
+                      </span>
+                    </div>
+
+                    {fieldErrors.downPaymentPercentage && (
+                      <p className="text-sm text-destructive">{fieldErrors.downPaymentPercentage}</p>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {getQuotePaymentConditionDescription(
+                    paymentCondition,
+                    paymentCondition === 'DOWN_PAYMENT_AND_BALANCE' ? downPaymentPercentagePreview : null,
+                  )}
+                </p>
               </div>
 
               <div className="space-y-2">

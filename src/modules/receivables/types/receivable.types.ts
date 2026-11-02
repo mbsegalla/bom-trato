@@ -4,6 +4,7 @@ import type {
   createReceivableFormSchema,
   receivableCancelFormSchema,
   receivableFinancialSchema,
+  receivableKindSchema,
   receivableListStatusSchema,
   receivablePaymentFormSchema,
   receivablePaymentMethodSchema,
@@ -17,29 +18,18 @@ import type {
 } from '../schemas/receivable.schema';
 
 export type ReceivableStatus = z.infer<typeof receivableStatusSchema>;
-
+export type ReceivableKind = z.infer<typeof receivableKindSchema>;
 export type ReceivableListStatus = z.infer<typeof receivableListStatusSchema>;
-
 export type ReceivablePaymentMethod = z.infer<typeof receivablePaymentMethodSchema>;
-
 export type Receivable = z.infer<typeof receivableSchema>;
-
 export type ReceivablePayment = z.infer<typeof receivablePaymentSchema>;
-
 export type ReceivablePage = z.infer<typeof receivablesResponseSchema>;
-
 export type ReceivablePaymentsPage = z.infer<typeof receivablePaymentsResponseSchema>;
-
 export type ReceivableFinancial = z.infer<typeof receivableFinancialSchema>;
-
 export type CreateReceivableInput = z.output<typeof createReceivableFormSchema>;
-
 export type UpdateReceivableInput = z.output<typeof updateReceivableFormSchema>;
-
 export type ReceivablePaymentInput = z.output<typeof receivablePaymentFormSchema>;
-
 export type ReceivableCancelInput = z.output<typeof receivableCancelFormSchema>;
-
 export type ReceivableReversePaymentInput = z.output<typeof receivableReversePaymentFormSchema>;
 
 export interface ReceivableListParams {
