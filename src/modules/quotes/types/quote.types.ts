@@ -10,6 +10,7 @@ import type {
   publicQuoteSchema,
   quoteItemSchema,
   quoteListStatusSchema,
+  quotePaymentConditionSchema,
   quoteSchema,
   quoteShareSchema,
   quotesResponseSchema,
@@ -22,6 +23,8 @@ import type {
 export type QuoteStatus = z.infer<typeof quoteStatusSchema>;
 
 export type QuoteListStatus = z.infer<typeof quoteListStatusSchema>;
+
+export type QuotePaymentCondition = z.infer<typeof quotePaymentConditionSchema>;
 
 export type QuoteItem = z.infer<typeof quoteItemSchema>;
 

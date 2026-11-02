@@ -69,6 +69,28 @@ const discountSchema = z
     return amountInCents;
   });
 
+const downPaymentPercentageSchema = z
+  .string()
+  .trim()
+  .transform((value, context) => {
+    if (value.length === 0) {
+      return null;
+    }
+
+    const percentage = Number(value);
+
+    if (!Number.isSafeInteger(percentage) || percentage < 1 || percentage > 99) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Informe uma porcentagem entre 1% e 99%.',
+      });
+
+      return z.NEVER;
+    }
+
+    return percentage;
+  });
+
 const unitAmountSchema = z
   .string()
   .trim()
@@ -110,6 +132,24 @@ export const quoteStatusSchema = z.enum(['DRAFT', 'SENT', 'APPROVED', 'DECLINED'
 
 export const quoteListStatusSchema = z.enum(['ALL', 'DRAFT', 'SENT', 'APPROVED', 'DECLINED', 'CANCELED']);
 
+export const quotePaymentConditionSchema = z.enum(['AFTER_COMPLETION', 'UPFRONT', 'DOWN_PAYMENT_AND_BALANCE']);
+
+function validatePaymentCondition(
+  value: {
+    paymentCondition: z.infer<typeof quotePaymentConditionSchema>;
+    downPaymentPercentage: number | null;
+  },
+  context: z.RefinementCtx,
+): void {
+  if (value.paymentCondition === 'DOWN_PAYMENT_AND_BALANCE' && value.downPaymentPercentage === null) {
+    context.addIssue({
+      code: 'custom',
+      path: ['downPaymentPercentage'],
+      message: 'Informe a porcentagem da entrada.',
+    });
+  }
+}
+
 export const quoteItemSchema = z.object({
   id: z.uuid(),
   catalogServiceId: z.uuid().nullable(),
@@ -136,6 +176,8 @@ export const quoteSchema = z.object({
   discountInCents: z.number().int().nonnegative(),
   subtotalInCents: z.number().int().nonnegative(),
   totalInCents: z.number().int().nonnegative(),
+  paymentCondition: quotePaymentConditionSchema,
+  downPaymentPercentage: z.number().int().min(1).max(99).nullable(),
   version: z.number().int().positive(),
   validUntil: z.coerce.date().nullable(),
   sentAt: z.coerce.date().nullable(),
@@ -214,6 +256,8 @@ export const publicQuoteSchema = z.object({
   subtotalInCents: z.number().int().nonnegative(),
   discountInCents: z.number().int().nonnegative(),
   totalInCents: z.number().int().nonnegative(),
+  paymentCondition: quotePaymentConditionSchema,
+  downPaymentPercentage: z.number().int().min(1).max(99).nullable(),
   notes: z.string().nullable(),
   validUntil: z.coerce.date().nullable(),
   organizationName: z.string(),
@@ -235,27 +279,35 @@ export const publicQuoteDecisionResponseSchema = apiResponseSchema(publicQuoteDe
 
 export const quoteShareTokenSchema = z.string().regex(/^[a-f0-9]{64}$/);
 
-export const createQuoteFormSchema = z.object({
-  customerId: z.uuid('Selecione um cliente.'),
-  title: z
-    .string()
-    .trim()
-    .min(2, 'Informe um título com pelo menos 2 caracteres.')
-    .max(150, 'O título deve ter no máximo 150 caracteres.'),
-  notes: nullableNotesSchema,
-  validUntil: validUntilSchema,
-});
+export const createQuoteFormSchema = z
+  .object({
+    customerId: z.uuid('Selecione um cliente.'),
+    title: z
+      .string()
+      .trim()
+      .min(2, 'Informe um título com pelo menos 2 caracteres.')
+      .max(150, 'O título deve ter no máximo 150 caracteres.'),
+    notes: nullableNotesSchema,
+    validUntil: validUntilSchema,
+    paymentCondition: quotePaymentConditionSchema,
+    downPaymentPercentage: downPaymentPercentageSchema,
+  })
+  .superRefine(validatePaymentCondition);
 
-export const updateQuoteFormSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(2, 'Informe um título com pelo menos 2 caracteres.')
-    .max(150, 'O título deve ter no máximo 150 caracteres.'),
-  notes: nullableNotesSchema,
-  validUntil: validUntilSchema,
-  discountInCents: discountSchema,
-});
+export const updateQuoteFormSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(2, 'Informe um título com pelo menos 2 caracteres.')
+      .max(150, 'O título deve ter no máximo 150 caracteres.'),
+    notes: nullableNotesSchema,
+    validUntil: validUntilSchema,
+    discountInCents: discountSchema,
+    paymentCondition: quotePaymentConditionSchema,
+    downPaymentPercentage: downPaymentPercentageSchema,
+  })
+  .superRefine(validatePaymentCondition);
 
 export const catalogQuoteItemFormSchema = z.object({
   catalogServiceId: z.uuid('Selecione um serviço.'),

@@ -1,4 +1,9 @@
-import type { ReceivableListStatus, ReceivablePaymentMethod, ReceivableStatus } from '../types/receivable.types';
+import type {
+  ReceivableKind,
+  ReceivableListStatus,
+  ReceivablePaymentMethod,
+  ReceivableStatus,
+} from '../types/receivable.types';
 
 export const receivableStatusOptions: {
   value: ReceivableListStatus;
@@ -56,17 +61,25 @@ export const receivablePaymentMethodOptions: {
   },
 ];
 
+export function getReceivableKindLabel(kind: ReceivableKind): string {
+  switch (kind) {
+    case 'FULL':
+      return 'Pagamento integral';
+    case 'DOWN_PAYMENT':
+      return 'Entrada';
+    case 'REMAINING_BALANCE':
+      return 'Saldo restante';
+  }
+}
+
 export function getReceivableStatusLabel(status: ReceivableStatus): string {
   switch (status) {
     case 'OPEN':
       return 'Em aberto';
-
     case 'PARTIALLY_PAID':
       return 'Parcialmente pago';
-
     case 'PAID':
       return 'Pago';
-
     case 'CANCELED':
       return 'Cancelado';
   }

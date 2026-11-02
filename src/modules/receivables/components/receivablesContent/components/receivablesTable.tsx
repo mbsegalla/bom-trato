@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { ListPagination } from '@/components/listPagination';
 import { ReceivableStatusBadge } from '@/modules/receivables/components/receivableStatusBadge';
+import { getReceivableKindLabel } from '@/modules/receivables/constants/receivable.constants';
 import type { ReceivablePage } from '@/modules/receivables/types/receivable.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDate } from '@/shared/formatters/date.formatter';
@@ -24,7 +25,7 @@ export function ReceivablesTable({ data, page, refreshing, onPreviousPage, onNex
         <h2 className="mt-4 font-heading text-lg font-semibold">Nenhum recebível por aqui</h2>
 
         <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-          Recebíveis podem ser criados a partir das ordens de serviço concluídas.
+          Os recebíveis são gerados automaticamente conforme as condições de pagamento dos serviços.
         </p>
 
         <Link
@@ -65,6 +66,8 @@ export function ReceivablesTable({ data, page, refreshing, onPreviousPage, onNex
                     {receivable.title}
                   </Link>
 
+                  <p className="mt-1 text-xs font-medium text-primary">{getReceivableKindLabel(receivable.kind)}</p>
+
                   <p className="mt-1 text-sm text-muted-foreground">{receivable.customerName}</p>
                 </td>
 
@@ -73,9 +76,7 @@ export function ReceivablesTable({ data, page, refreshing, onPreviousPage, onNex
                 </td>
 
                 <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(receivable.dueAt)}</td>
-
                 <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(receivable.amountInCents)}</td>
-
                 <td className="px-5 py-3.5 text-sm">{formatBrlCurrency(receivable.receivedInCents)}</td>
 
                 <td className="px-5 py-3.5 font-semibold text-primary">
