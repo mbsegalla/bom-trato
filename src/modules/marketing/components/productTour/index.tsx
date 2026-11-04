@@ -102,8 +102,8 @@ export function ProductTour() {
           </h2>
 
           <p className="mt-5 leading-relaxed text-muted-foreground">
-            Percorra as áreas do sistema e veja como oportunidades, clientes, propostas, execução, agenda e recebimentos
-            trabalham juntos durante a rotina.
+            Percorra as áreas do sistema e veja como oportunidades, clientes, propostas, automações, execução, agenda e
+            recebimentos trabalham juntos durante a rotina.
           </p>
         </div>
 
@@ -217,11 +217,11 @@ export function ProductTour() {
 
                 <p className="mt-5 text-xs font-semibold tracking-wide text-primary uppercase">Fluxo completo</p>
 
-                <h3 className="mt-3 text-xl font-semibold tracking-tight">Do primeiro contato ao recebimento.</h3>
+                <h3 className="mt-3 text-xl font-semibold tracking-tight">Do primeiro contato ao pós-serviço.</h3>
 
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                  O Bom Trato mantém as etapas conectadas para que você acompanhe o trabalho sem reconstruir o contexto
-                  a cada avanço.
+                  O Bom Trato mantém as etapas conectadas e pode cuidar de acompanhamentos repetitivos para você
+                  continuar focado no trabalho que precisa ser feito.
                 </p>
 
                 <a

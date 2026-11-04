@@ -34,17 +34,27 @@ export const marketingFaqs = [
   {
     question: 'O que acontece quando um orçamento é aprovado?',
     answer:
-      'A ordem de serviço pode ser criada a partir do orçamento aprovado, reaproveitando informações como cliente, endereço e serviços.',
+      'A ordem de serviço pode ser criada a partir do orçamento aprovado, reaproveitando informações como cliente, endereço, serviços e condições financeiras.',
+  },
+  {
+    question: 'O cliente pode pedir uma alteração no orçamento?',
+    answer:
+      'Sim. Pelo orçamento compartilhado, o cliente pode solicitar uma alteração antes de tomar a decisão. O pedido fica disponível para você revisar a proposta e continuar a negociação.',
+  },
+  {
+    question: 'O Bom Trato pode acompanhar clientes automaticamente?',
+    answer:
+      'Sim. Você pode ativar o Piloto Automático para acompanhar orçamentos sem resposta, lembrar clientes de serviços agendados, solicitar avaliações depois da conclusão e enviar lembretes de pagamento.',
+  },
+  {
+    question: 'Eu preciso usar todas as automações?',
+    answer:
+      'Não. Você escolhe quais automações deseja ativar. O trabalho real continua sob seu controle, como iniciar ou concluir um serviço e registrar um pagamento recebido.',
   },
   {
     question: 'E quando um serviço é concluído?',
     answer:
-      'Ao concluir uma ordem de serviço, o Bom Trato cria o recebível correspondente para que o acompanhamento financeiro continue no mesmo fluxo.',
-  },
-  {
-    question: 'O Bom Trato faz tudo automaticamente?',
-    answer:
-      'Não. O sistema automatiza e prepara etapas que podem ser conectadas com segurança, mas ações que dependem do trabalho real continuam sob seu controle, como iniciar ou concluir um serviço e registrar um pagamento.',
+      'O fluxo financeiro continua com os recebíveis correspondentes ao serviço. Dependendo da condição de pagamento do orçamento, o Bom Trato também pode acompanhar entrada, saldo e vencimentos.',
   },
   {
     question: 'Posso trabalhar com minha equipe?',
@@ -53,11 +63,12 @@ export const marketingFaqs = [
   },
   {
     question: 'O que consigo acompanhar nos recebimentos?',
-    answer: 'Você pode registrar pagamentos e acompanhar os valores recebidos, pendentes e em atraso.',
+    answer:
+      'Você pode acompanhar valores totais, recebidos, pendentes e em atraso, além de registrar pagamentos conforme eles acontecem.',
   },
   {
     question: 'Como funcionam as avaliações dos profissionais?',
     answer:
-      'Depois de um serviço concluído, o profissional pode convidar o cliente para avaliar o atendimento. As avaliações vinculadas a serviços realizados ajudam a construir uma reputação mais confiável na vitrine pública.',
+      'Depois de um serviço concluído, você pode solicitar uma avaliação manualmente ou deixar o Bom Trato fazer isso automaticamente. Avaliações vinculadas a serviços realizados ajudam a construir uma reputação mais confiável na vitrine pública.',
   },
 ];

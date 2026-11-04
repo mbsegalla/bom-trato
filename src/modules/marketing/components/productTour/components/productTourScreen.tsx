@@ -80,19 +80,101 @@ function OverviewScreen() {
         <section className="rounded-xl border border-border p-4">
           <div className="flex items-center gap-2 border-b border-border pb-3">
             <AlertTriangle aria-hidden="true" className="size-4 text-warning" />
-            <p className="text-xs font-semibold">Precisa da sua atenção</p>
+            <p className="text-xs font-semibold">O que precisa acontecer agora</p>
           </div>
 
           <div className="py-3">
-            <p className="text-xs font-medium">2 orçamentos aguardando resposta</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">Acompanhe o retorno dos clientes.</p>
+            <p className="text-xs font-medium">2 orçamentos aguardam resposta</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">R$ 1.850,00 em propostas enviadas.</p>
           </div>
 
           <div className="border-t border-border py-3">
-            <p className="text-xs font-medium">1 recebível em aberto</p>
-            <p className="mt-1 text-[10px] text-muted-foreground">R$ 1.200,00 pendente.</p>
+            <p className="text-xs font-medium">1 recebível em atraso</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">R$ 650,00 ainda pendente.</p>
           </div>
         </section>
+      </div>
+    </>
+  );
+}
+
+function AutomationsScreen() {
+  const automations = [
+    {
+      title: 'Acompanhar orçamentos sem resposta',
+      description: 'Follow-up automático depois do envio.',
+    },
+    {
+      title: 'Lembrar serviços agendados',
+      description: 'Aviso antes do horário do atendimento.',
+    },
+    {
+      title: 'Solicitar avaliações',
+      description: 'Pedido enviado depois da conclusão.',
+    },
+    {
+      title: 'Lembrar pagamentos',
+      description: 'Avisos antes e depois do vencimento.',
+    },
+  ];
+
+  const history = [
+    {
+      description: 'Lembrete de serviço programado para Maria Almeida',
+      time: 'Hoje, 09:10',
+    },
+    {
+      description: 'Follow-up de orçamento enviado para Comercial Silva',
+      time: 'Ontem, 14:32',
+    },
+  ];
+
+  return (
+    <>
+      <ScreenHeader
+        title="Piloto Automático"
+        description="Escolha quais acompanhamentos o Bom Trato pode fazer por você."
+      />
+
+      <div className="mt-5 rounded-xl border border-border">
+        <div className="border-b border-border px-4 py-3">
+          <p className="text-xs font-semibold">Automações</p>
+          <p className="mt-1 text-[10px] text-muted-foreground">Você continua no controle do que fica ativo.</p>
+        </div>
+
+        <div className="divide-y divide-border px-4">
+          {automations.map((automation) => (
+            <div key={automation.title} className="flex items-center justify-between gap-4 py-3">
+              <div>
+                <p className="text-xs font-medium">{automation.title}</p>
+                <p className="mt-1 text-[10px] text-muted-foreground">{automation.description}</p>
+              </div>
+
+              <span className="shrink-0 rounded-full bg-success-surface px-2 py-1 text-[10px] font-medium text-success">
+                Ativo
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <p className="text-xs font-semibold">Histórico recente</p>
+
+        <div className="mt-2 divide-y divide-border border-y border-border">
+          {history.map((event) => (
+            <div key={event.description} className="flex items-start gap-3 py-3">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full bg-success-surface text-success">
+                <CheckCircle2 aria-hidden="true" className="size-3" />
+              </span>
+
+              <div className="min-w-0">
+                <p className="text-xs font-medium">{event.description}</p>
+                <p className="mt-1 text-[10px] text-muted-foreground">{event.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
@@ -287,16 +369,16 @@ function QuotesScreen() {
     {
       title: 'Manutenção preventiva',
       customer: 'Comercial Silva',
-      status: 'Enviado',
+      status: 'Alteração solicitada',
       value: 'R$ 780,00',
-      className: 'bg-info-surface text-info',
+      className: 'bg-warning-surface text-warning',
     },
     {
       title: 'Troca de quadro',
       customer: 'Carlos Mendes',
-      status: 'Rascunho',
+      status: 'Enviado',
       value: 'R$ 950,00',
-      className: 'bg-muted text-muted-foreground',
+      className: 'bg-info-surface text-info',
     },
   ];
 
@@ -538,6 +620,8 @@ function ReceivablesScreen() {
 
 export function ProductTourScreen({ activeId }: ProductTourScreenProps) {
   switch (activeId) {
+    case 'automations':
+      return <AutomationsScreen />;
     case 'leads':
       return <LeadsScreen />;
     case 'customers':
