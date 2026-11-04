@@ -85,19 +85,16 @@ export function ProductPreview() {
             <div className="mt-5 grid grid-cols-3 border-y border-border">
               <div className="py-3 pr-2">
                 <p className="text-[10px] leading-tight text-muted-foreground sm:text-xs">Recebido no mês</p>
-
                 <p className="mt-1 text-sm font-semibold tracking-tight text-primary sm:text-base">R$ 3.450</p>
               </div>
 
               <div className="border-l border-border px-2 py-3 sm:px-3">
                 <p className="text-[10px] leading-tight text-muted-foreground sm:text-xs">A receber</p>
-
                 <p className="mt-1 text-sm font-semibold tracking-tight text-primary sm:text-base">R$ 1.200</p>
               </div>
 
               <div className="border-l border-border py-3 pl-2 sm:pl-3">
                 <p className="text-[10px] leading-tight text-muted-foreground sm:text-xs">Em andamento</p>
-
                 <p className="mt-1 text-sm font-semibold tracking-tight sm:text-base">2</p>
               </div>
             </div>
@@ -118,7 +115,6 @@ export function ProductPreview() {
 
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium">Instalação elétrica</p>
-
                     <p className="mt-1 truncate text-[10px] text-muted-foreground">Cliente Almeida</p>
                   </div>
                 </div>
@@ -131,7 +127,6 @@ export function ProductPreview() {
 
                   <div className="min-w-0">
                     <p className="truncate text-xs font-medium">Manutenção preventiva</p>
-
                     <p className="mt-1 truncate text-[10px] text-muted-foreground">Comercial Silva</p>
                   </div>
                 </div>
@@ -141,21 +136,20 @@ export function ProductPreview() {
                 <div className="flex items-center gap-2 border-b border-border pb-3">
                   <AlertTriangle aria-hidden="true" className="size-4 text-warning" />
 
-                  <p className="text-xs font-semibold">Precisa da sua atenção</p>
+                  <p className="text-xs font-semibold">O que precisa acontecer agora</p>
                 </div>
 
                 <div className="py-3">
-                  <p className="text-xs font-medium">2 orçamentos aguardando resposta</p>
+                  <p className="text-xs font-medium">2 orçamentos aguardam resposta</p>
 
                   <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
-                    Acompanhe o retorno dos clientes.
+                    R$ 1.850,00 em propostas enviadas.
                   </p>
                 </div>
 
                 <div className="border-t border-border py-3">
-                  <p className="text-xs font-medium">1 recebível em aberto</p>
-
-                  <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">R$ 1.200,00 pendente.</p>
+                  <p className="text-xs font-medium">1 recebível em atraso</p>
+                  <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">R$ 650,00 ainda pendente.</p>
                 </div>
               </section>
             </div>
@@ -165,7 +159,7 @@ export function ProductPreview() {
                 <ReceiptText aria-hidden="true" className="size-4 shrink-0 text-primary" />
 
                 <p className="truncate text-xs text-muted-foreground">
-                  Atendimento, execução e financeiro no mesmo fluxo.
+                  Fluxo conectado com acompanhamentos automáticos.
                 </p>
               </div>
 
@@ -181,9 +175,8 @@ export function ProductPreview() {
         </span>
 
         <div>
-          <p className="text-sm font-semibold">Orçamento aprovado.</p>
-
-          <p className="mt-1 text-xs text-muted-foreground">A ordem de serviço já pode seguir com o mesmo contexto.</p>
+          <p className="text-sm font-semibold">Lembrete enviado automaticamente.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Maria foi lembrada do serviço agendado para amanhã.</p>
         </div>
       </div>
 

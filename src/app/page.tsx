@@ -51,9 +51,9 @@ const benefits = [
   },
   {
     icon: ClipboardCheck,
-    title: 'Menos trabalho duplicado.',
+    title: 'O Bom Trato acompanha por você.',
     description:
-      'Informações que já existem podem seguir do orçamento para a execução, reduzindo redigitação entre as etapas.',
+      'Follow-ups de orçamento, lembretes de serviços, pedidos de avaliação e avisos de pagamento podem acontecer automaticamente.',
   },
   {
     icon: Wallet,
@@ -66,24 +66,50 @@ const benefits = [
 const workflow = [
   {
     icon: FileCheck2,
-    title: 'O cliente aprova o orçamento',
-    description: 'A proposta deixa de ser apenas um documento enviado e passa a preparar a execução do serviço.',
+    title: 'O orçamento continua trabalhando depois de enviado',
+    description:
+      'O cliente pode aprovar, recusar ou solicitar uma alteração enquanto o Bom Trato acompanha propostas sem resposta.',
   },
   {
     icon: ClipboardCheck,
-    title: 'A ordem de serviço ganha contexto',
-    description: 'Cliente, endereço e serviços podem continuar juntos, sem reconstruir o atendimento do zero.',
+    title: 'A aprovação prepara o trabalho',
+    description:
+      'A ordem de serviço reaproveita cliente, endereço, serviços e condições financeiras sem reconstruir o atendimento.',
   },
   {
     icon: CalendarCheck2,
-    title: 'Você organiza e executa o trabalho',
+    title: 'Você organiza e executa o serviço',
     description:
-      'Defina responsável, agendamento e andamento da ordem de serviço conforme a rotina real da sua equipe.',
+      'Defina responsável e agendamento enquanto lembretes automáticos ajudam o cliente a não esquecer o atendimento.',
   },
   {
     icon: ReceiptText,
-    title: 'O financeiro continua o fluxo',
-    description: 'Ao concluir o serviço, o recebível mantém o acompanhamento até o pagamento ser registrado.',
+    title: 'O fluxo continua até receber e fidelizar',
+    description:
+      'Recebíveis, lembretes de pagamento e pedidos de avaliação mantêm o acompanhamento mesmo depois da execução.',
+  },
+];
+
+const automations = [
+  {
+    icon: FileCheck2,
+    title: 'Orçamentos',
+    description: 'Acompanhe automaticamente clientes que ainda não responderam à proposta.',
+  },
+  {
+    icon: CalendarCheck2,
+    title: 'Agendamentos',
+    description: 'Lembre o cliente quando um serviço agendado estiver se aproximando.',
+  },
+  {
+    icon: Users,
+    title: 'Avaliações',
+    description: 'Peça a avaliação do atendimento depois que o serviço for concluído.',
+  },
+  {
+    icon: ReceiptText,
+    title: 'Recebimentos',
+    description: 'Avise sobre vencimentos próximos e valores que continuam em atraso.',
   },
 ];
 
@@ -137,8 +163,8 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-                Clientes, orçamentos, agenda, ordens de serviço e recebimentos conectados em um único fluxo. Menos
-                retrabalho para você e mais continuidade em cada atendimento.
+                Organize clientes, orçamentos, serviços e recebimentos em um só fluxo — e deixe o Bom Trato acompanhar
+                clientes e cuidar de tarefas repetitivas por você.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -165,7 +191,7 @@ export default function Home() {
 
                 <li className="flex items-center gap-2 sm:col-span-2">
                   <Check aria-hidden="true" className="size-4 shrink-0 text-primary" />
-                  Do primeiro contato ao recebimento, sem perder o contexto
+                  Automações que você escolhe quando ativar
                 </li>
               </ul>
             </div>
@@ -183,8 +209,8 @@ export default function Home() {
               </h2>
 
               <p className="max-w-lg self-end leading-relaxed text-muted-foreground">
-                O Bom Trato conecta as partes da rotina que normalmente ficam separadas para você saber onde cada
-                atendimento está e qual é o próximo passo.
+                O Bom Trato conecta as partes da rotina que normalmente ficam separadas e ajuda a manter cada
+                atendimento avançando até o próximo passo.
               </p>
             </div>
 
@@ -213,12 +239,12 @@ export default function Home() {
                 </p>
 
                 <h2 className="mt-4 font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
-                  Do orçamento aprovado ao recebimento.
+                  Da proposta ao pagamento, sem perder o contexto.
                 </h2>
 
                 <p className="mt-5 max-w-md leading-relaxed text-brand-muted">
-                  Cada etapa mantém o contexto do atendimento para que você avance sem precisar reconstruir as mesmas
-                  informações.
+                  Cada etapa prepara a próxima para você avançar sem reconstruir informações ou depender da memória para
+                  saber quem precisa de retorno.
                 </p>
               </div>
 
@@ -243,6 +269,47 @@ export default function Home() {
                   </li>
                 ))}
               </ol>
+            </div>
+          </div>
+        </section>
+
+        <section id="automations" className="scroll-mt-24 px-6 py-12 sm:py-16 lg:px-10">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+              <div>
+                <p className="text-xs font-semibold tracking-widest text-primary uppercase">Piloto Automático</p>
+
+                <h2 className="mt-4 max-w-xl font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
+                  Enquanto você trabalha,
+                  <span className="text-primary"> o Bom Trato acompanha.</span>
+                </h2>
+
+                <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
+                  Ative somente o que fizer sentido para sua rotina. O sistema acompanha momentos importantes sem tirar
+                  de você o controle sobre o serviço.
+                </p>
+
+                <div className="mt-7 flex items-start gap-3 rounded-xl bg-secondary p-4 text-secondary-foreground">
+                  <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+
+                  <p className="text-sm leading-relaxed">
+                    O histórico mostra o que foi programado e enviado para você continuar sabendo o que está
+                    acontecendo.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2">
+                {automations.map(({ icon: Icon, title, description }) => (
+                  <article key={title} className="border-t border-border pt-5">
+                    <Icon aria-hidden="true" className="size-6 text-primary" strokeWidth={1.5} />
+
+                    <h3 className="mt-4 text-lg font-semibold tracking-tight">{title}</h3>
+
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+                  </article>
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -299,8 +366,8 @@ export default function Home() {
               </h2>
 
               <p className="mt-4 max-w-xl leading-relaxed">
-                Clientes, propostas, agenda, execução e recebimentos trabalhando juntos para você ter menos retrabalho e
-                mais clareza na rotina.
+                Clientes, propostas, agenda, execução e recebimentos trabalham juntos — e tarefas repetitivas podem
+                continuar acontecendo enquanto você está atendendo.
               </p>
             </div>
 

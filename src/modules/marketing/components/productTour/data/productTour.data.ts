@@ -1,5 +1,6 @@
 import {
   Banknote,
+  BellRing,
   CalendarDays,
   ClipboardList,
   FileText,
@@ -11,7 +12,15 @@ import {
 } from 'lucide-react';
 
 export type ProductTourId =
-  'overview' | 'leads' | 'customers' | 'services' | 'quotes' | 'work-orders' | 'schedule' | 'receivables';
+  | 'overview'
+  | 'automations'
+  | 'leads'
+  | 'customers'
+  | 'services'
+  | 'quotes'
+  | 'work-orders'
+  | 'schedule'
+  | 'receivables';
 
 export interface ProductTourItem {
   id: ProductTourId;
@@ -31,6 +40,15 @@ export const productTourItems: ProductTourItem[] = [
     description:
       'Veja recebimentos, serviços em andamento, próximos agendamentos e o que precisa da sua atenção sem procurar informação em várias telas.',
     icon: LayoutDashboard,
+  },
+  {
+    id: 'automations',
+    label: 'Automações',
+    eyebrow: 'Piloto Automático',
+    title: 'Seu negócio continua andando enquanto você trabalha.',
+    description:
+      'Ative acompanhamentos para orçamentos sem resposta, lembretes de serviços, avaliações e cobranças e acompanhe o histórico do que foi programado.',
+    icon: BellRing,
   },
   {
     id: 'leads',
@@ -55,16 +73,16 @@ export const productTourItems: ProductTourItem[] = [
     eyebrow: 'Seu catálogo',
     title: 'Cadastre o que você vende uma vez.',
     description:
-      'Organize seus serviços e valores para reutilizá-los em propostas e atendimentos sem digitar as mesmas informações novamente.',
+      'Organize seus serviços, valores e duração estimada para reutilizá-los em propostas e atendimentos sem digitar as mesmas informações novamente.',
     icon: Wrench,
   },
   {
     id: 'quotes',
     label: 'Orçamentos',
-    eyebrow: 'Da proposta à aprovação',
+    eyebrow: 'Da proposta à decisão',
     title: 'Transforme a necessidade do cliente em uma proposta clara.',
     description:
-      'Monte o orçamento, acompanhe o status e, quando ele for aprovado, leve o contexto para a próxima etapa do trabalho.',
+      'Monte o orçamento, compartilhe com o cliente e acompanhe aprovação, recusa ou solicitação de alteração antes de seguir para a execução.',
     icon: FileText,
   },
   {
@@ -81,7 +99,7 @@ export const productTourItems: ProductTourItem[] = [
     eyebrow: 'Rotina visível',
     title: 'Veja quando cada serviço precisa acontecer.',
     description:
-      'Acompanhe os atendimentos programados e organize a rotina do profissional ou da equipe em uma visão de agenda.',
+      'Acompanhe os atendimentos programados, organize a rotina do profissional ou da equipe e deixe lembretes ajudarem o cliente a não esquecer.',
     icon: CalendarDays,
   },
   {
@@ -90,7 +108,7 @@ export const productTourItems: ProductTourItem[] = [
     eyebrow: 'Até o dinheiro entrar',
     title: 'O fluxo continua depois que o serviço termina.',
     description:
-      'Acompanhe valores em aberto, pagamentos registrados, vencimentos e saldos sem separar o financeiro da execução.',
+      'Acompanhe entrada, saldo, valores em aberto, pagamentos registrados e vencimentos sem separar o financeiro da execução.',
     icon: Banknote,
   },
 ];
