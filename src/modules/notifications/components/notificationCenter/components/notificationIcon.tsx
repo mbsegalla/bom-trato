@@ -9,6 +9,7 @@ import {
   FileClock,
   FileX2,
   Inbox,
+  MessageSquareText,
   ReceiptText,
   UserRoundPlus,
 } from 'lucide-react';
@@ -23,6 +24,8 @@ export function NotificationIcon({ type }: { type: InAppNotificationType }) {
       return <FileCheck2 aria-hidden="true" className="size-4" />;
     case 'QUOTE_DECLINED':
       return <FileX2 aria-hidden="true" className="size-4" />;
+    case 'QUOTE_CHANGE_REQUESTED':
+      return <MessageSquareText aria-hidden="true" className="size-4" />;
     case 'QUOTE_FOLLOW_UP':
       return <FileClock aria-hidden="true" className="size-4" />;
     case 'WORK_ORDER_ASSIGNED':

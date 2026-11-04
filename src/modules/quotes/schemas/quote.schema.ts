@@ -162,6 +162,12 @@ export const quoteItemSchema = z.object({
   position: z.number().int().nonnegative(),
 });
 
+export const quoteChangeRequestSchema = z.object({
+  quoteVersion: z.number().int().positive(),
+  message: z.string(),
+  requestedAt: z.coerce.date(),
+});
+
 export const quoteSchema = z.object({
   id: z.uuid(),
   organizationId: z.uuid(),
@@ -188,6 +194,7 @@ export const quoteSchema = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   items: z.array(quoteItemSchema),
+  changeRequest: quoteChangeRequestSchema.nullable(),
 });
 
 export const quoteSummarySchema = z.object({
@@ -263,6 +270,8 @@ export const publicQuoteSchema = z.object({
   organizationName: z.string(),
   sharedVersion: z.number().int().positive(),
   canDecide: z.boolean(),
+  canRequestChange: z.boolean(),
+  changeRequestedAt: z.coerce.date().nullable(),
   items: z.array(publicQuoteItemSchema),
   expiresAt: z.coerce.date(),
 });
@@ -276,6 +285,20 @@ export const publicQuoteDecisionSchema = z.object({
 });
 
 export const publicQuoteDecisionResponseSchema = apiResponseSchema(publicQuoteDecisionSchema);
+
+export const publicQuoteChangeRequestResultSchema = z.object({
+  requestedAt: z.coerce.date(),
+});
+
+export const publicQuoteChangeRequestResponseSchema = apiResponseSchema(publicQuoteChangeRequestResultSchema);
+
+export const publicQuoteChangeRequestFormSchema = z.object({
+  message: z
+    .string()
+    .trim()
+    .min(5, 'Explique brevemente o que gostaria de alterar.')
+    .max(2000, 'A solicitação deve ter no máximo 2000 caracteres.'),
+});
 
 export const quoteShareTokenSchema = z.string().regex(/^[a-f0-9]{64}$/);
 

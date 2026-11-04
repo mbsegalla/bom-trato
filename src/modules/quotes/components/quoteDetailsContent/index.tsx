@@ -31,6 +31,7 @@ import {
 } from '@/modules/quotes/services/quote.service';
 import type { Quote, QuoteItem } from '@/modules/quotes/types/quote.types';
 
+import { QuoteChangeRequestNotice } from './components/quoteChangeRequestNotice';
 import { QuoteDetailsHeader } from './components/quoteDetailsHeader';
 import { QuoteItemsSection } from './components/quoteItemsSection';
 import { QuoteShareSection } from './components/quoteShareSection';
@@ -365,6 +366,8 @@ function OrganizationQuoteDetails({ organizationId, quoteId }: { organizationId:
           {actionError}
         </p>
       )}
+
+      <QuoteChangeRequestNotice quote={quote} />
 
       {sent && !expired && (
         <QuoteShareSection

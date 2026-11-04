@@ -1,7 +1,7 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 
 import { businessProfileResponseSchema } from '../schemas/business.schema';
-import type { BusinessProfile, BusinessProfileInput } from '../types/business.types';
+import type { BusinessProfile, BusinessProfileUpdateInput } from '../types/business.types';
 
 const businessProfileFlights = new Map<string, Promise<BusinessProfile>>();
 
@@ -13,16 +13,12 @@ function getBusinessErrorMessage(status: number, fallback: string): string {
   switch (status) {
     case 400:
       return 'Confira os dados do negócio e tente novamente.';
-
     case 403:
       return 'Somente o administrador do negócio pode alterar estes dados.';
-
     case 404:
       return 'Negócio não encontrado.';
-
     case 413:
       return 'A imagem deve ter no máximo 2 MB.';
-
     case 503:
       return 'O negócio está sendo atualizado. Tente novamente em instantes.';
 
@@ -77,7 +73,7 @@ export function getBusinessProfile(organizationId: string): Promise<BusinessProf
 
 export async function updateBusinessProfile(
   organizationId: string,
-  input: BusinessProfileInput,
+  input: BusinessProfileUpdateInput,
 ): Promise<BusinessProfile> {
   const response = await authenticatedFetch(profilePath(organizationId), {
     method: 'PATCH',

@@ -6,6 +6,7 @@ import type {
   catalogQuoteItemFormSchema,
   createQuoteFormSchema,
   customQuoteItemFormSchema,
+  publicQuoteChangeRequestResultSchema,
   publicQuoteDecisionSchema,
   publicQuoteSchema,
   quoteItemSchema,
@@ -21,33 +22,20 @@ import type {
 } from '../schemas/quote.schema';
 
 export type QuoteStatus = z.infer<typeof quoteStatusSchema>;
-
 export type QuoteListStatus = z.infer<typeof quoteListStatusSchema>;
-
 export type QuotePaymentCondition = z.infer<typeof quotePaymentConditionSchema>;
-
 export type QuoteItem = z.infer<typeof quoteItemSchema>;
-
 export type Quote = z.infer<typeof quoteSchema>;
-
 export type QuoteSummary = z.infer<typeof quoteSummarySchema>;
-
 export type QuotePage = z.infer<typeof quotesResponseSchema>;
-
 export type QuoteStatusHistory = z.infer<typeof quoteStatusHistorySchema>;
-
 export type QuoteShare = z.infer<typeof quoteShareSchema>;
-
 export type PublicQuote = z.infer<typeof publicQuoteSchema>;
-
 export type PublicQuoteDecision = z.infer<typeof publicQuoteDecisionSchema>;
-
+export type PublicQuoteChangeRequestResult = z.infer<typeof publicQuoteChangeRequestResultSchema>;
 export type CreateQuoteInput = z.output<typeof createQuoteFormSchema>;
-
 export type UpdateQuoteInput = z.output<typeof updateQuoteFormSchema>;
-
 export type CatalogQuoteItemFormInput = z.output<typeof catalogQuoteItemFormSchema>;
-
 export type CustomQuoteItemFormInput = z.output<typeof customQuoteItemFormSchema>;
 
 export interface QuoteListParams {

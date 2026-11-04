@@ -19,6 +19,10 @@ export const businessProfileSchema = z.object({
   state: z.string().nullable(),
   postalCode: z.string().nullable(),
   defaultReceivableDueDays: z.number().int().min(0).max(365),
+  autoQuoteFollowUpEnabled: z.boolean(),
+  autoWorkOrderReminderEnabled: z.boolean(),
+  autoReviewRequestEnabled: z.boolean(),
+  autoReceivableReminderEnabled: z.boolean(),
 });
 
 export const businessProfileResponseSchema = apiResponseSchema(businessProfileSchema);
@@ -127,3 +131,10 @@ export const businessProfileFormSchema = z
       });
     }
   });
+
+export const automationSettingsFormSchema = z.object({
+  autoQuoteFollowUpEnabled: z.boolean(),
+  autoWorkOrderReminderEnabled: z.boolean(),
+  autoReviewRequestEnabled: z.boolean(),
+  autoReceivableReminderEnabled: z.boolean(),
+});
