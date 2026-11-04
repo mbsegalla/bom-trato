@@ -6,6 +6,7 @@ import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatBrazilianPhoneInput } from '@/shared/formatters/phone.formatter';
 
@@ -30,6 +31,17 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const serviceOptions = [
+    {
+      value: null,
+      label: 'Ainda não sei / outro serviço',
+    },
+    ...services.map((service) => ({
+      value: service.id,
+      label: service.name,
+    })),
+  ];
 
   async function submit(form: HTMLFormElement): Promise<void> {
     const data = new FormData(form);
@@ -156,20 +168,19 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
                   <div className="space-y-2">
                     <Label htmlFor="lead-service">Serviço</Label>
 
-                    <select
-                      id="lead-service"
-                      name="catalogServiceId"
-                      defaultValue=""
-                      className="h-12 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                    >
-                      <option value="">Ainda não sei / outro serviço</option>
+                    <Select<string | null> name="catalogServiceId" items={serviceOptions} defaultValue={null}>
+                      <SelectTrigger id="lead-service" className="h-12 cursor-pointer rounded-xl px-3">
+                        <SelectValue />
+                      </SelectTrigger>
 
-                      {services.map((service) => (
-                        <option key={service.id} value={service.id}>
-                          {service.name}
-                        </option>
-                      ))}
-                    </select>
+                      <SelectContent>
+                        {serviceOptions.map((option) => (
+                          <SelectItem key={option.value ?? 'other'} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 )}
 

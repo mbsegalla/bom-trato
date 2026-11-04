@@ -20,7 +20,7 @@ export function ProductTourShell({ activeId, onSelect }: ProductTourShellProps) 
         <span className="ml-3 truncate text-xs text-muted-foreground">app.bomtrato.com.br</span>
       </div>
 
-      <div className="md:grid md:grid-cols-[12rem_minmax(0,1fr)]">
+      <div className="md:grid md:grid-cols-[14rem_minmax(0,1fr)]">
         <aside className="hidden border-r border-border bg-muted/15 p-4 md:block">
           <div className="flex h-10 items-center">
             <BrandLogo alt="" className="w-28" />
