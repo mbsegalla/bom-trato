@@ -1,19 +1,20 @@
 'use client';
 
-import { Building2, CreditCard, Palette, ShieldCheck, Store, Users } from 'lucide-react';
+import { Bot, Building2, CreditCard, Palette, ShieldCheck, Store, Users } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 import { AppearanceSettings } from './appearanceSettings';
+import { AutomationSettings } from './automationSettings';
 import { BusinessSettings } from './businessSettings';
 import { PublicProfileSettings } from './publicProfileSettings';
 import { SecuritySettings } from './securitySettings';
 import { SubscriptionSettings } from './subscriptionSettings';
 import { TeamSettings } from './teamSettings';
 
-export type SettingsTab = 'business' | 'showcase' | 'team' | 'billing' | 'appearance' | 'security';
+export type SettingsTab = 'business' | 'showcase' | 'team' | 'billing' | 'automations' | 'appearance' | 'security';
 
 interface SettingsContentProps {
   initialTab: SettingsTab;
@@ -39,6 +40,11 @@ const tabs = [
     value: 'billing',
     label: 'Assinatura',
     icon: CreditCard,
+  },
+  {
+    value: 'automations',
+    label: 'Automações',
+    icon: Bot,
   },
   {
     value: 'appearance',
@@ -75,7 +81,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Configurações</h1>
 
         <p className="mt-2 text-muted-foreground">
-          Gerencie seu negócio, vitrine, equipe, assinatura, aparência e segurança.
+          Gerencie seu negócio, vitrine, equipe, assinatura, automações, aparência e segurança.
         </p>
       </div>
 
@@ -107,6 +113,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         {tab === 'showcase' && <PublicProfileSettings />}
         {tab === 'team' && <TeamSettings />}
         {tab === 'billing' && <SubscriptionSettings />}
+        {tab === 'automations' && <AutomationSettings />}
         {tab === 'appearance' && <AppearanceSettings />}
         {tab === 'security' && <SecuritySettings />}
       </div>

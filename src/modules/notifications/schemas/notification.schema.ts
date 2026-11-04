@@ -6,6 +6,7 @@ export const inAppNotificationTypeSchema = z.enum([
   'LEAD_RECEIVED',
   'QUOTE_APPROVED',
   'QUOTE_DECLINED',
+  'QUOTE_CHANGE_REQUESTED',
   'QUOTE_FOLLOW_UP',
   'WORK_ORDER_ASSIGNED',
   'WORK_ORDER_SCHEDULED',

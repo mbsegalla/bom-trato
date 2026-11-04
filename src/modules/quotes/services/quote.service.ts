@@ -3,6 +3,7 @@ import { authenticatedFetch, SessionError } from '@/modules/auth/services/sessio
 import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
+  publicQuoteChangeRequestResponseSchema,
   publicQuoteDecisionResponseSchema,
   publicQuoteResponseSchema,
   quoteResponseSchema,
@@ -14,6 +15,7 @@ import {
 import type {
   CreateQuoteInput,
   PublicQuote,
+  PublicQuoteChangeRequestResult,
   PublicQuoteDecision,
   Quote,
   QuoteItemMutationInput,
@@ -33,16 +35,12 @@ function getQuoteErrorMessage(status: number, fallback: string): string {
   switch (status) {
     case 400:
       return 'Confira os dados do orçamento e tente novamente.';
-
     case 403:
       return 'Você não tem permissão para realizar esta operação.';
-
     case 404:
       return 'Orçamento não encontrado.';
-
     case 409:
       return 'O orçamento foi alterado ou não permite esta operação. Recarregue os dados e tente novamente.';
-
     case 503:
       return 'Os orçamentos estão sendo atualizados. Tente novamente em instantes.';
 
@@ -491,6 +489,34 @@ export async function decidePublicQuote(
   const payload: unknown = await response.json();
 
   const parsed = publicQuoteDecisionResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error('Não foi possível interpretar a confirmação.');
+  }
+
+  return parsed.data;
+}
+
+export async function requestPublicQuoteChange(
+  token: string,
+  version: number,
+  message: string,
+): Promise<PublicQuoteChangeRequestResult> {
+  const response = await publicQuoteFetch('/api/public/quotes/change-request', {
+    token,
+    version,
+    message,
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      response.status === 409 ? 'Este orçamento já recebeu uma resposta.' : 'Não foi possível enviar sua solicitação.',
+    );
+  }
+
+  const payload: unknown = await response.json();
+
+  const parsed = publicQuoteChangeRequestResponseSchema.safeParse(payload);
 
   if (!parsed.success) {
     throw new Error('Não foi possível interpretar a confirmação.');

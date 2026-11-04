@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { decidePublicQuote, downloadPublicQuotePdf, resolvePublicQuote } from '@/modules/quotes/services/quote.service';
+import {
+  decidePublicQuote,
+  downloadPublicQuotePdf,
+  requestPublicQuoteChange,
+  resolvePublicQuote,
+} from '@/modules/quotes/services/quote.service';
 import type { PublicQuote } from '@/modules/quotes/types/quote.types';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
 
@@ -20,6 +25,7 @@ export function PublicQuoteContent() {
   const [quote, setQuote] = useState<PublicQuote | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [deciding, setDeciding] = useState<'approve' | 'decline' | null>(null);
+  const [requestingChange, setRequestingChange] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
@@ -64,11 +70,38 @@ export function PublicQuoteContent() {
         status: result.status,
         version: result.version,
         canDecide: false,
+        canRequestChange: false,
       });
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : 'Não foi possível registrar sua resposta.');
     } finally {
       setDeciding(null);
+    }
+  }
+
+  async function handleChangeRequest(message: string): Promise<void> {
+    const token = tokenRef.current;
+
+    if (!token || !quote || requestingChange) {
+      return;
+    }
+
+    setRequestingChange(true);
+    setError(null);
+
+    try {
+      const result = await requestPublicQuoteChange(token, quote.sharedVersion, message);
+
+      setQuote({
+        ...quote,
+        changeRequestedAt: result.requestedAt,
+        canDecide: false,
+        canRequestChange: false,
+      });
+    } catch (cause: unknown) {
+      setError(cause instanceof Error ? cause.message : 'Não foi possível enviar sua solicitação.');
+    } finally {
+      setRequestingChange(false);
     }
   }
 
@@ -127,9 +160,11 @@ export function PublicQuoteContent() {
             <PublicQuoteActions
               quote={quote}
               deciding={deciding}
+              requestingChange={requestingChange}
               downloading={downloading}
               onDownload={() => void handlePdf()}
               onDecision={(decision) => void handleDecision(decision)}
+              onChangeRequest={(message) => void handleChangeRequest(message)}
             />
           </div>
         </article>
