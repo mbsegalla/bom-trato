@@ -68,6 +68,11 @@ export function BusinessLogoField({ profile, owner, disabled = false, onChanged 
     setSelectedFile(file);
   }
 
+  function handleFileChange(input: HTMLInputElement): void {
+    selectFile(input.files?.[0]);
+    input.value = '';
+  }
+
   async function upload(): Promise<void> {
     if (!selectedFile || uploading || disabled) {
       return;
@@ -163,10 +168,7 @@ export function BusinessLogoField({ profile, owner, disabled = false, onChanged 
                   type="file"
                   accept="image/png,image/jpeg,image/webp"
                   className="sr-only"
-                  onChange={(event) => {
-                    selectFile(event.currentTarget.files?.[0]);
-                    event.currentTarget.value = '';
-                  }}
+                  onChange={(event) => handleFileChange(event.currentTarget)}
                 />
 
                 <Button

@@ -36,6 +36,11 @@ export function ReceivablePaymentPanel({ receivable, onClose, onSaved }: Receiva
     setRequestId(crypto.randomUUID());
   }
 
+  function handleAmountChange(value: string): void {
+    setAmount(value);
+    renewRequestId();
+  }
+
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
@@ -123,10 +128,7 @@ export function ReceivablePaymentPanel({ receivable, onClose, onSaved }: Receiva
                     name="amountInCents"
                     inputMode="decimal"
                     value={amount}
-                    onChange={(event) => {
-                      setAmount(event.target.value);
-                      renewRequestId();
-                    }}
+                    onChange={(event) => handleAmountChange(event.currentTarget.value)}
                     onBlur={() => setAmount((value) => formatBrlCurrencyInputValue(value))}
                     className="h-12 rounded-xl pl-11"
                   />

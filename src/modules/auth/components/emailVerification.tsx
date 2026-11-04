@@ -149,6 +149,11 @@ export function EmailVerification() {
     }
   };
 
+  function handleRetryVerification(): void {
+    setVerification(null);
+    setRetry((value) => value + 1);
+  }
+
   if (isVerifying) {
     return (
       <section aria-busy="true" className="w-full">
@@ -261,10 +266,7 @@ export function EmailVerification() {
           type="button"
           variant="outline"
           disabled={sending}
-          onClick={() => {
-            setVerification(null);
-            setRetry((value) => value + 1);
-          }}
+          onClick={handleRetryVerification}
           className="mt-4 min-h-12 w-full cursor-pointer rounded-xl"
         >
           Tentar confirmar novamente

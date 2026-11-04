@@ -37,6 +37,15 @@ export function LoginForm() {
     setNotice(null);
   }
 
+  function clearError(): void {
+    setError(null);
+  }
+
+  function handleGoogleError(): void {
+    setNotice(null);
+    setError('Não foi possível abrir o login do Google.');
+  }
+
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
@@ -111,10 +120,7 @@ export function LoginForm() {
         text="continue_with"
         disabled={busy}
         onCredential={(credential) => void handleGoogleCredential(credential)}
-        onError={() => {
-          setNotice(null);
-          setError('Não foi possível abrir o login do Google.');
-        }}
+        onError={handleGoogleError}
       />
 
       <AuthMethodDivider />
@@ -144,11 +150,7 @@ export function LoginForm() {
                 spellCheck={false}
                 placeholder="voce@empresa.com"
                 required
-                onChange={() => {
-                  if (error) {
-                    setError(null);
-                  }
-                }}
+                onChange={clearError}
                 className="h-12 rounded-xl bg-card pl-11 text-base md:text-base"
               />
             </div>
@@ -170,11 +172,7 @@ export function LoginForm() {
                 autoComplete="current-password"
                 placeholder="Digite sua senha"
                 required
-                onChange={() => {
-                  if (error) {
-                    setError(null);
-                  }
-                }}
+                onChange={clearError}
                 className="h-12 rounded-xl bg-card pr-12 pl-11 text-base md:text-base"
               />
 

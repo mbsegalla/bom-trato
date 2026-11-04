@@ -34,6 +34,14 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
 
   const loginHref = '/login';
 
+  function handleTermsAcceptedChange(accepted: boolean): void {
+    setTermsAccepted(accepted);
+
+    if (error) {
+      setError(null);
+    }
+  }
+
   async function handleGoogleCredential(credential: string): Promise<void> {
     if (busy) {
       return;
@@ -175,13 +183,7 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
           type="checkbox"
           checked={termsAccepted}
           disabled={busy}
-          onChange={(event) => {
-            setTermsAccepted(event.currentTarget.checked);
-
-            if (error) {
-              setError(null);
-            }
-          }}
+          onChange={(event) => handleTermsAcceptedChange(event.currentTarget.checked)}
           className="mt-1 size-4 shrink-0 cursor-pointer accent-primary"
         />
 

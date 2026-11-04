@@ -23,11 +23,17 @@ export function MemberList({ organizationId, currentUserId, members, isOwner, on
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function openRemoveConfirmation(member: OrganizationMember): void {
+    setError(null);
+    setRemoving(member);
+  }
+
   async function handleRemove(): Promise<void> {
     if (!removing || loading) return;
 
     setLoading(true);
     setError(null);
+
     try {
       await removeOrganizationMember(organizationId, removing.id);
 
@@ -46,6 +52,7 @@ export function MemberList({ organizationId, currentUserId, members, isOwner, on
         <h2 className="font-heading text-xl font-semibold">Membros</h2>
         <p className="mt-1 text-sm text-muted-foreground">Pessoas que atualmente têm acesso a este negócio.</p>
       </header>
+
       {error && (
         <p
           role="alert"
@@ -54,6 +61,7 @@ export function MemberList({ organizationId, currentUserId, members, isOwner, on
           {error}
         </p>
       )}
+
       <div className="divide-y divide-border">
         {members.map((member) => {
           const current = member.userId === currentUserId;
@@ -69,25 +77,25 @@ export function MemberList({ organizationId, currentUserId, members, isOwner, on
                     <UserRound aria-hidden="true" className="size-5" />
                   )}
                 </div>
+
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-medium">{member.user.name}</p>
                     {current && <span className="text-xs text-muted-foreground">Você</span>}
                   </div>
+
                   <p className="mt-1 text-sm text-muted-foreground">
                     {isOwner ? 'Administrador' : 'Membro'} · desde {formatDate(member.createdAt)}
                   </p>
                 </div>
               </div>
+
               {isOwner && !isMemberOWner && (
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setError(null);
-                    setRemoving(member);
-                  }}
+                  onClick={() => openRemoveConfirmation(member)}
                   className="cursor-pointer text-destructive hover:text-destructive"
                 >
                   <Trash2 aria-hidden="true" className="size-4" />
@@ -98,6 +106,7 @@ export function MemberList({ organizationId, currentUserId, members, isOwner, on
           );
         })}
       </div>
+
       {removing && (
         <ConfirmationDialog
           title="Remover membro?"

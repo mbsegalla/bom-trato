@@ -92,6 +92,16 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
 
   const refresh = () => setRefreshVersion((value) => value + 1);
 
+  function openInvite(): void {
+    setFeedback(null);
+    setInviteOpen(true);
+  }
+
+  function handleInviteSent(): void {
+    setFeedback('Convite enviado. A pessoa receberá um e-mail com as próximas etapas.');
+    refresh();
+  }
+
   if (!data && !error) {
     return <TeamSettingsSkeleton />;
   }
@@ -100,9 +110,11 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
     return (
       <section className="rounded-2xl border border-border bg-card p-8 text-center shadow-sm">
         <CircleAlert aria-hidden="true" className="mx-auto size-7 text-destructive" />
+
         <p role="alert" className="mt-4 text-sm text-destructive">
           {error}
         </p>
+
         <Button type="button" variant="outline" onClick={refresh} className="mt-5 cursor-pointer">
           Tentar novamente
         </Button>
@@ -135,6 +147,7 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
           {feedback}
         </p>
       )}
+
       {error && (
         <p
           role="alert"
@@ -151,8 +164,10 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
               <div className="flex size-10 items-center justify-center rounded-xl bg-brand-muted text-primary">
                 <Users aria-hidden="true" className="size-5" />
               </div>
+
               <div>
                 <h2 className="font-heading text-xl font-semibold">Equipe</h2>
+
                 <p className="mt-1 text-sm text-muted-foreground">
                   {formatUserUsage(entitlements.memberCount, entitlements.maxUsers)}
                 </p>
@@ -161,15 +176,7 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
           </div>
 
           {isOwner && (
-            <Button
-              type="button"
-              disabled={!entitlements.canAddMember}
-              onClick={() => {
-                setFeedback(null);
-                setInviteOpen(true);
-              }}
-              className="cursor-pointer"
-            >
+            <Button type="button" disabled={!entitlements.canAddMember} onClick={openInvite} className="cursor-pointer">
               <Plus aria-hidden="true" className="size-4" />
               Convidar membro
             </Button>
@@ -222,10 +229,7 @@ function OrganizationTeamSettings({ organizationId, isOwner, currentUserId }: Or
         <InviteMemberPanel
           organizationId={organizationId}
           onClose={() => setInviteOpen(false)}
-          onSent={() => {
-            setFeedback('Convite enviado. A pessoa receberá um e-mail com as próximas etapas.');
-            refresh();
-          }}
+          onSent={handleInviteSent}
         />
       )}
     </div>

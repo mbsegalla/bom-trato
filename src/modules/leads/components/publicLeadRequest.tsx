@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircle2, LoaderCircle, Send, X } from 'lucide-react';
+import type { ComponentProps } from 'react';
 import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -43,8 +44,10 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
     })),
   ];
 
-  async function submit(form: HTMLFormElement): Promise<void> {
-    const data = new FormData(form);
+  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
+    event.preventDefault();
+
+    const data = new FormData(event.currentTarget);
 
     const parsed = publicLeadFormSchema.safeParse({
       name: String(data.get('name') ?? ''),
@@ -76,7 +79,7 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
     } finally {
       setSubmitting(false);
     }
-  }
+  };
 
   if (!open) {
     return (
@@ -128,13 +131,7 @@ export function PublicLeadRequest({ slug, professionalName, services }: PublicLe
             </div>
           </div>
         ) : (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submit(event.currentTarget);
-            }}
-            className="flex min-h-0 flex-1 flex-col"
-          >
+          <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
             <fieldset disabled={submitting} className="flex min-h-0 flex-1 flex-col">
               <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6">
                 <div className="space-y-2">

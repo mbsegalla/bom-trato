@@ -38,6 +38,17 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
 
   const editing = customer !== undefined;
 
+  function handlePhoneChange(value: string): void {
+    setPhone(formatBrazilianPhoneInput(value));
+
+    if (fieldErrors.phone) {
+      setFieldErrors((current) => ({
+        ...current,
+        phone: undefined,
+      }));
+    }
+  }
+
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
@@ -181,16 +192,7 @@ export function CustomerFormPanel({ organizationId, customer, onClose, onSaved }
                     maxLength={15}
                     placeholder="(34) 99999-9999"
                     aria-invalid={fieldErrors.phone ? true : undefined}
-                    onChange={(event) => {
-                      setPhone(formatBrazilianPhoneInput(event.currentTarget.value));
-
-                      if (fieldErrors.phone) {
-                        setFieldErrors((current) => ({
-                          ...current,
-                          phone: undefined,
-                        }));
-                      }
-                    }}
+                    onChange={(event) => handlePhoneChange(event.currentTarget.value)}
                     className="h-12 rounded-xl pl-11"
                   />
                 </div>
