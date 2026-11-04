@@ -104,6 +104,17 @@ function OrganizationLeadsContent({ organizationId }: { organizationId: string }
     setSearch(searchDraft.trim());
   };
 
+  function handleStatusChange(nextStatus: '' | LeadStatus): void {
+    setStatus(nextStatus);
+    setPage(1);
+  }
+
+  function clearSearch(): void {
+    setSearchDraft('');
+    setSearch('');
+    setPage(1);
+  }
+
   return (
     <div className="mx-auto max-w-7xl">
       <div>
@@ -147,10 +158,7 @@ function OrganizationLeadsContent({ organizationId }: { organizationId: string }
                 variant="ghost"
                 size="sm"
                 aria-pressed={status === item.value}
-                onClick={() => {
-                  setStatus(item.value);
-                  setPage(1);
-                }}
+                onClick={() => handleStatusChange(item.value)}
                 className={cn(
                   'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 hover:bg-transparent',
                   status === item.value && 'border-primary text-primary',
@@ -168,17 +176,7 @@ function OrganizationLeadsContent({ organizationId }: { organizationId: string }
               Resultados para <strong className="font-medium text-foreground">“{search}”</strong>
             </span>
 
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              onClick={() => {
-                setSearchDraft('');
-                setSearch('');
-                setPage(1);
-              }}
-              className="h-auto cursor-pointer p-0"
-            >
+            <Button type="button" variant="link" size="sm" onClick={clearSearch} className="h-auto cursor-pointer p-0">
               Limpar busca
             </Button>
           </div>

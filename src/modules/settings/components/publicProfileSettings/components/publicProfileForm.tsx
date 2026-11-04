@@ -67,6 +67,14 @@ export function PublicProfileForm({
     });
   }
 
+  function handleWhatsappEnabledChange(enabled: boolean): void {
+    setWhatsappEnabled(enabled);
+
+    if (!enabled) {
+      setPublished(false);
+    }
+  }
+
   function submit(): void {
     onSave({
       slug,
@@ -181,15 +189,7 @@ export function PublicProfileForm({
               <input
                 type="checkbox"
                 checked={whatsappEnabled}
-                onChange={(event) => {
-                  const checked = event.currentTarget.checked;
-
-                  setWhatsappEnabled(checked);
-
-                  if (!checked) {
-                    setPublished(false);
-                  }
-                }}
+                onChange={(event) => handleWhatsappEnabledChange(event.currentTarget.checked)}
                 className="mt-1 size-4 accent-primary"
               />
 

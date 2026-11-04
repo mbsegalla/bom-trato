@@ -48,6 +48,14 @@ export function QuoteDetailsFormPanel({ quote, onClose, onSaved }: QuoteDetailsF
       ? downPaymentPercentageNumber
       : null;
 
+  function handlePaymentConditionChange(next: QuotePaymentCondition): void {
+    setPaymentCondition(next);
+
+    if (next === 'DOWN_PAYMENT_AND_BALANCE' && downPaymentPercentage.length === 0) {
+      setDownPaymentPercentage('30');
+    }
+  }
+
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
@@ -198,15 +206,9 @@ export function QuoteDetailsFormPanel({ quote, onClose, onSaved }: QuoteDetailsF
                     id="edit-quote-payment-condition"
                     name="paymentCondition"
                     value={paymentCondition}
-                    onChange={(event) => {
-                      const next = event.currentTarget.value as QuotePaymentCondition;
-
-                      setPaymentCondition(next);
-
-                      if (next === 'DOWN_PAYMENT_AND_BALANCE' && downPaymentPercentage.length === 0) {
-                        setDownPaymentPercentage('30');
-                      }
-                    }}
+                    onChange={(event) =>
+                      handlePaymentConditionChange(event.currentTarget.value as QuotePaymentCondition)
+                    }
                     className="h-12 w-full cursor-pointer rounded-xl border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                   >
                     {quotePaymentConditionOptions.map((option) => (

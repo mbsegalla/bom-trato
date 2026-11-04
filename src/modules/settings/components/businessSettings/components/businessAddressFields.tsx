@@ -157,6 +157,12 @@ export function BusinessAddressFields({ profile, owner }: BusinessAddressFieldsP
     setPostalCodeFeedback(null);
   }
 
+  function handlePostalCodeChange(value: string): void {
+    setPostalCode(formatBrazilianPostalCodeInput(value));
+    setPostalCodeError(null);
+    setPostalCodeFeedback(null);
+  }
+
   async function lookupPostalCode(): Promise<void> {
     if (!owner || lookingUpPostalCode) {
       return;
@@ -232,11 +238,7 @@ export function BusinessAddressFields({ profile, owner }: BusinessAddressFieldsP
               maxLength={9}
               placeholder="00000-000"
               aria-invalid={postalCodeError ? true : undefined}
-              onChange={(event) => {
-                setPostalCode(formatBrazilianPostalCodeInput(event.currentTarget.value));
-                setPostalCodeError(null);
-                setPostalCodeFeedback(null);
-              }}
+              onChange={(event) => handlePostalCodeChange(event.currentTarget.value)}
               className="h-12 rounded-xl"
             />
 
