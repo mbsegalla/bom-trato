@@ -16,6 +16,8 @@ import type { AutomationEvent } from '@/modules/settings/types/automation.types'
 import type { BusinessProfile } from '@/modules/settings/types/business.types';
 import { formatRelativeDateTime } from '@/shared/formatters/date.formatter';
 
+import { AutomationSettingsSkeleton } from './components/automationSettingsSkeleton';
+
 type AutomationSettingKey =
   | 'autoQuoteFollowUpEnabled'
   | 'autoWorkOrderReminderEnabled'
@@ -167,11 +169,7 @@ export function AutomationSettings() {
   }
 
   if (loading) {
-    return (
-      <div className="flex min-h-48 items-center justify-center">
-        <LoaderCircle aria-hidden="true" className="size-6 animate-spin text-primary" />
-      </div>
-    );
+    return <AutomationSettingsSkeleton />;
   }
 
   if (!profile) {
@@ -268,6 +266,7 @@ export function AutomationSettings() {
       <section className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-2">
           <Clock3 aria-hidden="true" className="size-5 text-primary" />
+
           <h2 className="font-heading text-xl font-semibold">Histórico das automações</h2>
         </div>
 

@@ -3,8 +3,7 @@
 import { Bot, Building2, CreditCard, Palette, ShieldCheck, Store, Users } from 'lucide-react';
 import { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { TabButton } from '@/components/ui/tabButton';
 
 import { AppearanceSettings } from './appearanceSettings';
 import { AutomationSettings } from './automationSettings';
@@ -90,20 +89,17 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
           const Icon = item.icon;
 
           return (
-            <Button
+            <TabButton
               key={item.value}
               type="button"
-              variant="ghost"
+              active={tab === item.value}
               aria-current={tab === item.value ? 'page' : undefined}
               onClick={() => changeTab(item.value)}
-              className={cn(
-                'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 pb-3 hover:bg-transparent',
-                tab === item.value && 'border-primary text-primary',
-              )}
+              className="pb-3"
             >
               <Icon aria-hidden="true" className="size-4" />
               {item.label}
-            </Button>
+            </TabButton>
           );
         })}
       </nav>

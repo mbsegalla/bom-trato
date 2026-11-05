@@ -3,7 +3,7 @@ import type { ComponentProps } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { TabButton } from '@/components/ui/tabButton';
 import type { CatalogServiceStatus } from '@/modules/serviceCatalog/types/catalogService.types';
 
 const statuses: { value: CatalogServiceStatus; label: string }[] = [
@@ -58,20 +58,16 @@ export function CatalogServicesToolbar({
 
         <div role="group" aria-label="Status dos serviços" className="flex flex-wrap gap-x-5 gap-y-2">
           {statuses.map((item) => (
-            <Button
+            <TabButton
               key={item.value}
               type="button"
               size="sm"
-              variant="ghost"
+              active={status === item.value}
               aria-pressed={status === item.value}
               onClick={() => onStatusChange(item.value)}
-              className={cn(
-                'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 hover:bg-transparent',
-                status === item.value && 'border-primary text-primary',
-              )}
             >
               {item.label}
-            </Button>
+            </TabButton>
           ))}
         </div>
       </div>

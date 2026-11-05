@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { TabButton } from '@/components/ui/tabButton';
 import { receivableStatusOptions } from '@/modules/receivables/constants/receivable.constants';
 import type { ReceivableListStatus } from '@/modules/receivables/types/receivable.types';
 
@@ -17,20 +16,16 @@ export function ReceivablesFilters({ status, overdue, onStatusChange, onOverdueC
     <div className="flex flex-col gap-4 border-y border-border py-4 xl:flex-row xl:items-center xl:justify-between">
       <div role="group" aria-label="Status dos recebíveis" className="flex flex-wrap gap-x-5 gap-y-2">
         {receivableStatusOptions.map((option) => (
-          <Button
+          <TabButton
             key={option.value}
             type="button"
             size="sm"
-            variant="ghost"
+            active={status === option.value}
             aria-pressed={status === option.value}
             onClick={() => onStatusChange(option.value)}
-            className={cn(
-              'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 hover:bg-transparent',
-              status === option.value && 'border-primary text-primary',
-            )}
           >
             {option.label}
-          </Button>
+          </TabButton>
         ))}
       </div>
 
