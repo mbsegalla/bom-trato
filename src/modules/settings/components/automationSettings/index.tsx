@@ -232,8 +232,8 @@ export function AutomationSettings() {
                 >
                   <span
                     className={cn(
-                      'absolute top-0.5 size-5 rounded-full bg-background shadow-sm transition-transform',
-                      enabled ? 'translate-x-5' : 'translate-x-0.5',
+                      'absolute top-0.5 left-0.5 size-5 rounded-full bg-background shadow-sm transition-transform',
+                      enabled && 'translate-x-5',
                     )}
                   />
                 </button>
