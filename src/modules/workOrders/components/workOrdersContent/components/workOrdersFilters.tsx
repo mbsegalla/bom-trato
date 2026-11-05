@@ -1,5 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { TabButton } from '@/components/ui/tabButton';
 
 import { workOrderStatusOptions } from '../../../constants/workOrder.constants';
 import type { WorkOrderListStatus } from '../../../types/workOrder.types';
@@ -17,20 +16,16 @@ export function WorkOrdersFilters({ status, onStatusChange }: WorkOrdersFiltersP
       className="flex flex-wrap gap-x-5 gap-y-2 border-y border-border py-4"
     >
       {workOrderStatusOptions.map((option) => (
-        <Button
+        <TabButton
           key={option.value}
           type="button"
           size="sm"
-          variant="ghost"
+          active={status === option.value}
           aria-pressed={status === option.value}
           onClick={() => onStatusChange(option.value)}
-          className={cn(
-            'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 hover:bg-transparent',
-            status === option.value && 'border-primary text-primary',
-          )}
         >
           {option.label}
-        </Button>
+        </TabButton>
       ))}
     </div>
   );

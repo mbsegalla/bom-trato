@@ -10,6 +10,7 @@ import { ListPagination } from '@/components/listPagination';
 import { ListContentSkeleton } from '@/components/skeletons/dataLoadingSkeletons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { TabButton } from '@/components/ui/tabButton';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
@@ -152,20 +153,16 @@ function OrganizationLeadsContent({ organizationId }: { organizationId: string }
 
           <div role="group" aria-label="Status das oportunidades" className="flex flex-wrap gap-x-5 gap-y-2">
             {statuses.map((item) => (
-              <Button
+              <TabButton
                 key={item.value}
                 type="button"
-                variant="ghost"
                 size="sm"
+                active={status === item.value}
                 aria-pressed={status === item.value}
                 onClick={() => handleStatusChange(item.value)}
-                className={cn(
-                  'cursor-pointer rounded-none border-x-0 border-t-0 border-b-2 border-transparent px-1 hover:bg-transparent',
-                  status === item.value && 'border-primary text-primary',
-                )}
               >
                 {item.label}
-              </Button>
+              </TabButton>
             ))}
           </div>
         </div>
