@@ -19,12 +19,12 @@ export function CustomersTable({ data, page, onPreviousPage, onNextPage }: Custo
       <div className="overflow-x-auto">
         <table className="w-full min-w-190 border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
-              <th className="px-5 py-3">Cliente</th>
-              <th className="px-5 py-3">Contato</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3">Criado em</th>
-              <th className="w-14 px-5 py-3">
+            <tr className="border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+              <th className="px-5 py-3 text-left">Cliente</th>
+              <th className="px-5 py-3 text-center">Contato</th>
+              <th className="px-5 py-3 text-center">Status</th>
+              <th className="px-5 py-3 text-center">Criado em</th>
+              <th className="w-14 px-5 py-3 text-center">
                 <span className="sr-only">Abrir</span>
               </th>
             </tr>
@@ -33,14 +33,14 @@ export function CustomersTable({ data, page, onPreviousPage, onNextPage }: Custo
           <tbody className="divide-y divide-border">
             {data.items.map((customer) => (
               <tr key={customer.id} className="transition-colors hover:bg-muted/30">
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 align-middle">
                   <Link href={`/customers/${customer.id}`} className="font-medium hover:text-primary hover:underline">
                     {customer.name}
                   </Link>
                 </td>
 
-                <td className="px-5 py-3.5">
-                  <div className="space-y-1 text-sm">
+                <td className="px-5 py-3.5 text-center align-middle">
+                  <div className="inline-block space-y-1 text-left text-sm">
                     {customer.email && (
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Mail aria-hidden="true" className="size-3.5" />
@@ -59,7 +59,7 @@ export function CustomersTable({ data, page, onPreviousPage, onNextPage }: Custo
                   </div>
                 </td>
 
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-center align-middle">
                   {customer.archivedAt ? (
                     <span className="inline-flex rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                       Arquivado
@@ -71,9 +71,11 @@ export function CustomersTable({ data, page, onPreviousPage, onNextPage }: Custo
                   )}
                 </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(customer.createdAt)}</td>
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
+                  {formatDate(customer.createdAt)}
+                </td>
 
-                <td className="px-5 py-3.5 text-right">
+                <td className="px-5 py-3.5 text-center align-middle">
                   <Link
                     href={`/customers/${customer.id}`}
                     aria-label={`Abrir ${customer.name}`}

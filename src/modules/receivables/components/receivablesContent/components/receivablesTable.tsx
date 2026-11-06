@@ -45,20 +45,20 @@ export function ReceivablesTable({ data, page, refreshing, onPreviousPage, onNex
       >
         <table className="w-full min-w-240 border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
-              <th className="px-5 py-3">Recebível</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3">Vencimento</th>
-              <th className="px-5 py-3">Valor</th>
-              <th className="px-5 py-3">Recebido</th>
-              <th className="px-5 py-3">Saldo</th>
+            <tr className="border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+              <th className="px-5 py-3 text-left">Recebível</th>
+              <th className="px-5 py-3 text-center">Status</th>
+              <th className="px-5 py-3 text-center">Vencimento</th>
+              <th className="px-5 py-3 text-center">Valor</th>
+              <th className="px-5 py-3 text-center">Recebido</th>
+              <th className="px-5 py-3 text-center">Saldo</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-border">
             {data.items.map((receivable) => (
               <tr key={receivable.id} className="transition-colors hover:bg-muted/30">
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 align-middle">
                   <Link
                     href={`/receivables/${receivable.id}`}
                     className="font-medium hover:text-primary hover:underline"
@@ -71,15 +71,23 @@ export function ReceivablesTable({ data, page, refreshing, onPreviousPage, onNex
                   <p className="mt-1 text-sm text-muted-foreground">{receivable.customerName}</p>
                 </td>
 
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-center align-middle">
                   <ReceivableStatusBadge status={receivable.status} overdue={receivable.overdue} />
                 </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(receivable.dueAt)}</td>
-                <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(receivable.amountInCents)}</td>
-                <td className="px-5 py-3.5 text-sm">{formatBrlCurrency(receivable.receivedInCents)}</td>
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
+                  {formatDate(receivable.dueAt)}
+                </td>
 
-                <td className="px-5 py-3.5 font-semibold text-primary">
+                <td className="px-5 py-3.5 text-center align-middle font-medium">
+                  {formatBrlCurrency(receivable.amountInCents)}
+                </td>
+
+                <td className="px-5 py-3.5 text-center align-middle text-sm">
+                  {formatBrlCurrency(receivable.receivedInCents)}
+                </td>
+
+                <td className="px-5 py-3.5 text-center align-middle font-semibold text-primary">
                   {formatBrlCurrency(receivable.balanceInCents)}
                 </td>
               </tr>

@@ -21,14 +21,14 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
       <div className="overflow-x-auto">
         <table className="w-full min-w-240 border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
-              <th className="px-5 py-3">Serviço</th>
-              <th className="px-5 py-3">Unidade</th>
-              <th className="px-5 py-3">Valor padrão</th>
-              <th className="px-5 py-3">Duração estimada</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3">Atualizado em</th>
-              <th className="w-14 px-5 py-3">
+            <tr className="border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+              <th className="px-5 py-3 text-left">Serviço</th>
+              <th className="px-5 py-3 text-center">Unidade</th>
+              <th className="px-5 py-3 text-center">Valor padrão</th>
+              <th className="px-5 py-3 text-center">Duração estimada</th>
+              <th className="px-5 py-3 text-center">Status</th>
+              <th className="px-5 py-3 text-center">Atualizado em</th>
+              <th className="w-14 px-5 py-3 text-center">
                 <span className="sr-only">Abrir</span>
               </th>
             </tr>
@@ -37,7 +37,7 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
           <tbody className="divide-y divide-border">
             {data.items.map((service) => (
               <tr key={service.id} className="transition-colors hover:bg-muted/30">
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 align-middle">
                   <Link
                     href={`/services-catalog/${service.id}`}
                     className="font-medium hover:text-primary hover:underline"
@@ -50,15 +50,19 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
                   )}
                 </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">{getServiceUnitLabel(service.unit)}</td>
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
+                  {getServiceUnitLabel(service.unit)}
+                </td>
 
-                <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(service.amountInCents)}</td>
+                <td className="px-5 py-3.5 text-center align-middle font-medium">
+                  {formatBrlCurrency(service.amountInCents)}
+                </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
                   {formatDurationMinutes(service.estimatedDurationMinutes)}
                 </td>
 
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-center align-middle">
                   {service.archivedAt ? (
                     <span className="inline-flex rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
                       Arquivado
@@ -70,9 +74,11 @@ export function CatalogServicesTable({ data, page, onPreviousPage, onNextPage }:
                   )}
                 </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">{formatDate(service.updatedAt)}</td>
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
+                  {formatDate(service.updatedAt)}
+                </td>
 
-                <td className="px-5 py-3.5 text-right">
+                <td className="px-5 py-3.5 text-center align-middle">
                   <Link
                     href={`/services-catalog/${service.id}`}
                     aria-label={`Abrir ${service.name}`}

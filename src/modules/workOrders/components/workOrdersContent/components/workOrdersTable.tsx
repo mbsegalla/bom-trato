@@ -19,20 +19,20 @@ export function WorkOrdersTable({ data, page, onPageChange }: WorkOrdersTablePro
       <div className="overflow-x-auto">
         <table className="w-full min-w-240 border-collapse">
           <thead>
-            <tr className="border-b border-border bg-muted/30 text-left text-xs font-medium text-muted-foreground">
-              <th className="px-5 py-3">Serviço</th>
-              <th className="px-5 py-3">Cliente</th>
-              <th className="px-5 py-3">Responsável</th>
-              <th className="px-5 py-3">Status</th>
-              <th className="px-5 py-3">Agendamento</th>
-              <th className="px-5 py-3">Valor</th>
+            <tr className="border-b border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+              <th className="px-5 py-3 text-left">Serviço</th>
+              <th className="px-5 py-3 text-center">Cliente</th>
+              <th className="px-5 py-3 text-center">Responsável</th>
+              <th className="px-5 py-3 text-center">Status</th>
+              <th className="px-5 py-3 text-center">Agendamento</th>
+              <th className="px-5 py-3 text-center">Valor</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-border">
             {data.items.map((workOrder) => (
               <tr key={workOrder.id} className="transition-colors hover:bg-muted/30">
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 align-middle">
                   <Link
                     href={`/work-orders/${workOrder.id}`}
                     className="font-medium hover:text-primary hover:underline"
@@ -41,21 +41,23 @@ export function WorkOrdersTable({ data, page, onPageChange }: WorkOrdersTablePro
                   </Link>
                 </td>
 
-                <td className="px-5 py-3.5 text-sm">{workOrder.customerName}</td>
+                <td className="px-5 py-3.5 text-center align-middle text-sm">{workOrder.customerName}</td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
                   {workOrder.assignedToName ?? 'Sem responsável'}
                 </td>
 
-                <td className="px-5 py-3.5">
+                <td className="px-5 py-3.5 text-center align-middle">
                   <WorkOrderStatusBadge status={workOrder.status} />
                 </td>
 
-                <td className="px-5 py-3.5 text-sm text-muted-foreground">
+                <td className="px-5 py-3.5 text-center align-middle text-sm text-muted-foreground">
                   {formatDateTime(workOrder.scheduledStartAt, 'Ainda não agendado')}
                 </td>
 
-                <td className="px-5 py-3.5 font-medium">{formatBrlCurrency(workOrder.totalInCents)}</td>
+                <td className="px-5 py-3.5 text-center align-middle font-medium">
+                  {formatBrlCurrency(workOrder.totalInCents)}
+                </td>
               </tr>
             ))}
           </tbody>
