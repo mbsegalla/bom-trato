@@ -14,6 +14,7 @@ import { ActionCenterCard } from './components/actionCenterCard';
 import { DashboardHeader } from './components/dashboardHeader';
 import { DashboardSummaryCards } from './components/dashboardSummaryCards';
 import { FinancialTrendChart } from './components/financialTrendChart';
+import { GettingStartedCard } from './components/gettingStartedCard';
 import { OperationalSummary } from './components/operationalSummary';
 import { UpcomingScheduleCard } from './components/upcomingScheduleCard';
 
@@ -91,6 +92,8 @@ export function DashboardContent() {
   return (
     <div className="mx-auto max-w-7xl">
       <DashboardHeader />
+
+      <GettingStartedCard key={activeOrganization.id} organizationId={activeOrganization.id} />
 
       <DashboardSummaryCards data={data} />
 

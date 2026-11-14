@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { QuoteCreatePanel } from '@/modules/quotes/components/quoteCreatePanel';
+import { QuoteExpressCreatePanel } from '@/modules/quotes/components/quoteExpressCreatePanel';
 import { listQuotes } from '@/modules/quotes/services/quote.service';
 import type { QuoteListStatus, QuotePage } from '@/modules/quotes/types/quote.types';
 
@@ -20,6 +21,8 @@ interface QuoteListState {
   requestKey: string;
   data: QuotePage;
 }
+
+type CreateMode = 'EXPRESS' | 'STANDARD';
 
 export function QuotesContent() {
   const { activeOrganization } = useApp();
@@ -36,6 +39,7 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
   const [status, setStatus] = useState<QuoteListStatus>('ALL');
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [createOpen, setCreateOpen] = useState(() => searchParams.get('new') === '1');
+  const [createMode, setCreateMode] = useState<CreateMode>('EXPRESS');
   const [state, setState] = useState<QuoteListState | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,21 +78,27 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
     setStatus(nextStatus);
   }
 
+  function openCreate(): void {
+    setCreateMode('EXPRESS');
+    setCreateOpen(true);
+  }
+
   function closeCreate(): void {
     setCreateOpen(false);
+    setCreateMode('EXPRESS');
 
     if (searchParams.get('new') === '1') router.replace('/quotes');
   }
 
   return (
     <div className="mx-auto max-w-7xl">
-      <QuotesHeader onCreate={() => setCreateOpen(true)} />
+      <QuotesHeader onCreate={openCreate} />
 
       <section className="mt-8">
         <QuotesFilters status={status} onChange={changeStatus} />
 
         {error ? (
-          <div className="border-b border-border py-10 text-center">
+          <div className="border-b border-border py-10">
             <p className="text-sm text-destructive">{error}</p>
 
             <Button
@@ -103,7 +113,7 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
         ) : !data ? (
           <ListContentSkeleton columns={6} rows={6} label="Carregando orçamentos" />
         ) : data.items.length === 0 ? (
-          <QuotesEmptyState onCreate={() => setCreateOpen(true)} />
+          <QuotesEmptyState onCreate={openCreate} />
         ) : (
           <QuotesTable
             data={data}
@@ -114,13 +124,21 @@ function OrganizationQuotesContent({ organizationId }: { organizationId: string 
         )}
       </section>
 
-      {createOpen && (
-        <QuoteCreatePanel
-          organizationId={organizationId}
-          onClose={closeCreate}
-          onCreated={(quote) => router.push(`/quotes/${quote.id}`)}
-        />
-      )}
+      {createOpen &&
+        (createMode === 'EXPRESS' ? (
+          <QuoteExpressCreatePanel
+            organizationId={organizationId}
+            onClose={closeCreate}
+            onStandard={() => setCreateMode('STANDARD')}
+            onCreated={(quote) => router.push(`/quotes/${quote.id}`)}
+          />
+        ) : (
+          <QuoteCreatePanel
+            organizationId={organizationId}
+            onClose={closeCreate}
+            onCreated={(quote) => router.push(`/quotes/${quote.id}`)}
+          />
+        ))}
     </div>
   );
 }
