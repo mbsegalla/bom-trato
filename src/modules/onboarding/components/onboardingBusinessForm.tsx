@@ -13,14 +13,22 @@ import type { OnboardingState } from '../types/onboarding.types';
 
 interface OnboardingBusinessFormProps {
   organizationId: string;
+  trialEligible?: boolean;
   onCompleted(state: OnboardingState): void;
 }
 
-export function OnboardingBusinessForm({ organizationId, onCompleted }: OnboardingBusinessFormProps) {
+export function OnboardingBusinessForm({
+  organizationId,
+  trialEligible = false,
+  onCompleted,
+}: OnboardingBusinessFormProps) {
   const submittingRef = useRef(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const submitLabel = trialEligible ? 'Começar minha avaliação gratuita' : 'Criar meu negócio';
+  const submittingLabel = trialEligible ? 'Iniciando avaliação...' : 'Salvando...';
 
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
@@ -30,9 +38,7 @@ export function OnboardingBusinessForm({ organizationId, onCompleted }: Onboardi
     }
 
     const form = event.currentTarget;
-
     const formData = new FormData(form);
-
     const name = String(formData.get('name') ?? '').trim();
 
     if (name.length < 2 || name.length > 100) {
@@ -94,15 +100,21 @@ export function OnboardingBusinessForm({ organizationId, onCompleted }: Onboardi
         {submitting ? (
           <>
             <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-            Salvando...
+            {submittingLabel}
           </>
         ) : (
           <>
-            Criar meu negócio
+            {submitLabel}
             <ArrowRight aria-hidden="true" className="size-4" />
           </>
         )}
       </Button>
+
+      {trialEligible && (
+        <p className="text-center text-xs leading-relaxed text-muted-foreground">
+          14 dias gratuitos. Sem cartão de crédito e sem renovação automática.
+        </p>
+      )}
     </form>
   );
 }

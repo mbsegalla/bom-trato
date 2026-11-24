@@ -6,14 +6,23 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { SessionError } from '@/modules/auth/services/session.service';
 
+import { hasActiveTrial, hasEndedTrial } from '../../helpers/trial.helper';
 import { bootstrapOnboarding, getOnboarding } from '../../services/onboarding.service';
 import type { OnboardingState } from '../../types/onboarding.types';
 import { OnboardingContentSkeleton } from '../onboardingContentSkeleton';
+import { TrialExpiredNotice } from '../trialExpiredNotice';
+import { TrialSubscriptionContent } from '../trialSubscriptionContent';
 import { OnboardingProgress } from './components/onboardingProgress';
 import { OnboardingStepContent } from './components/onboardingStepContent';
 
-export function OnboardingContent() {
+interface OnboardingContentProps {
+  organizationId?: string;
+  subscriptionMode?: boolean;
+}
+
+export function OnboardingContent({ organizationId, subscriptionMode = false }: OnboardingContentProps) {
   const router = useRouter();
+
   const [state, setState] = useState<OnboardingState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -21,30 +30,36 @@ export function OnboardingContent() {
   useEffect(() => {
     let active = true;
 
-    void bootstrapOnboarding()
+    const request = organizationId ? getOnboarding(organizationId) : bootstrapOnboarding();
+
+    void request
       .then((result) => {
-        if (active) {
-          setState(result);
-          setError(null);
-        }
+        if (!active) return;
+
+        setState(result);
+        setError(null);
       })
       .catch((cause: unknown) => {
         if (!active) return;
 
         if (cause instanceof SessionError && cause.status === 401) {
           router.replace('/login');
+
           return;
         }
 
         setError(cause instanceof Error ? cause.message : 'Não foi possível preparar sua conta.');
       });
+
     return () => {
       active = false;
     };
-  }, [router]);
+  }, [organizationId, router]);
 
   async function refreshOnboarding(): Promise<void> {
-    if (!state?.organizationId || refreshing) return;
+    if (!state?.organizationId || refreshing) {
+      return;
+    }
 
     setRefreshing(true);
     setError(null);
@@ -54,6 +69,7 @@ export function OnboardingContent() {
     } catch (cause: unknown) {
       if (cause instanceof SessionError && cause.status === 401) {
         router.replace('/login');
+
         return;
       }
 
@@ -63,15 +79,19 @@ export function OnboardingContent() {
     }
   }
 
-  if (!state && !error) return <OnboardingContentSkeleton />;
+  if (!state && !error) {
+    return <OnboardingContentSkeleton />;
+  }
 
   if (!state) {
     return (
       <div className="mx-auto max-w-lg rounded-2xl border border-border bg-card p-7">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">Não conseguimos continuar</h1>
+
         <p role="alert" className="mt-4 text-sm leading-relaxed text-destructive">
           {error}
         </p>
+
         <Button
           type="button"
           className="mt-6 min-h-12 cursor-pointer rounded-xl"
@@ -83,9 +103,16 @@ export function OnboardingContent() {
     );
   }
 
+  if (subscriptionMode && state.organizationId && hasActiveTrial(state)) {
+    return <TrialSubscriptionContent organizationId={state.organizationId} onStateChange={setState} />;
+  }
+
+  const showExpiredNotice = hasEndedTrial(state);
+
   return (
     <div className="mx-auto max-w-3xl">
-      <OnboardingProgress step={state.step} />
+      <OnboardingProgress state={state} />
+
       {error && (
         <p
           role="alert"
@@ -94,6 +121,9 @@ export function OnboardingContent() {
           {error}
         </p>
       )}
+
+      {showExpiredNotice && state.trial && <TrialExpiredNotice trial={state.trial} />}
+
       <section className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
         <OnboardingStepContent
           state={state}

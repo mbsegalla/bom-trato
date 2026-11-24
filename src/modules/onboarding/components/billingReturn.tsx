@@ -6,16 +6,26 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { SessionError } from '@/modules/auth/services/session.service';
+import { storeActiveOrganizationId } from '@/modules/organizations/services/activeOrganization.storage';
 
+import { getOnboardingHref } from '../helpers/trial.helper';
 import { onboardingOrganizationIdSchema } from '../schemas/onboarding.schema';
 import { getOnboarding } from '../services/onboarding.service';
+import type { OnboardingState } from '../types/onboarding.types';
 
 const POLL_INTERVAL_MS = 1500;
 const MAX_ATTEMPTS = 20;
 
+function shouldAwaitConfirmation(state: OnboardingState): boolean {
+  if (state.step === 'APP' && state.accessSource === 'TRIAL') {
+    return true;
+  }
+
+  return ['PAYMENT', 'PAYMENT_PENDING', 'PROVISIONING'].includes(state.step);
+}
+
 export function BillingReturn() {
   const router = useRouter();
-
   const searchParams = useSearchParams();
 
   const [message, setMessage] = useState('Estamos confirmando sua assinatura com a Stripe.');
@@ -27,6 +37,8 @@ export function BillingReturn() {
     return result.success ? result.data : null;
   }, [searchParams]);
 
+  const onboardingHref = organizationId ? getOnboardingHref(organizationId) : '/onboarding';
+
   useEffect(() => {
     if (!organizationId) {
       router.replace('/onboarding');
@@ -34,53 +46,54 @@ export function BillingReturn() {
       return;
     }
 
+    const targetOrganizationId = organizationId;
+
     let active = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
-
     let attempts = 0;
 
-    const schedule = () => {
+    function schedule(): void {
       timer = setTimeout(() => {
         void poll();
       }, POLL_INTERVAL_MS);
-    };
+    }
 
-    const poll = async () => {
+    function retryOrTimeout(timeoutMessage: string): void {
+      attempts += 1;
+
+      if (attempts >= MAX_ATTEMPTS) {
+        setTimedOut(true);
+        setMessage(timeoutMessage);
+
+        return;
+      }
+
+      schedule();
+    }
+
+    async function poll(): Promise<void> {
       try {
-        const state = await getOnboarding(organizationId);
+        const state = await getOnboarding(targetOrganizationId);
 
         if (!active) {
           return;
         }
 
-        switch (state.step) {
-          case 'CREATE_BUSINESS':
-          case 'APP':
-          case 'BILLING_REQUIRED':
-          case 'BILLING_REVIEW':
-          case 'CONTACT_OWNER':
-          case 'SELECT_PLAN':
-            router.replace('/onboarding');
+        if (shouldAwaitConfirmation(state)) {
+          retryOrTimeout('O pagamento foi enviado, mas a confirmação ainda está sendo processada.');
 
-            return;
-
-          case 'PAYMENT':
-          case 'PAYMENT_PENDING':
-          case 'PROVISIONING':
-            attempts += 1;
-
-            if (attempts >= MAX_ATTEMPTS) {
-              setTimedOut(true);
-
-              setMessage('O pagamento foi enviado, mas a confirmação ainda está sendo processada.');
-
-              return;
-            }
-
-            schedule();
-
-            return;
+          return;
         }
+
+        if (state.step === 'APP' && state.accessSource === 'SUBSCRIPTION') {
+          storeActiveOrganizationId(targetOrganizationId);
+
+          router.replace('/dashboard');
+
+          return;
+        }
+
+        router.replace(getOnboardingHref(targetOrganizationId));
       } catch (cause: unknown) {
         if (!active) {
           return;
@@ -92,19 +105,9 @@ export function BillingReturn() {
           return;
         }
 
-        attempts += 1;
-
-        if (attempts >= MAX_ATTEMPTS) {
-          setTimedOut(true);
-
-          setMessage('Não conseguimos confirmar o estado da assinatura agora.');
-
-          return;
-        }
-
-        schedule();
+        retryOrTimeout('Não conseguimos confirmar o estado da assinatura agora.');
       }
-    };
+    }
 
     void poll();
 
@@ -132,7 +135,11 @@ export function BillingReturn() {
           Não faça outro pagamento. Você pode continuar e verificar o estado da assinatura novamente.
         </p>
 
-        <Button type="button" onClick={() => router.replace('/onboarding')} className="mt-7 min-h-12 rounded-xl">
+        <Button
+          type="button"
+          onClick={() => router.replace(onboardingHref)}
+          className="mt-7 min-h-12 cursor-pointer rounded-xl"
+        >
           Continuar
         </Button>
       </div>

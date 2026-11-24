@@ -8,9 +8,10 @@ import { AppSidebar } from './appSidebar';
 
 interface AppShellProps {
   children: ReactNode;
+  banner?: ReactNode;
 }
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, banner }: AppShellProps) {
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
   return (
@@ -20,7 +21,11 @@ export function AppShell({ children }: AppShellProps) {
       <div className="min-h-dvh lg:pl-72">
         <AppHeader onOpenNavigation={() => setMobileNavigationOpen(true)} />
 
-        <main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10">{children}</main>
+        <main className="px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+          {banner && <div className="mb-6">{banner}</div>}
+
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,3 +1,12 @@
+export const marketingTrial = {
+  href: '/register',
+  durationDays: 14,
+  automationLimit: 50,
+  shortLabel: 'Testar grátis',
+  actionLabel: 'Começar meus 14 dias grátis',
+  benefits: ['Sem cartão de crédito', 'Sem cobrança automática', 'Escolha seu plano depois'],
+} as const;
+
 export const marketingNavigation = [
   {
     label: 'Funcionalidades',
@@ -22,6 +31,36 @@ export const marketingNavigation = [
 ];
 
 export const marketingFaqs = [
+  {
+    question: 'Posso experimentar o Bom Trato gratuitamente?',
+    answer:
+      'Sim. Novos usuários elegíveis podem experimentar o Bom Trato gratuitamente por 14 dias, sem precisar cadastrar um cartão de crédito. A avaliação começa assim que você conclui a configuração do seu negócio.',
+  },
+  {
+    question: 'Preciso escolher um plano antes de começar?',
+    answer:
+      'Não. Você pode criar sua conta, conhecer a plataforma e escolher o plano que melhor atende ao seu negócio durante ou após a avaliação gratuita.',
+  },
+  {
+    question: 'O que está incluído na avaliação gratuita?',
+    answer:
+      'Você pode organizar clientes, criar orçamentos e ordens de serviço, utilizar a agenda, acompanhar recebimentos, configurar sua vitrine profissional e experimentar até 50 automações por e-mail. A avaliação permite um usuário por negócio.',
+  },
+  {
+    question: 'Serei cobrado depois dos 14 dias?',
+    answer:
+      'Não. A avaliação não gera cobrança automática. Você somente inicia uma assinatura quando escolhe um plano e confirma a contratação.',
+  },
+  {
+    question: 'O que acontece com meus dados quando a avaliação termina?',
+    answer:
+      'Seu acesso operacional fica suspenso, mas o encerramento da avaliação não exclui automaticamente seus dados. Você pode contratar uma assinatura para continuar utilizando as informações cadastradas, respeitando nossa política de retenção.',
+  },
+  {
+    question: 'Posso contratar uma assinatura antes de a avaliação terminar?',
+    answer:
+      'Sim. Você pode contratar um plano a qualquer momento. Após a confirmação da contratação, seu acesso passa a seguir as condições do plano escolhido.',
+  },
   {
     question: 'Para quem é o Bom Trato?',
     answer:
@@ -59,7 +98,7 @@ export const marketingFaqs = [
   {
     question: 'Posso trabalhar com minha equipe?',
     answer:
-      'Sim. Os planos com suporte a equipes permitem convidar pessoas para a organização, respeitando o limite de usuários contratado.',
+      'Sim. Os planos com suporte a equipes permitem convidar pessoas para a organização, respeitando o limite de usuários contratado. Durante a avaliação gratuita, o acesso é individual.',
   },
   {
     question: 'O que consigo acompanhar nos recebimentos?',
