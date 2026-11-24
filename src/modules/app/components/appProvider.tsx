@@ -1,12 +1,16 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, SessionError } from '@/modules/auth/services/session.service';
 import type { AuthUser } from '@/modules/auth/types/auth.types';
+import { TrialBanner } from '@/modules/onboarding/components/trialBanner';
+import { getOnboardingHref, hasActiveTrial } from '@/modules/onboarding/helpers/trial.helper';
 import { getOnboarding } from '@/modules/onboarding/services/onboarding.service';
+import type { OnboardingState } from '@/modules/onboarding/types/onboarding.types';
 import {
   getStoredActiveOrganizationId,
   storeActiveOrganizationId,
@@ -17,21 +21,44 @@ import type { JoinedOrganization } from '@/modules/organizations/types/organizat
 import { AppBootstrapSkeleton } from './appBootstrapSkeleton';
 import { AppShell } from './appShell';
 
+const TRIAL_REVALIDATION_INTERVAL_MS = 60_000;
+
 type ActiveOrganizationPatch = Partial<Pick<JoinedOrganization, 'name' | 'logoUrl'>>;
 
 interface AppContextValue {
   user: AuthUser;
   organizations: JoinedOrganization[];
   activeOrganization: JoinedOrganization;
+  onboarding: OnboardingState;
   switchingOrganization: boolean;
   switchOrganization(organizationId: string): Promise<void>;
   updateActiveOrganization(patch: ActiveOrganizationPatch): void;
+}
+
+interface AvailableOrganization {
+  organization: JoinedOrganization;
+  onboarding: OnboardingState;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
 
 interface AppProviderProps {
   children: ReactNode;
+}
+
+async function findAvailableOrganization(organizations: JoinedOrganization[]): Promise<AvailableOrganization | null> {
+  for (const organization of organizations) {
+    const onboarding = await getOnboarding(organization.id);
+
+    if (onboarding.step === 'APP') {
+      return {
+        organization,
+        onboarding,
+      };
+    }
+  }
+
+  return null;
 }
 
 export function useApp(): AppContextValue {
@@ -50,8 +77,12 @@ export function AppProvider({ children }: AppProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [organizations, setOrganizations] = useState<JoinedOrganization[]>([]);
   const [activeOrganization, setActiveOrganization] = useState<JoinedOrganization | null>(null);
+  const [onboarding, setOnboarding] = useState<OnboardingState | null>(null);
   const [switchingOrganization, setSwitchingOrganization] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const activeOrganizationId = activeOrganization?.id;
+  const trialActive = onboarding !== null && hasActiveTrial(onboarding);
 
   useEffect(() => {
     let active = true;
@@ -81,33 +112,24 @@ export function AppProvider({ children }: AppProviderProps) {
           ...joinedOrganizations.filter((organization) => organization.id !== preferredOrganization.id),
         ];
 
-        let availableOrganization: JoinedOrganization | null = null;
-
-        for (const organization of candidates) {
-          const onboarding = await getOnboarding(organization.id);
-
-          if (onboarding.step === 'APP') {
-            availableOrganization = organization;
-
-            break;
-          }
-        }
+        const available = await findAvailableOrganization(candidates);
 
         if (!active) {
           return;
         }
 
-        if (availableOrganization === null) {
-          router.replace('/onboarding');
+        if (available === null) {
+          router.replace(getOnboardingHref(preferredOrganization.id));
 
           return;
         }
 
-        storeActiveOrganizationId(availableOrganization.id);
+        storeActiveOrganizationId(available.organization.id);
 
         setUser(currentUser);
         setOrganizations(joinedOrganizations);
-        setActiveOrganization(availableOrganization);
+        setActiveOrganization(available.organization);
+        setOnboarding(available.onboarding);
       } catch (cause: unknown) {
         if (!active) {
           return;
@@ -130,6 +152,70 @@ export function AppProvider({ children }: AppProviderProps) {
     };
   }, [router]);
 
+  useEffect(() => {
+    if (!activeOrganizationId || !trialActive || switchingOrganization) {
+      return;
+    }
+
+    const organizationId = activeOrganizationId;
+
+    let active = true;
+    let checking = false;
+
+    async function revalidate(): Promise<void> {
+      if (!active || checking) {
+        return;
+      }
+
+      checking = true;
+
+      try {
+        const state = await getOnboarding(organizationId);
+
+        if (!active) {
+          return;
+        }
+
+        setOnboarding(state);
+
+        if (state.step !== 'APP') {
+          router.replace(getOnboardingHref(organizationId));
+        }
+      } catch (cause: unknown) {
+        if (!active) {
+          return;
+        }
+
+        if (cause instanceof SessionError && cause.status === 401) {
+          router.replace('/login');
+        }
+      } finally {
+        checking = false;
+      }
+    }
+
+    function handleVisibilityChange(): void {
+      if (document.visibilityState === 'visible') {
+        void revalidate();
+      }
+    }
+
+    const interval = window.setInterval(() => {
+      void revalidate();
+    }, TRIAL_REVALIDATION_INTERVAL_MS);
+
+    window.addEventListener('focus', handleVisibilityChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      active = false;
+
+      window.clearInterval(interval);
+      window.removeEventListener('focus', handleVisibilityChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [activeOrganizationId, router, switchingOrganization, trialActive]);
+
   async function switchOrganization(organizationId: string): Promise<void> {
     if (switchingOrganization || activeOrganization?.id === organizationId) {
       return;
@@ -144,16 +230,18 @@ export function AppProvider({ children }: AppProviderProps) {
     setSwitchingOrganization(true);
 
     try {
-      const onboarding = await getOnboarding(organization.id);
+      const state = await getOnboarding(organization.id);
 
-      if (onboarding.step !== 'APP') {
-        router.replace('/onboarding');
+      storeActiveOrganizationId(organization.id);
+
+      if (state.step !== 'APP') {
+        router.replace(getOnboardingHref(organization.id));
 
         return;
       }
 
-      storeActiveOrganizationId(organization.id);
       setActiveOrganization(organization);
+      setOnboarding(state);
 
       router.replace('/dashboard');
     } finally {
@@ -211,9 +299,18 @@ export function AppProvider({ children }: AppProviderProps) {
     );
   }
 
-  if (!user || !activeOrganization) {
+  if (!user || !activeOrganization || !onboarding || onboarding.step !== 'APP') {
     return <AppBootstrapSkeleton />;
   }
+
+  const banner =
+    trialActive && onboarding.trial ? (
+      <TrialBanner
+        trial={onboarding.trial}
+        organizationId={activeOrganization.id}
+        owner={activeOrganization.role === 'OWNER'}
+      />
+    ) : null;
 
   return (
     <AppContext.Provider
@@ -221,12 +318,13 @@ export function AppProvider({ children }: AppProviderProps) {
         user,
         organizations,
         activeOrganization,
+        onboarding,
         switchingOrganization,
         switchOrganization,
         updateActiveOrganization,
       }}
     >
-      <AppShell>{children}</AppShell>
+      <AppShell banner={banner}>{children}</AppShell>
     </AppContext.Provider>
   );
 }

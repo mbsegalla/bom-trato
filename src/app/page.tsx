@@ -1,5 +1,4 @@
 import {
-  ArrowRight,
   CalendarCheck2,
   Check,
   ChevronDown,
@@ -14,21 +13,26 @@ import { Suspense } from 'react';
 
 import { JsonLd } from '@/components/jsonLd';
 import { siteConfig } from '@/config/site.config';
+import { MarketingCallToAction } from '@/modules/marketing/components/marketingCallToAction';
 import { MarketingFooter } from '@/modules/marketing/components/marketingFooter';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
-import { MarketingLink } from '@/modules/marketing/components/marketingLink';
+import { MarketingHero } from '@/modules/marketing/components/marketingHero';
 import { PricingSectionSkeleton } from '@/modules/marketing/components/pricingSectionSkeleton';
-import { ProductPreview } from '@/modules/marketing/components/productPreview';
 import { ProductTour } from '@/modules/marketing/components/productTour';
 import { PublicPricingSection } from '@/modules/marketing/components/publicPricingSection';
 import { marketingFaqs } from '@/modules/marketing/data/marketing.data';
 import { FeaturedProfessionalsSection } from '@/modules/publicProfiles/components/featuredProfessionalsSection';
 
+const homeTitle = 'Bom Trato | Gestão para prestadores de serviços';
+
+const homeDescription =
+  'Organize clientes, orçamentos, ordens de serviço, agenda e recebimentos com o Bom Trato. Experimente por 14 dias grátis, sem cartão de crédito.';
+
 export const metadata: Metadata = {
   title: {
-    absolute: 'Bom Trato | Gestão para prestadores de serviços',
+    absolute: homeTitle,
   },
-  description: siteConfig.description,
+  description: homeDescription,
   alternates: {
     canonical: '/',
   },
@@ -37,8 +41,8 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     url: '/',
     siteName: siteConfig.name,
-    title: 'Bom Trato | Gestão para prestadores de serviços',
-    description: siteConfig.description,
+    title: homeTitle,
+    description: homeDescription,
   },
 };
 
@@ -119,7 +123,7 @@ const homeJsonLd = [
     '@type': 'WebSite',
     name: siteConfig.name,
     url: siteConfig.url.toString(),
-    description: siteConfig.description,
+    description: homeDescription,
     inLanguage: siteConfig.language,
   },
   {
@@ -129,7 +133,7 @@ const homeJsonLd = [
     url: siteConfig.url.toString(),
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'Web',
-    description: siteConfig.description,
+    description: homeDescription,
     inLanguage: siteConfig.language,
   },
 ];
@@ -149,56 +153,7 @@ export default function Home() {
       <JsonLd data={homeJsonLd} />
 
       <main id="main-content" tabIndex={-1}>
-        <section className="overflow-hidden px-6 pt-12 pb-12 sm:pt-16 sm:pb-16 lg:px-10">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-14">
-            <div className="max-w-xl">
-              <p className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground">
-                <span aria-hidden="true" className="size-1.5 rounded-full bg-primary" />
-                Para quem vive de fazer bem feito
-              </p>
-
-              <h1 className="mt-7 font-heading text-4xl leading-[1.12] font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl">
-                Seu serviço é bom.
-                <span className="mt-2 block text-primary">Sua gestão também pode ser.</span>
-              </h1>
-
-              <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-                Organize clientes, orçamentos, serviços e recebimentos em um só fluxo — e deixe o Bom Trato acompanhar
-                clientes e cuidar de tarefas repetitivas por você.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <MarketingLink href="#pricing">
-                  Conhecer os planos
-                  <ArrowRight aria-hidden="true" className="size-4" />
-                </MarketingLink>
-
-                <MarketingLink href="#product-tour" variant="outline">
-                  Ver o produto
-                </MarketingLink>
-              </div>
-
-              <ul className="mt-7 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-                <li className="flex items-center gap-2">
-                  <Check aria-hidden="true" className="size-4 shrink-0 text-primary" />
-                  Acesso pelo navegador
-                </li>
-
-                <li className="flex items-center gap-2">
-                  <Check aria-hidden="true" className="size-4 shrink-0 text-primary" />
-                  Para autônomos e equipes
-                </li>
-
-                <li className="flex items-center gap-2 sm:col-span-2">
-                  <Check aria-hidden="true" className="size-4 shrink-0 text-primary" />
-                  Automações que você escolhe quando ativar
-                </li>
-              </ul>
-            </div>
-
-            <ProductPreview />
-          </div>
-        </section>
+        <MarketingHero />
 
         <section id="features" className="scroll-mt-24 px-6 py-12 sm:py-16 lg:px-10">
           <div className="mx-auto max-w-7xl">
@@ -327,14 +282,17 @@ export default function Home() {
         <section id="faq" className="scroll-mt-24 border-t border-border px-6 py-12 sm:py-16 lg:px-10">
           <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-primary uppercase">Antes do próximo passo</p>
+              <p className="text-xs font-semibold tracking-widest text-primary uppercase">
+                Tudo o que você precisa saber
+              </p>
 
               <h2 className="mt-4 font-heading text-3xl font-semibold tracking-tight sm:text-4xl">
                 Ficou alguma dúvida?
               </h2>
 
               <p className="mt-4 leading-relaxed text-muted-foreground">
-                Entenda como o Bom Trato se encaixa na rotina de quem presta serviços.
+                Entenda como funciona a avaliação gratuita e descubra como o Bom Trato se encaixa na rotina de quem
+                presta serviços.
               </p>
             </div>
 
@@ -357,26 +315,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="px-6 pb-12 sm:pb-16 lg:px-10">
-          <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-8 rounded-[2rem] bg-secondary px-7 py-10 text-secondary-foreground sm:px-12 lg:flex-row lg:items-center">
-            <div className="max-w-2xl">
-              <h2 className="font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
-                Cuide do serviço.
-                <span className="text-primary"> O Bom Trato cuida do fluxo.</span>
-              </h2>
-
-              <p className="mt-4 max-w-xl leading-relaxed">
-                Clientes, propostas, agenda, execução e recebimentos trabalham juntos — e tarefas repetitivas podem
-                continuar acontecendo enquanto você está atendendo.
-              </p>
-            </div>
-
-            <MarketingLink href="#pricing" className="shrink-0">
-              Conhecer os planos
-              <ArrowRight aria-hidden="true" className="size-4" />
-            </MarketingLink>
-          </div>
-        </section>
+        <MarketingCallToAction />
       </main>
 
       <MarketingFooter />

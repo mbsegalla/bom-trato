@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { BrandLogo } from '@/components/brandLogo';
 import { legalIdentity } from '@/modules/legal/data/legal.data';
 
+import { marketingTrial } from '../data/marketing.data';
+
 export function MarketingFooter() {
   return (
     <footer className="border-t border-border px-6 py-8 lg:px-10">
@@ -25,12 +27,21 @@ export function MarketingFooter() {
           </a>
         </div>
 
-        <Link
-          href="/#pricing"
-          className="inline-flex min-h-11 items-center rounded-sm text-sm font-medium text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-        >
-          Conhecer os planos
-        </Link>
+        <div className="flex flex-wrap items-center gap-5 text-sm">
+          <Link
+            href="/#pricing"
+            className="inline-flex min-h-11 items-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          >
+            Conhecer os planos
+          </Link>
+
+          <Link
+            href={marketingTrial.href}
+            className="inline-flex min-h-11 items-center rounded-sm font-semibold text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+          >
+            Começar avaliação gratuita
+          </Link>
+        </div>
       </div>
     </footer>
   );

@@ -1,4 +1,4 @@
-import { ArrowRight, Check } from 'lucide-react';
+import { ArrowRight, Check, Gift } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import {
 import type { Plan, PricingInterval } from '@/modules/plans/types/plan.types';
 import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 
+import { marketingTrial } from '../../../data/marketing.data';
 import { MarketingLink } from '../../marketingLink';
 import { getPlanFeatures } from '../helpers/pricingSection.helper';
 
@@ -24,13 +25,13 @@ export function PricingCard({ plan, interval }: PricingCardProps) {
   const featured = plan.code === 'TEAM';
 
   const monthlyEquivalent = price ? getMonthlyEquivalentAmount(price) : null;
-
   const annualSavings = interval === 'YEAR' ? getAnnualSavingsPercentage(plan) : null;
 
   return (
     <article
       className={cn(
         'flex h-full flex-col rounded-3xl border bg-card p-7 text-card-foreground sm:p-8',
+        'hover:shadow-lg hover:shadow-primary/5 motion-safe:transition-shadow',
         featured && 'border-primary shadow-lg shadow-primary/10',
       )}
     >
@@ -57,6 +58,8 @@ export function PricingCard({ plan, interval }: PricingCardProps) {
               <span className="text-sm whitespace-nowrap text-muted-foreground">{getPricePeriodLabel(price)}</span>
             </div>
 
+            <p className="mt-2 text-xs text-muted-foreground">Mediante contratação do plano</p>
+
             {monthlyEquivalent !== null && (
               <p className="mt-2 text-sm text-muted-foreground">
                 Equivale a {formatBrlCurrency(monthlyEquivalent)} por mês
@@ -72,6 +75,11 @@ export function PricingCard({ plan, interval }: PricingCardProps) {
         )}
       </div>
 
+      <div className="mt-6 flex items-center gap-2 rounded-xl border border-primary/10 bg-primary/5 px-4 py-3 text-sm font-medium text-primary">
+        <Gift aria-hidden="true" className="size-4 shrink-0" />
+        Experimente por {marketingTrial.durationDays} dias grátis
+      </div>
+
       <ul className="my-8 space-y-3">
         {getPlanFeatures(plan).map((feature) => (
           <li key={feature} className="flex gap-3 text-sm">
@@ -85,18 +93,28 @@ export function PricingCard({ plan, interval }: PricingCardProps) {
       <div className="mt-auto">
         {price ? (
           <MarketingLink
-            href={{ pathname: '/register', query: { planPriceId: price.id } }}
+            href={{
+              pathname: marketingTrial.href,
+              query: {
+                planPriceId: price.id,
+              },
+            }}
             variant={featured ? 'primary' : 'outline'}
-            className="w-full"
+            className="min-h-14 w-full"
           >
-            Escolher plano
+            {marketingTrial.shortLabel}
+
             <ArrowRight aria-hidden="true" className="size-4" />
           </MarketingLink>
         ) : (
-          <Button type="button" variant="outline" disabled className="min-h-12 w-full rounded-xl">
+          <Button type="button" variant="outline" disabled className="min-h-14 w-full rounded-xl">
             Sem opção {interval === 'YEAR' ? 'anual' : 'mensal'}
           </Button>
         )}
+
+        <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground">
+          Avaliação individual. Sem cartão de crédito.
+        </p>
       </div>
     </article>
   );
