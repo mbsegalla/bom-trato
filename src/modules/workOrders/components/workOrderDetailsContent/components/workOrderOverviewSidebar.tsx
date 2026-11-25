@@ -6,6 +6,7 @@ import { formatBrlCurrency } from '@/shared/formatters/currency.formatter';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
 
 import type { WorkOrder } from '../../../types/workOrder.types';
+import { WorkOrderShareSection } from '../../publicWorkOrderContent/components/workOrderShareSection';
 
 interface WorkOrderOverviewSidebarProps {
   workOrder: WorkOrder;
@@ -15,7 +16,9 @@ interface WorkOrderOverviewSidebarProps {
 export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrderOverviewSidebarProps) {
   return (
     <aside className="rounded-xl bg-muted/40 p-5 ring-1 ring-border/60">
-      <section>
+      <WorkOrderShareSection key={`${workOrder.organizationId}:${workOrder.id}`} workOrder={workOrder} />
+
+      <section className="mt-6 border-t border-border pt-6">
         <h2 className="font-heading text-lg font-semibold">Planejamento</h2>
 
         <div className="mt-5 space-y-5">
@@ -24,6 +27,7 @@ export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrde
 
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Responsável</p>
+
               <p className="mt-1 text-sm font-medium">{assignedMember?.user.name ?? 'Ainda não definido'}</p>
             </div>
           </div>
@@ -33,6 +37,7 @@ export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrde
 
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Endereço</p>
+
               <p className="mt-1 text-sm font-medium whitespace-pre-wrap">
                 {workOrder.serviceAddress ?? 'Ainda não definido'}
               </p>
@@ -44,6 +49,7 @@ export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrde
 
             <div className="min-w-0">
               <p className="text-xs text-muted-foreground">Agendamento</p>
+
               <p className="mt-1 text-sm font-medium">
                 {workOrder.scheduledStartAt
                   ? `${formatDateTime(workOrder.scheduledStartAt)} → ${formatDateTime(workOrder.scheduledEndAt)}`
@@ -75,16 +81,19 @@ export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrde
         <div className="mt-4 space-y-3 text-sm">
           <div className="flex justify-between gap-4">
             <span className="text-muted-foreground">Subtotal</span>
+
             <span>{formatBrlCurrency(workOrder.subtotalInCents)}</span>
           </div>
 
           <div className="flex justify-between gap-4">
             <span className="text-muted-foreground">Desconto</span>
+
             <span>- {formatBrlCurrency(workOrder.discountInCents)}</span>
           </div>
 
           <div className="flex justify-between gap-4 border-t border-border pt-3 font-semibold">
             <span>Total</span>
+
             <span className="text-primary">{formatBrlCurrency(workOrder.totalInCents)}</span>
           </div>
         </div>
@@ -93,6 +102,7 @@ export function WorkOrderOverviewSidebar({ workOrder, assignedMember }: WorkOrde
       <section className="mt-6 border-t border-border pt-6">
         <div className="flex items-center gap-2">
           <ClipboardList aria-hidden="true" className="size-4 text-primary" />
+
           <h2 className="font-heading text-lg font-semibold">Instruções</h2>
         </div>
 
