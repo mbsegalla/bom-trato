@@ -378,7 +378,8 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
             )}
 
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Copie ou compartilhe o endereço antes de sair desta página. O token não poderá ser recuperado posteriormente.
+              Copie ou compartilhe o endereço antes de sair desta página. O token não poderá ser recuperado
+              posteriormente.
             </p>
           </div>
         )}
