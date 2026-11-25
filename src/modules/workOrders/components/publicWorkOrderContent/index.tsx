@@ -11,6 +11,7 @@ import { formatDateTime } from '@/shared/formatters/date.formatter';
 import { PublicWorkOrderError, resolvePublicWorkOrder } from '../../services/workOrderPortal.service';
 import type { PublicWorkOrder } from '../../types/workOrderPortal.types';
 import { PublicWorkOrderOverview } from './components/publicWorkOrderOverview';
+import { PublicWorkOrderPhotos } from './components/publicWorkOrderPhotos';
 import { PublicWorkOrderSummary } from './components/publicWorkOrderSummary';
 import { PublicWorkOrderTimeline } from './components/publicWorkOrderTimeline';
 
@@ -21,6 +22,7 @@ type PublicWorkOrderState =
   | {
       kind: 'ready';
       portal: PublicWorkOrder;
+      token: string;
     }
   | {
       kind: 'unavailable';
@@ -49,6 +51,7 @@ export function PublicWorkOrderContent() {
         setState({
           kind: 'ready',
           portal,
+          token,
         });
       })
       .catch((cause: unknown) => {
@@ -127,7 +130,7 @@ export function PublicWorkOrderContent() {
     return <PublicWorkOrderUnavailable message={state.message} retryable={state.retryable} />;
   }
 
-  const { portal } = state;
+  const { portal, token } = state;
 
   return (
     <main className="min-h-dvh bg-background px-4 py-6 text-foreground sm:px-6 sm:py-10">
@@ -143,6 +146,8 @@ export function PublicWorkOrderContent() {
 
           <PublicWorkOrderSummary portal={portal} />
         </div>
+
+        <PublicWorkOrderPhotos photos={portal.photos} token={token} />
 
         <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
