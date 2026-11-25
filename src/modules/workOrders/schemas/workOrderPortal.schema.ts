@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
 import { workOrderItemSchema, workOrderStatusSchema } from './workOrder.schema';
+import { publicWorkOrderChecklistSchema } from './workOrderChecklist.schema';
 import { publicWorkOrderPhotoSchema } from './workOrderPhoto.schema';
 
 export const workOrderShareTokenSchema = z.string().regex(/^[a-f0-9]{64}$/);
@@ -95,6 +96,7 @@ export const publicWorkOrderSchema = z.object({
   workOrder: publicWorkOrderDetailsSchema,
   financial: publicWorkOrderFinancialSchema.nullable(),
   timeline: z.array(publicWorkOrderTimelineEventSchema),
+  checklist: publicWorkOrderChecklistSchema.default({ items: [], progress: { total: 0, completed: 0 } }),
   photos: z.array(publicWorkOrderPhotoSchema).default([]),
   generatedAt: z.coerce.date(),
   expiresAt: z.coerce.date(),
