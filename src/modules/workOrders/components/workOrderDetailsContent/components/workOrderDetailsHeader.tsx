@@ -6,6 +6,7 @@ import { formatDate } from '@/shared/formatters/date.formatter';
 
 import { canCancelWorkOrder } from '../../../constants/workOrder.constants';
 import type { WorkOrder } from '../../../types/workOrder.types';
+import { WorkOrderRepeatServiceAction } from '../../workOrderRepeatServiceAction';
 import { WorkOrderStatusBadge } from '../../workOrderStatusBadge';
 
 interface WorkOrderDetailsHeaderProps {
@@ -64,6 +65,8 @@ export function WorkOrderDetailsHeader({
               title={workOrder.title}
             />
           )}
+
+          {completed && <WorkOrderRepeatServiceAction key={workOrder.id} workOrder={workOrder} />}
 
           {completed && (
             <Button type="button" disabled={sendingReview} onClick={onSendReview} className="cursor-pointer">
