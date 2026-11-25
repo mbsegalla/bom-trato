@@ -40,6 +40,7 @@ import { WorkOrderExecutionNotes } from '../workOrderExecutionNotes';
 import { WorkOrderPhotosSection } from '../workOrderPhotosSection';
 import { WorkOrderPortfolioSection } from '../workOrderPortfolioSection';
 import { WorkOrderPlanningPanel } from '../workOrderPlanningPanel';
+import { WorkOrderRecurrenceSection } from '../workOrderRecurrenceSection';
 import { WorkOrderScheduleHistory } from '../workOrderScheduleHistory';
 import { WorkOrderSchedulePanel } from '../workOrderSchedulePanel';
 import { WorkOrderStatusHistory } from '../workOrderStatusHistory';
@@ -289,6 +290,16 @@ function OrganizationWorkOrderDetails({
         <WorkOrderItemsSection workOrder={workOrder} />
         <WorkOrderOverviewSidebar workOrder={workOrder} assignedMember={assignedMember} />
       </div>
+
+      {workOrder.status === 'COMPLETED' && (
+        <div className="mt-10">
+          <WorkOrderRecurrenceSection
+            key={`${organizationId}:${workOrder.id}`}
+            organizationId={organizationId}
+            workOrderId={workOrder.id}
+          />
+        </div>
+      )}
 
       <div className="mt-10">
         <WorkOrderChecklistSection organizationId={organizationId} workOrderId={workOrder.id} />
