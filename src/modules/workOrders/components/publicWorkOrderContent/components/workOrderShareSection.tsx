@@ -1,6 +1,6 @@
 'use client';
 
-import { Clipboard, ExternalLink, Link2, LoaderCircle, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Clipboard, ExternalLink, Link2, LoaderCircle, MessageCircle, RefreshCw, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -10,9 +10,15 @@ import { ConfirmationDialog } from '@/components/ui/confirmationDialog';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { useApp } from '@/modules/app/components/appProvider';
 import { SessionError } from '@/modules/auth/services/session.service';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
+import { formatBrazilianPhone, isValidBrazilianPhone } from '@/shared/formatters/phone.formatter';
 
+import {
+  createWorkOrderShareWhatsAppMessage,
+  createWorkOrderShareWhatsAppUrl,
+} from '../../../helpers/workOrderShareWhatsapp.helper';
 import {
   createWorkOrderShare,
   getWorkOrderShare,
@@ -72,14 +78,17 @@ const confirmationContent = {
 
 export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps) {
   const router = useRouter();
+  const { activeOrganization } = useApp();
 
-  const { organizationId, id: workOrderId } = workOrder;
+  const { organizationId, id: workOrderId, customerPhone } = workOrder;
 
   const [state, setState] = useState<ShareState>({ kind: 'loading' });
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [duration, setDuration] = useState<WorkOrderShareDuration>(7);
   const [pending, setPending] = useState<ShareOperation | null>(null);
   const [confirmation, setConfirmation] = useState<ShareOperation | null>(null);
+
+  const hasValidPhone = customerPhone !== null && isValidBrazilianPhone(customerPhone);
 
   useEffect(() => {
     let active = true;
@@ -119,7 +128,7 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
   }, [organizationId, workOrderId, refreshVersion, router]);
 
   useEffect(() => {
-    if (state.kind !== 'ready' || state.share === null) {
+    if (pending !== null || state.kind !== 'ready' || state.share === null) {
       return;
     }
 
@@ -127,19 +136,17 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
 
     const timeout = window.setTimeout(
       () => {
-        setState({
-          kind: 'loading',
-        });
-
+        setConfirmation(null);
+        setState({ kind: 'loading' });
         setRefreshVersion((value) => value + 1);
       },
-      Math.max(1000, Math.min(remaining, MAX_TIMEOUT_MS)),
+      Math.max(60_000, Math.min(remaining, MAX_TIMEOUT_MS)),
     );
 
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [state]);
+  }, [state, pending]);
 
   function refresh(): void {
     setState({
@@ -223,6 +230,28 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
     } catch {
       toast.error('Não foi possível copiar automaticamente. Selecione e copie o endereço manualmente.');
     }
+  }
+
+  function handleWhatsApp(url: string): void {
+    if (pending !== null || state.kind !== 'ready' || state.share === null || state.url !== url) {
+      return;
+    }
+
+    if (activeOrganization.id !== organizationId) {
+      return;
+    }
+
+    if (state.share.expiresAt.getTime() <= Date.now()) {
+      toast.error('O prazo de validade do link terminou. Consulte o compartilhamento novamente.');
+      refresh();
+
+      return;
+    }
+
+    const message = createWorkOrderShareWhatsAppMessage(workOrder, activeOrganization.name, url);
+    const whatsappUrl = createWorkOrderShareWhatsAppUrl(customerPhone, message);
+
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   }
 
   function renderContent() {
@@ -311,6 +340,24 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
             <Button
               type="button"
               disabled={sharing}
+              onClick={() => handleWhatsApp(url)}
+              className="min-h-11 w-full cursor-pointer"
+            >
+              <MessageCircle aria-hidden="true" className="size-4" />
+
+              {hasValidPhone ? 'Enviar pelo WhatsApp' : 'Escolher contato no WhatsApp'}
+            </Button>
+
+            <p className="text-center text-xs leading-relaxed text-muted-foreground">
+              {hasValidPhone
+                ? `Destinatário: ${formatBrazilianPhone(customerPhone)}`
+                : 'Cliente sem telefone válido. Confira e selecione o destinatário no WhatsApp.'}
+            </p>
+
+            <Button
+              type="button"
+              variant="outline"
+              disabled={sharing}
               onClick={() => void handleCopy(url)}
               className="min-h-11 w-full cursor-pointer"
             >
@@ -331,7 +378,8 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
             )}
 
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Copie o endereço antes de sair desta página. O token não poderá ser recuperado posteriormente.
+              Copie ou compartilhe o endereço antes de sair desta página. O token não poderá ser recuperado
+              posteriormente.
             </p>
           </div>
         )}
