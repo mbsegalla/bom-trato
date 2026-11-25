@@ -10,6 +10,7 @@ import { formatDateTime } from '@/shared/formatters/date.formatter';
 
 import { PublicWorkOrderError, resolvePublicWorkOrder } from '../../services/workOrderPortal.service';
 import type { PublicWorkOrder } from '../../types/workOrderPortal.types';
+import { PublicWorkOrderChecklist } from './components/publicWorkOrderChecklist';
 import { PublicWorkOrderOverview } from './components/publicWorkOrderOverview';
 import { PublicWorkOrderPhotos } from './components/publicWorkOrderPhotos';
 import { PublicWorkOrderSummary } from './components/publicWorkOrderSummary';
@@ -146,6 +147,8 @@ export function PublicWorkOrderContent() {
 
           <PublicWorkOrderSummary portal={portal} />
         </div>
+
+        <PublicWorkOrderChecklist checklist={portal.checklist} />
 
         <PublicWorkOrderPhotos photos={portal.photos} token={token} />
 
