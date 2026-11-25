@@ -314,7 +314,8 @@ export function WorkOrderShareSection({ workOrder }: WorkOrderShareSectionProps)
             <p className="text-sm font-medium">Nenhum link ativo</p>
 
             <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              Gere um endereço privado para que o cliente possa acompanhar o atendimento sem criar uma conta.
+              Gere um endereço privado para o cliente acompanhar o atendimento e confirmar a conclusão dos serviços sem
+              criar uma conta.
             </p>
           </div>
         )}

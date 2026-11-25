@@ -9,7 +9,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { formatDateTime } from '@/shared/formatters/date.formatter';
 
 import { PublicWorkOrderError, resolvePublicWorkOrder } from '../../services/workOrderPortal.service';
+import type { PublicWorkOrderAcceptanceReceipt } from '../../types/workOrderAcceptance.types';
 import type { PublicWorkOrder } from '../../types/workOrderPortal.types';
+import { PublicWorkOrderAcceptanceSection } from './components/publicWorkOrderAcceptance';
 import { PublicWorkOrderChecklist } from './components/publicWorkOrderChecklist';
 import { PublicWorkOrderOverview } from './components/publicWorkOrderOverview';
 import { PublicWorkOrderPhotos } from './components/publicWorkOrderPhotos';
@@ -37,6 +39,9 @@ export function PublicWorkOrderContent() {
   const [state, setState] = useState<PublicWorkOrderState>({
     kind: 'loading',
   });
+
+  const expiresAt = state.kind === 'ready' ? state.portal.expiresAt.getTime() : null;
+  const generatedAt = state.kind === 'ready' ? state.portal.generatedAt.getTime() : null;
 
   useEffect(() => {
     let active = true;
@@ -92,13 +97,11 @@ export function PublicWorkOrderContent() {
   }, []);
 
   useEffect(() => {
-    if (state.kind !== 'ready') {
+    if (expiresAt === null || generatedAt === null) {
       return;
     }
 
-    const { portal } = state;
-
-    const remaining = portal.expiresAt.getTime() - portal.generatedAt.getTime();
+    const remaining = expiresAt - generatedAt;
 
     const timeout = window.setTimeout(
       () => {
@@ -121,7 +124,21 @@ export function PublicWorkOrderContent() {
     return () => {
       window.clearTimeout(timeout);
     };
-  }, [state]);
+  }, [expiresAt, generatedAt]);
+
+  function applyAcceptance(token: string, receipt: PublicWorkOrderAcceptanceReceipt): void {
+    setState((current) =>
+      current.kind === 'ready' && current.token === token && current.portal.acceptance !== null
+        ? {
+            ...current,
+            portal: {
+              ...current.portal,
+              acceptance: { ...current.portal.acceptance, canAccept: false, snapshotHash: null, receipt },
+            },
+          }
+        : current,
+    );
+  }
 
   if (state.kind === 'loading') {
     return <PublicWorkOrderSkeleton />;
@@ -152,6 +169,14 @@ export function PublicWorkOrderContent() {
 
         <PublicWorkOrderPhotos photos={portal.photos} token={token} />
 
+        <PublicWorkOrderAcceptanceSection
+          key={token}
+          acceptance={portal.acceptance}
+          status={portal.workOrder.status}
+          token={token}
+          onAccepted={(receipt) => applyAcceptance(token, receipt)}
+        />
+
         <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">Informações atualizadas em {formatDateTime(portal.generatedAt)}</p>
@@ -179,8 +204,8 @@ export function PublicWorkOrderContent() {
           </div>
 
           <p className="max-w-md text-xs leading-relaxed text-muted-foreground">
-            Este endereço permite consultar informações do seu atendimento. Compartilhe-o somente com pessoas
-            autorizadas.
+            Este endereço permite acompanhar o atendimento e registrar o aceite da conclusão. Compartilhe-o somente com
+            pessoas autorizadas.
           </p>
 
           <BrandLogo className="mt-3 w-28" />

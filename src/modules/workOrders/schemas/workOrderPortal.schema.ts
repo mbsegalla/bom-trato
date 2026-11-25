@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { apiResponseSchema } from '@/shared/schemas/apiResponse.schema';
 
 import { workOrderItemSchema, workOrderStatusSchema } from './workOrder.schema';
+import { publicWorkOrderAcceptanceSchema } from './workOrderAcceptance.schema';
 import { publicWorkOrderChecklistSchema } from './workOrderChecklist.schema';
 import { publicWorkOrderPhotoSchema } from './workOrderPhoto.schema';
 
@@ -98,6 +99,7 @@ export const publicWorkOrderSchema = z.object({
   timeline: z.array(publicWorkOrderTimelineEventSchema),
   checklist: publicWorkOrderChecklistSchema.default({ items: [], progress: { total: 0, completed: 0 } }),
   photos: z.array(publicWorkOrderPhotoSchema).default([]),
+  acceptance: publicWorkOrderAcceptanceSchema.nullable().default(null),
   generatedAt: z.coerce.date(),
   expiresAt: z.coerce.date(),
 });
