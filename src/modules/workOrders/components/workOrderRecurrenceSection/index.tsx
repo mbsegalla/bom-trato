@@ -182,7 +182,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
   const overdue = data?.recurrence?.enabled && data.recurrence.nextVisitOn < data.today;
 
   return (
-    <section className="min-w-0 border-t border-border pt-8">
+    <section id="recurrence" className="min-w-0 scroll-mt-8 border-t border-border pt-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">

@@ -1,10 +1,17 @@
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
+import { DEFAULT_PAGE_LIMIT } from '@/shared/constants/pagination.constants';
 
 import {
   workOrderRecurrenceFormSchema,
   workOrderRecurrenceResponseSchema,
+  workOrderRecurrencesResponseSchema,
 } from '../schemas/workOrderRecurrence.schema';
-import type { WorkOrderRecurrenceInput, WorkOrderRecurrenceView } from '../types/workOrderRecurrence.types';
+import type {
+  WorkOrderRecurrenceInput,
+  WorkOrderRecurrenceList,
+  WorkOrderRecurrenceListParams,
+  WorkOrderRecurrenceView,
+} from '../types/workOrderRecurrence.types';
 
 function recurrencePath(organizationId: string, workOrderId: string): string {
   const ordersPath = `/api/organizations/${encodeURIComponent(organizationId)}/work-orders`;
@@ -72,4 +79,50 @@ export async function saveWorkOrderRecurrence(
   });
 
   return readRecurrence(response);
+}
+
+export async function listWorkOrderRecurrences(
+  organizationId: string,
+  params: WorkOrderRecurrenceListParams,
+): Promise<WorkOrderRecurrenceList> {
+  const query = new URLSearchParams({
+    page: String(params.page),
+    limit: String(params.limit ?? DEFAULT_PAGE_LIMIT),
+  });
+
+  if (params.status !== 'ALL') {
+    query.set('status', params.status);
+  }
+
+  if (params.visit !== 'ALL') {
+    query.set('visit', params.visit);
+  }
+
+  if (params.customerName.trim()) {
+    query.set('customerName', params.customerName.trim());
+  }
+
+  const path = `/api/organizations/${encodeURIComponent(organizationId)}/work-order-recurrences`;
+  const response = await authenticatedFetch(`${path}?${query.toString()}`);
+
+  if (response.status === 401) {
+    throw new SessionError('Sua sessão expirou. Entre novamente.', 401);
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      response.status === 403
+        ? 'Você não possui permissão para consultar as recorrências.'
+        : 'Não foi possível carregar os serviços recorrentes.',
+    );
+  }
+
+  const payload: unknown = await response.json();
+  const parsed = workOrderRecurrencesResponseSchema.safeParse(payload);
+
+  if (!parsed.success) {
+    throw new Error('Não foi possível interpretar os serviços recorrentes.');
+  }
+
+  return parsed.data;
 }

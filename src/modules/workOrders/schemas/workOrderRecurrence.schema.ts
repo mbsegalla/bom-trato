@@ -35,3 +35,26 @@ export const workOrderRecurrenceViewSchema = z.object({
 });
 
 export const workOrderRecurrenceResponseSchema = apiResponseSchema(workOrderRecurrenceViewSchema);
+
+export const workOrderRecurrenceListStatusSchema = z.enum(['ALL', 'ACTIVE', 'PAUSED', 'ARCHIVED']);
+export const workOrderRecurrenceVisitPeriodSchema = z.enum(['ALL', 'OVERDUE', 'TODAY', 'NEXT_SEVEN_DAYS']);
+
+const workOrderRecurrenceListItemSchema = z.object({
+  workOrderId: z.uuid(),
+  title: z.string(),
+  customerId: z.uuid(),
+  customerName: z.string(),
+  customerArchived: z.boolean(),
+  recurrence: workOrderRecurrenceSchema,
+});
+
+const workOrderRecurrenceListSchema = z.object({
+  items: z.array(workOrderRecurrenceListItemSchema),
+  page: z.number().int().positive(),
+  hasMore: z.boolean(),
+  today: visitDateSchema,
+  canConfigure: z.boolean(),
+});
+
+export const workOrderRecurrencesResponseSchema = apiResponseSchema(workOrderRecurrenceListSchema);
+export { workOrderRecurrenceListItemSchema, workOrderRecurrenceListSchema };
