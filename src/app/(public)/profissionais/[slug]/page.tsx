@@ -13,6 +13,7 @@ import {
   getPublicWhatsappUrl,
   PublicDirectoryError,
 } from '@/modules/publicProfiles/services/publicDirectory.service';
+import { ProfessionalPortfolio } from '@/modules/publicProfiles/components/professionalPortfolio';
 import type { PublicProfessional } from '@/modules/publicProfiles/types/publicProfile.types';
 import { RatingSummary } from '@/modules/reviews/components/ratingSummary';
 import { ReviewCard } from '@/modules/reviews/components/reviewCard';
@@ -252,6 +253,8 @@ export default async function ProfessionalPage({ params }: ProfessionalPageProps
                 </div>
               </div>
             )}
+
+            <ProfessionalPortfolio slug={professional.slug} photos={professional.portfolio} />
 
             <div className="mt-10 border-t border-border pt-8">
               <div>

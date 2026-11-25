@@ -93,6 +93,14 @@ export const publicProfessionalSchema = publicProfessionalCardSchema.extend({
   description: z.string().nullable(),
   services: z.array(publicProfessionalDetailedServiceSchema),
   reviews: z.array(publicProfessionalReviewSchema),
+  portfolio: z.array(
+    z.object({
+      id: z.uuid(),
+      stage: z.enum(['BEFORE', 'AFTER']),
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+    }),
+  ),
 });
 
 export const publicProfileSettingsResponseSchema = apiResponseSchema(publicProfileSettingsSchema);

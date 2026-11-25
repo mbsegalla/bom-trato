@@ -15,6 +15,7 @@ import { PublicWorkOrderAcceptanceSection } from './components/publicWorkOrderAc
 import { PublicWorkOrderChecklist } from './components/publicWorkOrderChecklist';
 import { PublicWorkOrderOverview } from './components/publicWorkOrderOverview';
 import { PublicWorkOrderPhotos } from './components/publicWorkOrderPhotos';
+import { PublicWorkOrderPortfolioConsent } from './components/publicWorkOrderPortfolioConsent';
 import { PublicWorkOrderSummary } from './components/publicWorkOrderSummary';
 import { PublicWorkOrderTimeline } from './components/publicWorkOrderTimeline';
 import { PublicWorkOrderWarranty } from './components/publicWorkOrderWarranty';
@@ -169,6 +170,12 @@ export function PublicWorkOrderContent() {
         <PublicWorkOrderChecklist checklist={portal.checklist} />
 
         <PublicWorkOrderPhotos photos={portal.photos} token={token} />
+
+        <PublicWorkOrderPortfolioConsent
+          photos={portal.photos}
+          token={token}
+          completed={portal.workOrder.status === 'COMPLETED'}
+        />
 
         <PublicWorkOrderWarranty portal={portal} token={token} />
 

@@ -38,6 +38,7 @@ import { WorkOrderCancelDialog } from '../workOrderCancelDialog';
 import { WorkOrderChecklistSection } from '../workOrderChecklistSection';
 import { WorkOrderExecutionNotes } from '../workOrderExecutionNotes';
 import { WorkOrderPhotosSection } from '../workOrderPhotosSection';
+import { WorkOrderPortfolioSection } from '../workOrderPortfolioSection';
 import { WorkOrderPlanningPanel } from '../workOrderPlanningPanel';
 import { WorkOrderScheduleHistory } from '../workOrderScheduleHistory';
 import { WorkOrderSchedulePanel } from '../workOrderSchedulePanel';
@@ -298,6 +299,15 @@ function OrganizationWorkOrderDetails({
           key={`${organizationId}:${workOrder.id}`}
           organizationId={organizationId}
           workOrderId={workOrder.id}
+        />
+      </div>
+
+      <div className="mt-10">
+        <WorkOrderPortfolioSection
+          key={`${organizationId}:${workOrder.id}`}
+          organizationId={organizationId}
+          workOrderId={workOrder.id}
+          status={workOrder.status}
         />
       </div>
 
