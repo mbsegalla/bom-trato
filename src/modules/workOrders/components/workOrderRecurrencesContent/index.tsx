@@ -166,8 +166,8 @@ function OrganizationRecurrencesContent({ organizationId }: { organizationId: st
       </div>
 
       <p className="mt-4 text-sm text-muted-foreground">
-        As datas são previsões de visita no horário de Brasília. Nenhum agendamento, orçamento ou cobrança é criado
-        automaticamente.
+        As datas seguem o horário de Brasília. Serviços ativos com geração automática configurada podem criar
+        orçamentos em rascunho. Nenhum agendamento, aprovação ou cobrança é realizado automaticamente.
       </p>
 
       <section className="mt-8">

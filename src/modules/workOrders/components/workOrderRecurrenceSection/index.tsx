@@ -1,6 +1,7 @@
 'use client';
 
 import { CalendarClock, LoaderCircle, RefreshCw } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
@@ -47,6 +48,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
   const [intervalCount, setIntervalCount] = useState('1');
   const [nextVisitOn, setNextVisitOn] = useState('');
   const [enabled, setEnabled] = useState(true);
+  const [autoGenerateEnabled, setAutoGenerateEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -71,6 +73,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
         setIntervalCount(String(data.recurrence?.intervalCount ?? 1));
         setNextVisitOn(data.recurrence?.nextVisitOn ?? '');
         setEnabled(data.recurrence?.enabled ?? true);
+        setAutoGenerateEnabled(data.recurrence?.autoGenerateEnabled ?? false);
       })
       .catch((cause: unknown) => {
         if (!active) {
@@ -113,6 +116,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
       intervalCount: Number(intervalCount),
       nextVisitOn,
       enabled,
+      autoGenerateEnabled,
     });
 
     if (!parsed.success) {
@@ -141,7 +145,11 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
         return;
       }
 
-      if (saved.recurrence === null || saved.recurrence.version !== version + 1) {
+      if (
+        saved.recurrence === null ||
+        saved.recurrence.version !== version + 1 ||
+        saved.recurrence.autoGenerateEnabled !== autoGenerateEnabled
+      ) {
         throw new Error('Não foi possível confirmar a configuração salva.');
       }
 
@@ -150,6 +158,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
       setIntervalCount(String(saved.recurrence.intervalCount));
       setNextVisitOn(saved.recurrence.nextVisitOn);
       setEnabled(saved.recurrence.enabled);
+      setAutoGenerateEnabled(saved.recurrence.autoGenerateEnabled);
       toast.success(saved.recurrence.enabled ? 'Recorrência salva.' : 'Recorrência pausada.');
     } catch (cause: unknown) {
       if (!mountedRef.current) {
@@ -191,8 +200,8 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
           </div>
 
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-            Defina a frequência e a próxima visita prevista deste serviço. Nenhum orçamento, agendamento ou cobrança
-            será criado automaticamente nesta etapa.
+            Defina a frequência e a próxima visita prevista. Você também pode habilitar a geração automática de
+            orçamentos em rascunho.
           </p>
         </div>
 
@@ -322,6 +331,40 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
             Desmarque para pausar sem perder a frequência e a data registradas. A data de referência segue o horário de
             Brasília.
           </p>
+
+          <label className="mt-5 flex min-h-10 items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={autoGenerateEnabled}
+              disabled={disabled || data.customerArchived}
+              onChange={(event) => setAutoGenerateEnabled(event.currentTarget.checked)}
+              className="size-4 accent-primary"
+            />
+            Gerar orçamento automaticamente na data prevista
+          </label>
+
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Quando a recorrência estiver ativa, um rascunho será criado na data prevista e a próxima visita será
+            atualizada. Confira os preços e as condições antes de enviar o orçamento. Não há aprovação, agendamento ou
+            cobrança automática.
+          </p>
+
+          {data.recurrence?.lastGeneratedQuoteId && (
+            <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
+              <p className="font-medium">Último orçamento gerado automaticamente</p>
+              {data.recurrence.lastGeneratedVisitOn && (
+                <p className="mt-1 text-muted-foreground">
+                  Visita de referência: {data.recurrence.lastGeneratedVisitOn.split('-').reverse().join('/')}
+                </p>
+              )}
+              <Link
+                href={`/quotes/${data.recurrence.lastGeneratedQuoteId}`}
+                className="mt-2 inline-block font-medium text-primary hover:underline"
+              >
+                Consultar orçamento
+              </Link>
+            </div>
+          )}
 
           {data.canConfigure && (
             <Button
