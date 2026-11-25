@@ -34,6 +34,7 @@ import type { WorkOrder } from '../../types/workOrder.types';
 import { WorkOrderAssignPanel } from '../workOrderAssignPanel';
 import { WorkOrderCancelDialog } from '../workOrderCancelDialog';
 import { WorkOrderExecutionNotes } from '../workOrderExecutionNotes';
+import { WorkOrderPhotosSection } from '../workOrderPhotosSection';
 import { WorkOrderPlanningPanel } from '../workOrderPlanningPanel';
 import { WorkOrderScheduleHistory } from '../workOrderScheduleHistory';
 import { WorkOrderSchedulePanel } from '../workOrderSchedulePanel';
@@ -283,6 +284,14 @@ function OrganizationWorkOrderDetails({
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
         <WorkOrderItemsSection workOrder={workOrder} />
         <WorkOrderOverviewSidebar workOrder={workOrder} assignedMember={assignedMember} />
+      </div>
+
+      <div className="mt-10">
+        <WorkOrderPhotosSection
+          key={`${organizationId}:${workOrder.id}`}
+          organizationId={organizationId}
+          workOrderId={workOrder.id}
+        />
       </div>
 
       <div className="mt-10">
