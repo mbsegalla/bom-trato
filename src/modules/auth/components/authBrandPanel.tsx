@@ -1,4 +1,5 @@
 import { CalendarDays, ChartNoAxesCombined, Check, FileText, Users } from 'lucide-react';
+import Link from 'next/link';
 
 import { BrandLogo } from '@/components/brandLogo';
 
@@ -30,7 +31,9 @@ export function AuthBrandPanel() {
     <aside className="relative hidden flex-col overflow-hidden bg-brand text-brand-foreground lg:flex">
       <div className="relative flex flex-1 flex-col px-10 pt-10 xl:px-14 xl:pt-12">
         <div className="flex items-center justify-between gap-6">
-          <BrandLogo variant="horizontal-light" className="w-52" />
+          <Link href="/" aria-label="Voltar para a página inicial">
+            <BrandLogo variant="horizontal-light" className="w-52" />
+          </Link>
 
           <p className="hidden text-right text-xs leading-relaxed tracking-widest text-brand-muted xl:block">
             PEQUENOS NEGÓCIOS
