@@ -100,6 +100,14 @@ export const publicWorkOrderSchema = z.object({
   checklist: publicWorkOrderChecklistSchema.default({ items: [], progress: { total: 0, completed: 0 } }),
   photos: z.array(publicWorkOrderPhotoSchema).default([]),
   acceptance: publicWorkOrderAcceptanceSchema.nullable().default(null),
+  warranty: z
+    .object({
+      durationDays: z.number().int().positive(),
+      terms: z.string().min(1),
+      expiresAt: z.coerce.date(),
+    })
+    .nullable()
+    .default(null),
   generatedAt: z.coerce.date(),
   expiresAt: z.coerce.date(),
 });
