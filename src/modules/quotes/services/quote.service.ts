@@ -148,6 +148,21 @@ export async function createQuote(organizationId: string, input: CreateQuoteInpu
   return readQuote(response, 'Não foi possível criar o orçamento.');
 }
 
+export async function repeatWorkOrderQuote(organizationId: string, quoteId: string): Promise<Quote> {
+  const response = await authenticatedFetch(
+    `${organizationQuotesPath(organizationId)}/${encodeURIComponent(quoteId)}/repeat-service`,
+    { method: 'POST' },
+  );
+
+  const quote = await readQuote(response, 'Não foi possível criar o novo orçamento.');
+
+  if (quote.organizationId !== organizationId || quote.id === quoteId || quote.status !== 'DRAFT') {
+    throw new Error('Não foi possível confirmar o novo orçamento.');
+  }
+
+  return quote;
+}
+
 async function requestQuote(organizationId: string, quoteId: string): Promise<Quote> {
   const response = await authenticatedFetch(`${organizationQuotesPath(organizationId)}/${encodeURIComponent(quoteId)}`);
 
