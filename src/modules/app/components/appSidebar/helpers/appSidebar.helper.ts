@@ -1,4 +1,14 @@
-import { Banknote, CalendarDays, ClipboardList, FileText, Inbox, LayoutDashboard, Users, Wrench } from 'lucide-react';
+import {
+  Banknote,
+  CalendarClock,
+  CalendarDays,
+  ClipboardList,
+  FileText,
+  Inbox,
+  LayoutDashboard,
+  Users,
+  Wrench,
+} from 'lucide-react';
 
 import type { OrganizationRole } from '@/modules/organizations/types/organization.types';
 
@@ -10,6 +20,7 @@ export const appNavigation = [
   { label: 'Orçamentos', href: '/quotes', icon: FileText },
   { label: 'Ordens de serviço', href: '/work-orders', icon: ClipboardList },
   { label: 'Agendamentos', href: '/schedule', icon: CalendarDays },
+  { label: 'Serviços recorrentes', href: '/recurring-services', icon: CalendarClock },
   { label: 'Recebíveis', href: '/receivables', icon: Banknote },
 ] as const;
 
