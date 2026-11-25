@@ -32,6 +32,7 @@ import {
 } from '../../services/workOrder.service';
 import type { WorkOrder } from '../../types/workOrder.types';
 import { WorkOrderAcceptanceSection } from '../workOrderAcceptanceSection';
+import { WorkOrderDocumentSection } from '../workOrderDocumentSection';
 import { WorkOrderAssignPanel } from '../workOrderAssignPanel';
 import { WorkOrderCancelDialog } from '../workOrderCancelDialog';
 import { WorkOrderChecklistSection } from '../workOrderChecklistSection';
@@ -303,6 +304,15 @@ function OrganizationWorkOrderDetails({
       <div className="mt-10">
         <WorkOrderAcceptanceSection
           key={`${organizationId}:${workOrder.id}:${workOrder.version}`}
+          organizationId={organizationId}
+          workOrderId={workOrder.id}
+          status={workOrder.status}
+        />
+      </div>
+
+      <div className="mt-10">
+        <WorkOrderDocumentSection
+          key={`${organizationId}:${workOrder.id}`}
           organizationId={organizationId}
           workOrderId={workOrder.id}
           status={workOrder.status}

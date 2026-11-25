@@ -17,6 +17,7 @@ import { PublicWorkOrderOverview } from './components/publicWorkOrderOverview';
 import { PublicWorkOrderPhotos } from './components/publicWorkOrderPhotos';
 import { PublicWorkOrderSummary } from './components/publicWorkOrderSummary';
 import { PublicWorkOrderTimeline } from './components/publicWorkOrderTimeline';
+import { PublicWorkOrderWarranty } from './components/publicWorkOrderWarranty';
 
 type PublicWorkOrderState =
   | {
@@ -168,6 +169,8 @@ export function PublicWorkOrderContent() {
         <PublicWorkOrderChecklist checklist={portal.checklist} />
 
         <PublicWorkOrderPhotos photos={portal.photos} token={token} />
+
+        <PublicWorkOrderWarranty portal={portal} token={token} />
 
         <PublicWorkOrderAcceptanceSection
           key={token}
