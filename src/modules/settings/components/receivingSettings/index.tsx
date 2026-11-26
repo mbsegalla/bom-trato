@@ -10,6 +10,7 @@ import { SessionError } from '@/modules/auth/services/session.service';
 
 import { getReceivingSettings } from '../../services/receivingSettings.service';
 import type { ReceivingSettingsView } from '../../types/receivingSettings.types';
+import { MercadoPagoSettingsPanel } from './components/mercadoPagoSettingsPanel';
 import { ReceivingSettingsForm } from './components/receivingSettingsForm';
 
 type SettingsState =
@@ -37,11 +38,18 @@ export function ReceivingSettings() {
   }
 
   return (
-    <OrganizationReceivingSettings
-      key={activeOrganization.id}
-      organizationId={activeOrganization.id}
-      switchingOrganization={switchingOrganization}
-    />
+    <div className="space-y-6">
+      <OrganizationReceivingSettings
+        key={activeOrganization.id}
+        organizationId={activeOrganization.id}
+        switchingOrganization={switchingOrganization}
+      />
+      <MercadoPagoSettingsPanel
+        key={`mercado-pago:${activeOrganization.id}`}
+        organizationId={activeOrganization.id}
+        switchingOrganization={switchingOrganization}
+      />
+    </div>
   );
 }
 
