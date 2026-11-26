@@ -1,14 +1,17 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { installAuthenticatedApp, organizationId, organizationRoute } from '../../support/authenticatedApp.fixture.mjs';
 import { catalogService, pageResult } from '../../support/operationalRecords.fixture.mjs';
 
 const route = organizationRoute(organizationId, 'services');
 
-test('supports literal search and archived filters without displaying incorrect empty-state actions', async ({ page, api }) => {
+test('supports literal search and archived filters without displaying incorrect empty-state actions', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
-  api.respond('GET', route, ({ query }) => success(pageResult(
-    query.search || query.status === 'ARCHIVED' ? [] : [catalogService()],
-  )));
+  api.respond('GET', route, ({ query }) =>
+    success(pageResult(query.search || query.status === 'ARCHIVED' ? [] : [catalogService()])),
+  );
 
   await page.goto('/services-catalog');
 
@@ -28,8 +31,13 @@ test('supports literal search and archived filters without displaying incorrect 
   await main.getByRole('group', { name: 'Status dos serviços' }).getByRole('button', { name: 'Arquivados' }).click();
   await expect(main.getByRole('heading', { name: 'Nenhum serviço arquivado' })).toBeVisible();
 
-  expect(api.calls.filter((call) => call.path === route).map(({ query }) => [query.status, query.search ?? ''])).toEqual([
-    ['ACTIVE', ''], ['ACTIVE', '100% serviço'], ['ACTIVE', ''], ['ARCHIVED', ''],
+  expect(
+    api.calls.filter((call) => call.path === route).map(({ query }) => [query.status, query.search ?? '']),
+  ).toEqual([
+    ['ACTIVE', ''],
+    ['ACTIVE', '100% serviço'],
+    ['ACTIVE', ''],
+    ['ARCHIVED', ''],
   ]);
 });
 
@@ -58,7 +66,9 @@ test('validates and creates a catalog service using cents and a combined duratio
   await dialog.getByLabel('Valor padrão *', { exact: true }).fill('125,50');
   await submit.click();
 
-  await expect(dialog.getByRole('alert').filter({ hasText: 'Informe um nome com pelo menos 2 caracteres.' })).toBeVisible();
+  await expect(
+    dialog.getByRole('alert').filter({ hasText: 'Informe um nome com pelo menos 2 caracteres.' }),
+  ).toBeVisible();
   expect(api.calls.filter((call) => call.path === route && call.method === 'POST')).toHaveLength(0);
 
   await dialog.getByLabel('Nome *', { exact: true }).fill('  Instalação de teste  ');

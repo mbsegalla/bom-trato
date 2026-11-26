@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import {
   publicWorkOrderAcceptanceReceiptSchema,
   workOrderAcceptanceFormSchema,
-  workOrderAcceptanceSnapshotHashSchema
+  workOrderAcceptanceSnapshotHashSchema,
 } from './workOrderAcceptance.schema';
 
 describe('work order acceptance', () => {
@@ -12,12 +12,12 @@ describe('work order acceptance', () => {
     assert.deepEqual(
       workOrderAcceptanceFormSchema.parse({
         signerName: ' Cliente   Teste ',
-        consent: true
+        consent: true,
       }),
       {
         signerName: 'Cliente Teste',
-        consent: true
-      }
+        consent: true,
+      },
     );
     assert.equal(workOrderAcceptanceFormSchema.safeParse({ signerName: 'Cliente', consent: false }).success, false);
     assert.equal(workOrderAcceptanceSnapshotHashSchema.safeParse('a'.repeat(64)).success, true);
@@ -29,7 +29,7 @@ describe('work order acceptance', () => {
     const result = publicWorkOrderAcceptanceReceiptSchema.parse({
       acceptedAt: date,
       completedAt: date,
-      signerName: 'Private'
+      signerName: 'Private',
     });
 
     assert.deepEqual(Object.keys(result).sort(), ['acceptedAt', 'completedAt']);

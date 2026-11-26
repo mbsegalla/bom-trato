@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { updateBusinessProfile, uploadBusinessLogo } from '@/modules/settings/services/business.service';
+
 import { mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 describe('business settings HTTP boundary', () => {
@@ -35,7 +36,7 @@ describe('business settings HTTP boundary', () => {
 
     await assert.rejects(
       uploadBusinessLogo(organizationId, new File(['fixture'], 'fixture.png', { type: 'image/png' })),
-      /2 MB/
+      /2 MB/,
     );
 
     const upload = calls.at(-1)!;

@@ -8,14 +8,21 @@ export function installDashboard(api, options = {}) {
   const root = organizationRoute(id, 'dashboard');
   const summary = {
     quotes: { draft: empty ? 0 : 2, awaitingApproval: empty ? 0 : 1, expiredSent: empty ? 0 : 2 },
-    workOrders: { open: empty ? 0 : 1, scheduled: empty ? 0 : 2, inProgress: empty ? 0 : 3, completedInPeriod: empty ? 0 : 4 },
+    workOrders: {
+      open: empty ? 0 : 1,
+      scheduled: empty ? 0 : 2,
+      inProgress: empty ? 0 : 3,
+      completedInPeriod: empty ? 0 : 4,
+    },
   };
 
-  api.respond('GET', root + '/summary', ({ query }) => success({
-    generatedAt: date,
-    period: { from: query.from, to: query.to },
-    ...summary,
-  }));
+  api.respond('GET', root + '/summary', ({ query }) =>
+    success({
+      generatedAt: date,
+      period: { from: query.from, to: query.to },
+      ...summary,
+    }),
+  );
   api.respond('GET', root + '/financial', ({ query }) => {
     if (options.financialUnavailable?.()) {
       return { status: 503, json: { success: false } };
@@ -55,20 +62,26 @@ export function installDashboard(api, options = {}) {
       items,
     });
   });
-  api.respond('GET', root + '/upcoming-work-orders', () => success({
-    generatedAt: date,
-    items: empty ? [] : [{
-      id: workOrderId,
-      customerId,
-      customerName: 'Fixture customer',
-      title: 'Fixture upcoming service',
-      serviceAddress: null,
-      scheduledStartAt: '2030-01-01T12:00:00Z',
-      scheduledEndAt: '2030-01-01T13:00:00Z',
-      assignedTo: { id: userId, name: 'Fixture technician' },
-    }],
-    hasMore: false,
-  }));
+  api.respond('GET', root + '/upcoming-work-orders', () =>
+    success({
+      generatedAt: date,
+      items: empty
+        ? []
+        : [
+            {
+              id: workOrderId,
+              customerId,
+              customerName: 'Fixture customer',
+              title: 'Fixture upcoming service',
+              serviceAddress: null,
+              scheduledStartAt: '2030-01-01T12:00:00Z',
+              scheduledEndAt: '2030-01-01T13:00:00Z',
+              assignedTo: { id: userId, name: 'Fixture technician' },
+            },
+          ],
+      hasMore: false,
+    }),
+  );
   api.respond('GET', organizationRoute(id, 'quotes'), () => {
     if (options.quotesUnavailable) return { status: 503, json: { success: false } };
 

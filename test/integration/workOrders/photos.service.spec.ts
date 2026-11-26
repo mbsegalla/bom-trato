@@ -5,15 +5,16 @@ import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   getWorkOrderPhotoContent,
   uploadWorkOrderPhoto,
-  validateWorkOrderPhotoFile
+  validateWorkOrderPhotoFile,
 } from '@/modules/workOrders/services/workOrderPhoto.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 describe('work order photo service', () => {
@@ -25,7 +26,7 @@ describe('work order photo service', () => {
     for (const file of [
       new File(['data'], 'fixture.txt', { type: 'text/plain' }),
       new File([], 'fixture.webp', { type: 'image/webp' }),
-      new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'fixture.webp', { type: 'image/webp' })
+      new File([new Uint8Array(10 * 1024 * 1024 + 1)], 'fixture.webp', { type: 'image/webp' }),
     ]) {
       assert.notEqual(validateWorkOrderPhotoFile(file), null);
       await assert.rejects(uploadWorkOrderPhoto(organizationId, receivableId, file, input));
@@ -51,7 +52,7 @@ describe('work order photo service', () => {
     await assert.rejects(getWorkOrderPhotoContent(organizationId, receivableId, issuanceId), /conteúdo da foto/);
     assert.equal(
       calls.at(-1)?.path,
-      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/photos/' + issuanceId + '/content'
+      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/photos/' + issuanceId + '/content',
     );
   });
 });

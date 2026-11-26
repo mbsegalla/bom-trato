@@ -3,13 +3,14 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { getReceivablePixCharge } from '@/modules/receivables/services/receivablePixCharge.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const data = {
@@ -21,7 +22,7 @@ const data = {
   currency: 'brl',
   merchantName: 'TEST',
   txid: 'A'.repeat(25),
-  copyAndPaste: '000201FIXTURE6304ABCD'
+  copyAndPaste: '000201FIXTURE6304ABCD',
 };
 
 describe('static Pix charge HTTP boundary', () => {
@@ -42,13 +43,20 @@ describe('static Pix charge HTTP boundary', () => {
       { organizationId: issuanceId },
       { receivableId: issuanceId },
       { amountInCents: 0 },
-      { copyAndPaste: 'invalid' }
+      { copyAndPaste: 'invalid' },
     ]) {
       payload = { ...data, ...patch };
 
       await assert.rejects(getReceivablePixCharge(organizationId, receivableId), /confirmar as instruções Pix/);
     }
-    assert.ok(calls.filter((call) => call.path.endsWith('/pix-charge')).every((call) => call.path === '/api/organizations/' + organizationId + '/receivables/' + receivableId + '/pix-charge'));
+    assert.ok(
+      calls
+        .filter((call) => call.path.endsWith('/pix-charge'))
+        .every(
+          (call) =>
+            call.path === '/api/organizations/' + organizationId + '/receivables/' + receivableId + '/pix-charge',
+        ),
+    );
   });
 
   it('distinguishes authorization and financial conflicts', async (t) => {

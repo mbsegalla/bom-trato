@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import {
   installAuthenticatedApp,
   onboarding,
@@ -8,7 +8,10 @@ import {
   otherOrganizationId,
 } from '../../support/authenticatedApp.fixture.mjs';
 
-test('restores an authenticated session and scopes the application to the joined organization', async ({ page, api }) => {
+test('restores an authenticated session and scopes the application to the joined organization', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   await page.goto('/customers');
 
@@ -25,29 +28,36 @@ test('restores an authenticated session and scopes the application to the joined
   expect(api.calls.filter((call) => call.path === '/api/auth/refresh')).toHaveLength(1);
 });
 
-test('skips a stored organization that cannot access the app and loads only the available tenant', async ({ page, api }) => {
+test('skips a stored organization that cannot access the app and loads only the available tenant', async ({
+  page,
+  api,
+}) => {
   const other = { ...organization, id: otherOrganizationId, name: 'Available business' };
 
   await page.addInitScript((id) => localStorage.setItem('bom-trato:active-organization', id), organizationId);
   await installAuthenticatedApp(page, api, {
     organizations: [organization, other],
-    onboarding: (id) => id === organizationId
-      ? onboarding(id, { step: 'SELECT_PLAN', accessSource: 'NONE' })
-      : onboarding(id),
+    onboarding: (id) =>
+      id === organizationId ? onboarding(id, { step: 'SELECT_PLAN', accessSource: 'NONE' }) : onboarding(id),
   });
 
   await page.goto('/customers');
 
   await expect(page.getByRole('heading', { name: 'Ainda não há clientes por aqui' })).toBeVisible();
 
-  expect(api.calls.filter((call) => call.path === '/api/onboarding').map((call) => call.query.organizationId))
-    .toEqual([organizationId, otherOrganizationId]);
+  expect(api.calls.filter((call) => call.path === '/api/onboarding').map((call) => call.query.organizationId)).toEqual([
+    organizationId,
+    otherOrganizationId,
+  ]);
   expect(api.calls.filter((call) => call.path === organizationRoute(organizationId, 'customers'))).toHaveLength(0);
   expect(api.calls.filter((call) => call.path === organizationRoute(otherOrganizationId, 'customers'))).toHaveLength(1);
   expect(await page.evaluate(() => localStorage.getItem('bom-trato:active-organization'))).toBe(otherOrganizationId);
 });
 
-test('redirects to login when session restoration is denied before any private data is loaded', async ({ page, api }) => {
+test('redirects to login when session restoration is denied before any private data is loaded', async ({
+  page,
+  api,
+}) => {
   api.respond('GET', '/api/auth/csrf', () => success({ csrfToken: 'fixture-csrf' }));
   api.respond('POST', '/api/auth/refresh', () => ({ status: 401, json: { success: false } }));
 

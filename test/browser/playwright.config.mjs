@@ -1,5 +1,6 @@
-import { defineConfig, devices } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
+
+import { defineConfig, devices } from '@playwright/test';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const baseURL = 'http://127.0.0.1:3100';

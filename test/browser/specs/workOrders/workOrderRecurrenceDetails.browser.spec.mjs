@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { date, installAuthenticatedApp, userId } from '../../support/authenticatedApp.fixture.mjs';
 import { installWorkOrderDetails, orderDetails } from '../../support/operationalDetails.fixture.mjs';
 import { workOrderId } from '../../support/operationalRecords.fixture.mjs';
@@ -18,7 +18,10 @@ async function setup(page, api, read) {
   api.respond('GET', recurrenceRoute, () => success(read()));
 }
 
-test('validates frequency and saves explicit automatic generation preferences with the current version', async ({ page, api }) => {
+test('validates frequency and saves explicit automatic generation preferences with the current version', async ({
+  page,
+  api,
+}) => {
   let current = recurrence({ autoGenerateEnabled: false });
 
   await setup(page, api, () => recurrenceView({ recurrence: current }));
@@ -52,8 +55,12 @@ test('validates frequency and saves explicit automatic generation preferences wi
 
   expect(writes).toHaveLength(1);
   expect(writes[0].body).toEqual({
-    intervalUnit: 'MONTH', intervalCount: 2, nextVisitOn: '2026-01-16',
-    enabled: true, autoGenerateEnabled: true, version: 1,
+    intervalUnit: 'MONTH',
+    intervalCount: 2,
+    nextVisitOn: '2026-01-16',
+    enabled: true,
+    autoGenerateEnabled: true,
+    version: 1,
   });
 });
 
@@ -80,7 +87,9 @@ test('requires refreshing a stale configuration before allowing another write', 
   const save = section.getByRole('button', { name: 'Salvar recorrência', exact: true });
 
   await save.click();
-  await expect(section.getByRole('alert')).toHaveText('Atualize a recorrência para consultar a configuração atual antes de tentar novamente.');
+  await expect(section.getByRole('alert')).toHaveText(
+    'Atualize a recorrência para consultar a configuração atual antes de tentar novamente.',
+  );
   await expect(save).toHaveCount(0);
 
   conflict = false;

@@ -2,20 +2,26 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { downloadPublicWorkOrderReport } from '@/modules/workOrders/services/publicWorkOrderReport.service';
+
 import { mockHttp } from '../../support/http.fixture';
 
 const token = 'a'.repeat(64);
 
 describe('public work order document download', () => {
   it('rejects a malformed token without issuing a request', async (t) => {
-    const calls = mockHttp(t, () => { throw new Error('Unexpected request'); });
+    const calls = mockHttp(t, () => {
+      throw new Error('Unexpected request');
+    });
 
     await assert.rejects(downloadPublicWorkOrderReport('invalid'), /inválido/);
     assert.equal(calls.length, 0);
   });
 
   it('downloads the report as PDF with no credentials, cache or token in the URL', async (t) => {
-    const calls = mockHttp(t, () => new Response('%PDF-1.4 fixture', { headers: { 'Content-Type': 'application/pdf' } }));
+    const calls = mockHttp(
+      t,
+      () => new Response('%PDF-1.4 fixture', { headers: { 'Content-Type': 'application/pdf' } }),
+    );
 
     const blob = await downloadPublicWorkOrderReport(token);
 

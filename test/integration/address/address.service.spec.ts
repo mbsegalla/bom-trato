@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   findAddressByPostalCode,
   listBrazilianCities,
-  listBrazilianStates
+  listBrazilianStates,
 } from '@/modules/address/services/address.service';
+import { restoreSession } from '@/modules/auth/services/session.service';
+
 import { mockHttp, sessionResponse, success } from '../../support/http.fixture';
 
 describe('address HTTP service', () => {
@@ -16,15 +17,17 @@ describe('address HTTP service', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
 
-      return fail ? new Response(null, { status: 404 }) : success({
-        postalCode: '01001000',
-        street: null,
-        neighborhood: null,
-        city: 'Sao Paulo',
-        state: 'SP',
-        cityIbgeCode: null,
-        stateIbgeCode: null
-      });
+      return fail
+        ? new Response(null, { status: 404 })
+        : success({
+            postalCode: '01001000',
+            street: null,
+            neighborhood: null,
+            city: 'Sao Paulo',
+            state: 'SP',
+            cityIbgeCode: null,
+            stateIbgeCode: null,
+          });
     });
 
     await restoreSession();
@@ -63,7 +66,9 @@ describe('address HTTP service', () => {
     assert.equal(calls.filter((call) => call.path.startsWith('/api/address/')).length, 3);
   });
   for (const [status, message] of [
-    [400, /CEP ou estado válido/], [502, /temporariamente indisponível/], [503, /temporariamente indisponível/],
+    [400, /CEP ou estado válido/],
+    [502, /temporariamente indisponível/],
+    [503, /temporariamente indisponível/],
     [500, /consultar o CEP/],
   ] as const) {
     it('surfaces CEP provider HTTP ' + status + ' without caching the failure', async (t) => {

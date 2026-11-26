@@ -15,16 +15,16 @@ describe('work order checklist', () => {
       id: '11111111-1111-4111-8111-111111111111',
       title: 'Verify',
       completed: false,
-      completedAt: null
+      completedAt: null,
     };
 
     assert.deepEqual(
       publicWorkOrderChecklistItemSchema.parse({
         ...item,
         completedById: 'private',
-        visibleInPortal: true
+        visibleInPortal: true,
       }),
-      item
+      item,
     );
   });
 });

@@ -30,23 +30,29 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-const result = spawnSync(process.execPath, [
-  '--enable-source-maps',
-  '--import',
-  resolve(root, 'test/setup/register.mjs'),
-  '--test',
-  ...(coverage ? [
-    '--experimental-test-coverage',
-    '--test-coverage-include=src/**',
-    '--test-coverage-exclude=**/*.spec.ts',
-    '--test-coverage-exclude=**/*.spec.tsx'
-  ] : []),
-  ...files,
-], {
-  cwd: root,
-  stdio: 'inherit',
-  env: { ...process.env, NEXT_PUBLIC_BASE_URL_API: 'https://api.example.invalid' },
-});
+const result = spawnSync(
+  process.execPath,
+  [
+    '--enable-source-maps',
+    '--import',
+    resolve(root, 'test/setup/register.mjs'),
+    '--test',
+    ...(coverage
+      ? [
+          '--experimental-test-coverage',
+          '--test-coverage-include=src/**',
+          '--test-coverage-exclude=**/*.spec.ts',
+          '--test-coverage-exclude=**/*.spec.tsx',
+        ]
+      : []),
+    ...files,
+  ],
+  {
+    cwd: root,
+    stdio: 'inherit',
+    env: { ...process.env, NEXT_PUBLIC_BASE_URL_API: 'https://api.example.invalid' },
+  },
+);
 
 if (result.error) console.error(result.error);
 process.exit(result.status ?? 1);

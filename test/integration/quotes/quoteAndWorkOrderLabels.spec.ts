@@ -2,15 +2,25 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import {
-  getQuotePaymentConditionDescription, getQuotePaymentConditionLabel, getQuoteDownPaymentAmountInCents,
-  getQuoteStatusLabel, isQuoteExpired,
+  getQuoteDownPaymentAmountInCents,
+  getQuotePaymentConditionDescription,
+  getQuotePaymentConditionLabel,
+  getQuoteStatusLabel,
+  isQuoteExpired,
 } from '@/modules/quotes/constants/quote.constants';
-import { canCancelWorkOrder, getWorkOrderStatusLabel, isWorkOrderPlanningEditable } from '@/modules/workOrders/constants/workOrder.constants';
+import {
+  canCancelWorkOrder,
+  getWorkOrderStatusLabel,
+  isWorkOrderPlanningEditable,
+} from '@/modules/workOrders/constants/workOrder.constants';
 
 describe('quote and work order status and payment presentation', () => {
   for (const [status, label] of [
-    ['DRAFT', 'Rascunho'], ['SENT', 'Enviado'], ['APPROVED', 'Aprovado'],
-    ['DECLINED', 'Recusado'], ['CANCELED', 'Cancelado'],
+    ['DRAFT', 'Rascunho'],
+    ['SENT', 'Enviado'],
+    ['APPROVED', 'Aprovado'],
+    ['DECLINED', 'Recusado'],
+    ['CANCELED', 'Cancelado'],
   ] as const) {
     it('labels quote status ' + status + ' without inventing an expiration', () => {
       assert.equal(getQuoteStatusLabel(status), label);
@@ -42,8 +52,10 @@ describe('quote and work order status and payment presentation', () => {
   });
 
   for (const [status, label, editable, cancelable] of [
-    ['OPEN', 'Aberta', true, true], ['SCHEDULED', 'Agendada', true, true],
-    ['IN_PROGRESS', 'Em andamento', false, true], ['COMPLETED', 'Concluída', false, false],
+    ['OPEN', 'Aberta', true, true],
+    ['SCHEDULED', 'Agendada', true, true],
+    ['IN_PROGRESS', 'Em andamento', false, true],
+    ['COMPLETED', 'Concluída', false, false],
     ['CANCELED', 'Cancelada', false, false],
   ] as const) {
     it('preserves work order presentation and action restrictions for ' + status, () => {

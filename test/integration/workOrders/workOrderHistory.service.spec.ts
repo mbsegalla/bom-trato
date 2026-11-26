@@ -2,9 +2,20 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
-import { getWorkOrderScheduleHistory, getWorkOrderStatusHistory, sendWorkOrderReviewInvitation } from '@/modules/workOrders/services/workOrder.service';
+import {
+  getWorkOrderScheduleHistory,
+  getWorkOrderStatusHistory,
+  sendWorkOrderReviewInvitation,
+} from '@/modules/workOrders/services/workOrder.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders/' + receivableId;
 const date = '2025-01-01T00:00:00.000Z';
@@ -70,7 +81,10 @@ describe('work order history and review contracts', () => {
     assert.strictEqual(first, getWorkOrderScheduleHistory(organizationId, receivableId, 1, 1));
     assert.notStrictEqual(first, second);
 
-    assert.deepEqual((await Promise.all([first, second])).map((page) => page.page), [1, 2]);
+    assert.deepEqual(
+      (await Promise.all([first, second])).map((page) => page.page),
+      [1, 2],
+    );
     assert.equal(calls.filter((call) => call.path.includes('/schedule-history?')).length, 3);
   });
 
@@ -82,9 +96,27 @@ describe('work order history and review contracts', () => {
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path === route + '/review-invitation') {
         attempt++;
-        if (attempt === 1) return success({ channel: 'EMAIL', recipient: 'customer@example.invalid', token: null, organizationName: 'Fixture' });
-        if (attempt === 2) return success({ channel: 'WHATSAPP', recipient: '34999991234', token: 'fixture-token', organizationName: 'Fixture' });
-        if (attempt === 3) return success({ channel: 'EMAIL', recipient: 'customer@example.invalid', token: 'unexpected', organizationName: 'Fixture' });
+        if (attempt === 1)
+          return success({
+            channel: 'EMAIL',
+            recipient: 'customer@example.invalid',
+            token: null,
+            organizationName: 'Fixture',
+          });
+        if (attempt === 2)
+          return success({
+            channel: 'WHATSAPP',
+            recipient: '34999991234',
+            token: 'fixture-token',
+            organizationName: 'Fixture',
+          });
+        if (attempt === 3)
+          return success({
+            channel: 'EMAIL',
+            recipient: 'customer@example.invalid',
+            token: 'unexpected',
+            organizationName: 'Fixture',
+          });
         return Response.json({ error: { code: 'WORK_ORDER_NOT_COMPLETED' } }, { status: 409 });
       }
       throw new Error('Unexpected request: ' + call.path);

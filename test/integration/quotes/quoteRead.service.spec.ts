@@ -37,20 +37,24 @@ describe('quote reading contracts', () => {
 
     assert.equal(requests.length, 3);
     assert.ok(requests.some((call) => call.path === route + '?page=1&limit=10'));
-    assert.ok(requests.some((call) => call.path.includes('status=SENT') && call.path.includes('customerId=' + receivableId)));
+    assert.ok(
+      requests.some((call) => call.path.includes('status=SENT') && call.path.includes('customerId=' + receivableId)),
+    );
     assert.ok(requests.some((call) => call.path.startsWith('/api/organizations/' + receivableId)));
   });
 
   it('isolates history requests by quote version and converts dates', async (t) => {
-    const history = [{
-      id: organizationId,
-      quoteId: receivableId,
-      fromStatus: 'DRAFT',
-      toStatus: 'SENT',
-      actorId: null,
-      version: 2,
-      createdAt: date,
-    }];
+    const history = [
+      {
+        id: organizationId,
+        quoteId: receivableId,
+        fromStatus: 'DRAFT',
+        toStatus: 'SENT',
+        actorId: null,
+        version: 2,
+        createdAt: date,
+      },
+    ];
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();

@@ -93,35 +93,45 @@ export async function installAuthenticatedApp(page, api, options = {}) {
   const organizations = options.organizations ?? [organization];
 
   api.respond('GET', '/api/auth/csrf', () => success({ csrfToken: 'fixture-csrf' }));
-  api.respond('POST', '/api/auth/refresh', () => success({
-    accessToken: 'fixture-access',
-    expiresIn: 3600,
-    tokenType: 'Bearer',
-    csrfToken: 'fixture-csrf',
-  }));
+  api.respond('POST', '/api/auth/refresh', () =>
+    success({
+      accessToken: 'fixture-access',
+      expiresIn: 3600,
+      tokenType: 'Bearer',
+      csrfToken: 'fixture-csrf',
+    }),
+  );
   api.respond('GET', '/api/auth/me', () => success(user));
-  api.respond('GET', '/api/organizations/mine', () => success({
-    page: 1,
-    hasMore: false,
-    items: organizations,
-  }));
-  api.respond('GET', '/api/onboarding', (call) => success(
-    options.onboarding?.(call.query.organizationId) ?? onboarding(call.query.organizationId),
-  ));
-
-  for (const item of organizations) {
-    api.respond('GET', organizationRoute(item.id, 'customers'), () => success({
-      items: [],
+  api.respond('GET', '/api/organizations/mine', () =>
+    success({
       page: 1,
       hasMore: false,
-    }));
-    api.respond('GET', organizationRoute(item.id, 'notifications'), () => success({
-      items: [],
-      unreadCount: 0,
-    }));
-    api.respond('POST', organizationRoute(item.id, 'notifications/stream-ticket'), () => success({
-      ticket,
-      expiresAt: new Date(Date.now() + 30000).toISOString(),
-    }));
+      items: organizations,
+    }),
+  );
+  api.respond('GET', '/api/onboarding', (call) =>
+    success(options.onboarding?.(call.query.organizationId) ?? onboarding(call.query.organizationId)),
+  );
+
+  for (const item of organizations) {
+    api.respond('GET', organizationRoute(item.id, 'customers'), () =>
+      success({
+        items: [],
+        page: 1,
+        hasMore: false,
+      }),
+    );
+    api.respond('GET', organizationRoute(item.id, 'notifications'), () =>
+      success({
+        items: [],
+        unreadCount: 0,
+      }),
+    );
+    api.respond('POST', organizationRoute(item.id, 'notifications/stream-ticket'), () =>
+      success({
+        ticket,
+        expiresAt: new Date(Date.now() + 30000).toISOString(),
+      }),
+    );
   }
 }

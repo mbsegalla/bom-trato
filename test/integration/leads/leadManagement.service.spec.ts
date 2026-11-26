@@ -4,7 +4,14 @@ import { describe, it } from 'node:test';
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { archiveLead, convertLead, getLead, listLeads, markLeadContacted } from '@/modules/leads/services/lead.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const date = '2026-01-01T00:00:00Z';
 const leadId = issuanceId;
@@ -101,7 +108,13 @@ describe('authenticated lead HTTP contracts', () => {
       if (call.path === details + '/archive') return success({ ...state, status: 'ARCHIVED', archivedAt: date });
       if (call.path === details + '/convert') {
         return success({
-          lead: { ...state, status: 'CONVERTED', convertedCustomerId: receivableId, convertedQuoteId: issuanceId, convertedAt: date },
+          lead: {
+            ...state,
+            status: 'CONVERTED',
+            convertedCustomerId: receivableId,
+            convertedQuoteId: issuanceId,
+            convertedAt: date,
+          },
           customerId: receivableId,
           quoteId: issuanceId,
         });
@@ -124,9 +137,10 @@ describe('authenticated lead HTTP contracts', () => {
 
     const writes = calls.filter((call) => call.path.startsWith(details) && call.method === 'POST');
 
-    assert.deepEqual(writes.map((call) => call.path), [
-      details + '/contacted', details + '/archive', details + '/convert',
-    ]);
+    assert.deepEqual(
+      writes.map((call) => call.path),
+      [details + '/contacted', details + '/archive', details + '/convert'],
+    );
     assert.ok(writes.every((call) => call.headers.get('x-csrf-token') === 'fixture-csrf'));
   });
 

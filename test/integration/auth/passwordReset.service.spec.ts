@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { requestPasswordReset, resetPassword } from '@/modules/auth/services/passwordReset.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 const token = 'a'.repeat(43);
@@ -39,9 +40,9 @@ describe('password recovery HTTP service', () => {
 
   it('distinguishes expired or used reset tokens from rate limiting and never retries the mutation', async (t) => {
     let status = 401;
-    const calls = mockHttp(t, (call) => call.path === '/api/auth/csrf'
-      ? success({ csrfToken: 'fixture-csrf' })
-      : new Response(null, { status }));
+    const calls = mockHttp(t, (call) =>
+      call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }),
+    );
 
     const invalid = await resetPassword(token, password);
 

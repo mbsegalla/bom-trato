@@ -42,11 +42,14 @@ describe('customer mutation contracts', () => {
 
     const mutations = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(mutations.map((call) => [call.path, call.method]), [
-      [route, 'PATCH'],
-      [route + '/archive', 'POST'],
-      [route + '/restore', 'POST'],
-    ]);
+    assert.deepEqual(
+      mutations.map((call) => [call.path, call.method]),
+      [
+        [route, 'PATCH'],
+        [route + '/archive', 'POST'],
+        [route + '/restore', 'POST'],
+      ],
+    );
     assert.deepEqual(JSON.parse(String(mutations[0].body)), input);
     assert.ok(mutations.every((call) => call.headers.has('Authorization')));
   });

@@ -11,13 +11,15 @@ const plan: Plan = {
   description: 'Fixture',
   maxUsers: 1,
   teamManagementEnabled: false,
-  prices: [{
-    id: 'price',
-    interval: 'MONTH',
-    intervalCount: 1,
-    amountInCents: 1000,
-    currency: 'brl'
-  }]
+  prices: [
+    {
+      id: 'price',
+      interval: 'MONTH',
+      intervalCount: 1,
+      amountInCents: 1000,
+      currency: 'brl',
+    },
+  ],
 };
 
 describe('plan selection', () => {

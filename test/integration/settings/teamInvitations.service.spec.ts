@@ -11,7 +11,14 @@ import {
   TeamRequestError,
 } from '@/modules/settings/services/team.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/invitations';
 const date = '2025-01-01T00:00:00.000Z';
@@ -26,7 +33,8 @@ const invitation = {
   revokedAt: null,
   createdAt: date,
 };
-const failure = (code: string, status: number) => Response.json({ statusCode: status, success: false, error: { code, message: 'Fixture' } }, { status });
+const failure = (code: string, status: number) =>
+  Response.json({ statusCode: status, success: false, error: { code, message: 'Fixture' } }, { status });
 
 describe('team invitation and entitlement contracts', () => {
   it('collects all invitation pages in order and coalesces requests for the same organization', async (t) => {
@@ -35,7 +43,11 @@ describe('team invitation and entitlement contracts', () => {
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path.startsWith(route + '?')) {
         const page = Number(new URLSearchParams(call.path.split('?')[1]).get('page'));
-        return success({ page, hasMore: page === 1, items: [{ ...invitation, id: page === 1 ? receivableId : issuanceId }] });
+        return success({
+          page,
+          hasMore: page === 1,
+          items: [{ ...invitation, id: page === 1 ? receivableId : issuanceId }],
+        });
       }
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -49,7 +61,10 @@ describe('team invitation and entitlement contracts', () => {
 
     const result = await first;
 
-    assert.deepEqual(result.map((item) => item.id), [receivableId, issuanceId]);
+    assert.deepEqual(
+      result.map((item) => item.id),
+      [receivableId, issuanceId],
+    );
     assert.deepEqual(result[0]?.expiresAt, new Date(date));
     assert.equal(calls.filter((call) => call.path.startsWith(route + '?')).length, 2);
   });
@@ -85,7 +100,10 @@ describe('team invitation and entitlement contracts', () => {
     assert.strictEqual(first, duplicate);
     assert.notStrictEqual(first, other);
 
-    assert.deepEqual((await Promise.all([first, other])).map((item) => item.maxUsers), [3, 5]);
+    assert.deepEqual(
+      (await Promise.all([first, other])).map((item) => item.maxUsers),
+      [3, 5],
+    );
   });
 
   it('previews tokens only in the body, resends scoped invitations and preserves rate-limit errors', async (t) => {
@@ -95,13 +113,17 @@ describe('team invitation and entitlement contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === '/api/organization-invitations/preview') return success({
-        id: receivableId, organization: { id: organizationId, name: 'Fixture' }, expiresAt: date,
-      });
+      if (call.path === '/api/organization-invitations/preview')
+        return success({
+          id: receivableId,
+          organization: { id: organizationId, name: 'Fixture' },
+          expiresAt: date,
+        });
       if (call.path === route + '/' + receivableId + '/resend') {
         return ++resend === 1 ? success({ invitation, emailQueued: true }) : failure('INVITATION_RATE_LIMITED', 429);
       }
-      if (call.path === route + '/' + receivableId && call.method === 'DELETE') return new Response(null, { status: 204 });
+      if (call.path === route + '/' + receivableId && call.method === 'DELETE')
+        return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
     });
 
@@ -109,8 +131,10 @@ describe('team invitation and entitlement contracts', () => {
 
     assert.equal((await previewOrganizationInvitation(token)).organization.id, organizationId);
     assert.equal((await resendOrganizationInvitation(organizationId, receivableId)).emailQueued, true);
-    await assert.rejects(resendOrganizationInvitation(organizationId, receivableId), (error: unknown) =>
-      error instanceof TeamRequestError && error.code === 'INVITATION_RATE_LIMITED' && error.status === 429,
+    await assert.rejects(
+      resendOrganizationInvitation(organizationId, receivableId),
+      (error: unknown) =>
+        error instanceof TeamRequestError && error.code === 'INVITATION_RATE_LIMITED' && error.status === 429,
     );
     await revokeOrganizationInvitation(organizationId, receivableId);
 

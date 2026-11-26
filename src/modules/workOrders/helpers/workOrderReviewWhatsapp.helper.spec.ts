@@ -5,20 +5,16 @@ import type { WorkOrder } from '../types/workOrder.types';
 import {
   createWorkOrderReviewUrl,
   createWorkOrderReviewWhatsAppMessage,
-  createWorkOrderReviewWhatsAppUrl
+  createWorkOrderReviewWhatsAppUrl,
 } from './workOrderReviewWhatsapp.helper';
 
 describe('review link privacy', () => {
   it('keeps the private review token in the fragment instead of the request query', (t) => {
     const previous = Object.getOwnPropertyDescriptor(globalThis, 'window');
-    Object.defineProperty(
-      globalThis,
-      'window',
-      {
-        configurable: true,
-        value: { location: { origin: 'https://web.example.invalid' } }
-      }
-    );
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { location: { origin: 'https://web.example.invalid' } },
+    });
     t.after(() => {
       if (previous) Object.defineProperty(globalThis, 'window', previous);
       else Reflect.deleteProperty(globalThis, 'window');

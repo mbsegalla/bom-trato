@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { installAuthenticatedApp, onboarding, organizationId } from '../../support/authenticatedApp.fixture.mjs';
 import { installDashboard } from '../../support/dashboard.fixture.mjs';
 
@@ -28,7 +28,10 @@ function activeTrial() {
   });
 }
 
-test('provisions a free trial, validates the trimmed business name and enters the scoped application without payment', async ({ page, api }) => {
+test('provisions a free trial, validates the trimmed business name and enters the scoped application without payment', async ({
+  page,
+  api,
+}) => {
   let current = trialSetup;
   await installAuthenticatedApp(page, api, { onboarding: () => current });
   installDashboard(api, { empty: true });
@@ -47,7 +50,9 @@ test('provisions a free trial, validates the trimmed business name and enters th
   const submit = main.getByRole('button', { name: 'Começar minha avaliação gratuita', exact: true });
 
   await expect(main.getByRole('heading', { name: 'Seu negócio começa aqui' })).toBeVisible();
-  await expect(main.getByText('14 dias gratuitos. Sem cartão de crédito e sem renovação automática.', { exact: true })).toBeVisible();
+  await expect(
+    main.getByText('14 dias gratuitos. Sem cartão de crédito e sem renovação automática.', { exact: true }),
+  ).toBeVisible();
 
   await name.fill('   ');
   await submit.click();
@@ -94,8 +99,11 @@ test('keeps the payment-pending screen until an explicit refresh confirms access
 
   await expect(main.getByRole('heading', { name: 'Pagamento confirmado' })).toBeVisible();
   await expect(main.getByRole('button', { name: 'Criar meu negócio', exact: true })).toBeEnabled();
-  expect(api.calls.filter((call) => call.path === route).map((call) => call.query.organizationId))
-    .toEqual([organizationId, organizationId, organizationId]);
+  expect(api.calls.filter((call) => call.path === route).map((call) => call.query.organizationId)).toEqual([
+    organizationId,
+    organizationId,
+    organizationId,
+  ]);
   expect(api.calls.filter((call) => call.path.includes('/billing/'))).toHaveLength(0);
   expect(api.calls.filter((call) => call.path === bootstrapRoute || call.path === businessRoute)).toHaveLength(0);
 });
@@ -106,9 +114,9 @@ test('retains the business form after a failed setup request and allows a contro
   });
   let unavailable = true;
 
-  api.respond('POST', businessRoute, () => unavailable
-    ? { status: 503, json: { success: false } }
-    : success(onboarding(organizationId)));
+  api.respond('POST', businessRoute, () =>
+    unavailable ? { status: 503, json: { success: false } } : success(onboarding(organizationId)),
+  );
 
   await page.goto(url);
 
@@ -119,7 +127,9 @@ test('retains the business form after a failed setup request and allows a contro
   await name.fill('Fixture paid business');
   await submit.click();
 
-  await expect(main.getByRole('alert').filter({ hasText: 'Não foi possível carregar a próxima etapa. Tente novamente.' })).toBeVisible();
+  await expect(
+    main.getByRole('alert').filter({ hasText: 'Não foi possível carregar a próxima etapa. Tente novamente.' }),
+  ).toBeVisible();
   await expect(name).toHaveValue('Fixture paid business');
   await expect(submit).toBeEnabled();
 
@@ -133,7 +143,10 @@ test('retains the business form after a failed setup request and allows a contro
   ]);
 });
 
-test('does not offer subscription or business mutations when a member must contact the owner', async ({ page, api }) => {
+test('does not offer subscription or business mutations when a member must contact the owner', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api, {
     onboarding: () => onboarding(organizationId, { step: 'CONTACT_OWNER', accessSource: 'NONE' }),
   });
@@ -143,7 +156,9 @@ test('does not offer subscription or business mutations when a member must conta
   const main = page.getByRole('main');
 
   await expect(main.getByRole('heading', { name: 'Fale com o responsável' })).toBeVisible();
-  await expect(main.getByText('O responsável pelo negócio precisa concluir esta etapa.', { exact: true })).toBeVisible();
+  await expect(
+    main.getByText('O responsável pelo negócio precisa concluir esta etapa.', { exact: true }),
+  ).toBeVisible();
   await expect(main.getByLabel('Nome do negócio', { exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Verificar pagamento', exact: true })).toHaveCount(0);
   expect(api.calls.filter((call) => call.path.startsWith(route) && call.method === 'POST')).toHaveLength(0);

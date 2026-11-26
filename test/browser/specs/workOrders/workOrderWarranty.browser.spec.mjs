@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { date, installAuthenticatedApp, userId } from '../../support/authenticatedApp.fixture.mjs';
 import { installWorkOrderDetails, orderDetails, workOrderRoute } from '../../support/operationalDetails.fixture.mjs';
 import { workOrderId } from '../../support/operationalRecords.fixture.mjs';
@@ -20,9 +20,12 @@ async function setup(page, api, read) {
 }
 
 function warrantySection(page) {
-  return page.getByRole('main').locator('section').filter({
-    has: page.getByRole('heading', { name: 'Relatório e garantia do serviço', exact: true }),
-  });
+  return page
+    .getByRole('main')
+    .locator('section')
+    .filter({
+      has: page.getByRole('heading', { name: 'Relatório e garantia do serviço', exact: true }),
+    });
 }
 
 test('validates warranty duration and persists normalized terms with sequential versions', async ({ page, api }) => {
@@ -73,7 +76,10 @@ test('validates warranty duration and persists normalized terms with sequential 
   ]);
 });
 
-test('refreshes a conflicting warranty and removes editing controls when acceptance locks it', async ({ page, api }) => {
+test('refreshes a conflicting warranty and removes editing controls when acceptance locks it', async ({
+  page,
+  api,
+}) => {
   let current = {
     locked: false,
     warranty: { durationDays: 90, terms: 'Original fixture terms', version: 1, expiresAt: '2026-04-01T00:00:00Z' },
@@ -94,7 +100,12 @@ test('refreshes a conflicting warranty and removes editing controls when accepta
   await terms.fill('Unsaved changes');
   await section.getByRole('button', { name: 'Salvar condições', exact: true }).click();
 
-  await expect(section.getByText('As condições de garantia não podem ser alteradas após o aceite da conclusão ou cancelamento da OS.', { exact: true })).toBeVisible();
+  await expect(
+    section.getByText(
+      'As condições de garantia não podem ser alteradas após o aceite da conclusão ou cancelamento da OS.',
+      { exact: true },
+    ),
+  ).toBeVisible();
   await expect(terms).toHaveValue('Original fixture terms');
   await expect(terms).toBeDisabled();
   await expect(section.getByLabel('Prazo em dias corridos', { exact: true })).toBeDisabled();

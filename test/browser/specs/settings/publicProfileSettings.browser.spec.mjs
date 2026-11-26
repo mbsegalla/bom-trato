@@ -1,5 +1,11 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
-import { date, installAuthenticatedApp, organization, organizationId, organizationRoute } from '../../support/authenticatedApp.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
+import {
+  date,
+  installAuthenticatedApp,
+  organization,
+  organizationId,
+  organizationRoute,
+} from '../../support/authenticatedApp.fixture.mjs';
 import { catalogService, pageResult, serviceId } from '../../support/operationalRecords.fixture.mjs';
 import { apiError } from '../../support/settings.fixture.mjs';
 
@@ -26,13 +32,20 @@ function profile(overrides = {}) {
 
 function installProfile(api, read) {
   api.respond('GET', route, () => success(read()));
-  api.respond('GET', catalogRoute, () => success(pageResult([
-    catalogService({ name: 'Fixture installation' }),
-    catalogService({ id: secondServiceId, name: 'Fixture repair' }),
-  ])));
+  api.respond('GET', catalogRoute, () =>
+    success(
+      pageResult([
+        catalogService({ name: 'Fixture installation' }),
+        catalogService({ id: secondServiceId, name: 'Fixture repair' }),
+      ]),
+    ),
+  );
 }
 
-test('normalizes the public slug, validates contact and publishes only selected catalog services', async ({ page, api }) => {
+test('normalizes the public slug, validates contact and publishes only selected catalog services', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = profile();
 
@@ -80,7 +93,10 @@ test('normalizes the public slug, validates contact and publishes only selected 
   await save.click();
 
   await expect(main.getByText('Sua vitrine está publicada.', { exact: true })).toBeVisible();
-  await expect(main.getByRole('link', { name: 'Ver perfil', exact: true })).toHaveAttribute('href', '/profissionais/instalacao-reparo');
+  await expect(main.getByRole('link', { name: 'Ver perfil', exact: true })).toHaveAttribute(
+    'href',
+    '/profissionais/instalacao-reparo',
+  );
   await expect(publish).toBeChecked();
 
   const writes = api.calls.filter((call) => call.path === route && call.method === 'PATCH');
@@ -112,13 +128,18 @@ test('requires a configured city and state even when contact is enabled', async 
 
   const main = page.getByRole('main');
 
-  await expect(main.getByText('Informe cidade e estado na aba Negócio antes de publicar.', { exact: true })).toBeVisible();
+  await expect(
+    main.getByText('Informe cidade e estado na aba Negócio antes de publicar.', { exact: true }),
+  ).toBeVisible();
   await expect(main.getByRole('checkbox', { name: /Permitir contato pelo WhatsApp/ })).toBeChecked();
   await expect(main.getByRole('checkbox', { name: /Publicar minha vitrine/ })).toBeDisabled();
   expect(api.calls.filter((call) => call.path === route && call.method === 'PATCH')).toHaveLength(0);
 });
 
-test('preserves unsaved fields after a slug conflict and unpublishes automatically when contact is disabled', async ({ page, api }) => {
+test('preserves unsaved fields after a slug conflict and unpublishes automatically when contact is disabled', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = profile({
     published: true,
@@ -152,7 +173,9 @@ test('preserves unsaved fields after a slug conflict and unpublishes automatical
   await slug.fill('occupied-fixture');
   await save.click();
 
-  await expect(main.getByRole('alert').filter({ hasText: 'Esta URL já está sendo utilizada por outro profissional.' })).toBeVisible();
+  await expect(
+    main.getByRole('alert').filter({ hasText: 'Esta URL já está sendo utilizada por outro profissional.' }),
+  ).toBeVisible();
   await expect(slug).toHaveValue('occupied-fixture');
   await expect(publish).toBeChecked();
 
@@ -171,13 +194,27 @@ test('preserves unsaved fields after a slug conflict and unpublishes automatical
 
   expect(writes).toHaveLength(2);
   expect(writes[1].body).toMatchObject({
-    slug: 'available-fixture', whatsappEnabled: false, published: false, serviceIds: [serviceId],
+    slug: 'available-fixture',
+    whatsappEnabled: false,
+    published: false,
+    serviceIds: [serviceId],
   });
 });
 
-test('exposes the persisted showcase to ordinary members but prevents all configuration changes', async ({ page, api }) => {
+test('exposes the persisted showcase to ordinary members but prevents all configuration changes', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api, { organizations: [{ ...organization, role: 'MEMBER' }] });
-  installProfile(api, () => profile({ published: true, publishedAt: date, whatsappEnabled: true, whatsappPhone: '34999991234', selectedServiceIds: [serviceId] }));
+  installProfile(api, () =>
+    profile({
+      published: true,
+      publishedAt: date,
+      whatsappEnabled: true,
+      whatsappPhone: '34999991234',
+      selectedServiceIds: [serviceId],
+    }),
+  );
 
   await page.goto('/settings?tab=showcase');
 

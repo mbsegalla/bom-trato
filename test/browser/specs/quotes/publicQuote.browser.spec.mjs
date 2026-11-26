@@ -1,4 +1,4 @@
-import { test, expect } from '../../support/api.fixture.mjs';
+import { expect, test } from '../../support/api.fixture.mjs';
 
 test('refuses a malformed quote share without revealing quote data or sending a decision', async ({ page, api }) => {
   await page.goto('/quote-share#token=invalid');

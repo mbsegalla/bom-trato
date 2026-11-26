@@ -35,7 +35,10 @@ describe('session device descriptions', () => {
 
     for (const [agent, browser, operatingSystem] of agents) {
       assert.deepEqual(describeUserAgent(agent), {
-        browser, operatingSystem, label: browser + ' no ' + operatingSystem, mobile: true,
+        browser,
+        operatingSystem,
+        label: browser + ' no ' + operatingSystem,
+        mobile: true,
       });
     }
   });

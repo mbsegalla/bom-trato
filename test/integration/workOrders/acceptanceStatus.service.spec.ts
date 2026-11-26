@@ -7,7 +7,15 @@ import {
   getWorkOrderAcceptance,
   PublicWorkOrderAcceptanceError,
 } from '@/modules/workOrders/services/workOrderAcceptance.service';
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const token = 'a'.repeat(64);
 const hash = 'b'.repeat(64);
@@ -84,7 +92,9 @@ describe('private work order acceptance status', () => {
 
 describe('public acceptance error contracts', () => {
   it('blocks an invalid signer before network access', async (t) => {
-    const calls = mockHttp(t, () => { throw new Error('Unexpected request'); });
+    const calls = mockHttp(t, () => {
+      throw new Error('Unexpected request');
+    });
 
     await assert.rejects(acceptPublicWorkOrder(token, hash, '1', { signerName: ' ', consent: true }), /pelo menos 2/);
     assert.equal(calls.length, 0);
@@ -100,8 +110,10 @@ describe('public acceptance error contracts', () => {
     const input = { signerName: 'Fixture customer', consent: true as const };
 
     for (const refreshRequired of [true, true, false, false]) {
-      await assert.rejects(acceptPublicWorkOrder(token, hash, '1', input), (error: unknown) =>
-        error instanceof PublicWorkOrderAcceptanceError && error.refreshRequired === refreshRequired,
+      await assert.rejects(
+        acceptPublicWorkOrder(token, hash, '1', input),
+        (error: unknown) =>
+          error instanceof PublicWorkOrderAcceptanceError && error.refreshRequired === refreshRequired,
       );
     }
 

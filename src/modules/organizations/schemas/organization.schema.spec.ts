@@ -10,12 +10,14 @@ describe('organization scope contract', () => {
     const data = {
       page: 1,
       hasMore: false,
-      items: [{
-        id,
-        name: 'Empresa',
-        logoUrl: null,
-        role: 'OWNER'
-      }]
+      items: [
+        {
+          id,
+          name: 'Empresa',
+          logoUrl: null,
+          role: 'OWNER',
+        },
+      ],
     };
 
     assert.equal(joinedOrganizationsResponseSchema.safeParse({ statusCode: 200, success: true, data }).success, true);
@@ -23,9 +25,9 @@ describe('organization scope contract', () => {
       joinedOrganizationsResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { ...data, page: 0 }
+        data: { ...data, page: 0 },
       }).success,
-      false
+      false,
     );
     assert.equal(
       joinedOrganizationsResponseSchema.safeParse({
@@ -33,10 +35,10 @@ describe('organization scope contract', () => {
         success: true,
         data: {
           ...data,
-          items: [{ ...data.items[0], role: 'ADMIN' }]
-        }
+          items: [{ ...data.items[0], role: 'ADMIN' }],
+        },
       }).success,
-      false
+      false,
     );
   });
 
@@ -48,8 +50,8 @@ describe('organization scope contract', () => {
       createdAt: '2026-01-01T00:00:00Z',
       user: {
         name: 'Member',
-        passwordHash: 'private'
-      }
+        passwordHash: 'private',
+      },
     });
 
     assert.deepEqual(member.user, { name: 'Member' });

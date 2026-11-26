@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
-import { createReceivablePaymentLink, getReceivablePaymentLinkStatus, revokeReceivablePaymentLink } from '@/modules/receivables/services/receivablePaymentLink.service';
+import {
+  createReceivablePaymentLink,
+  getReceivablePaymentLinkStatus,
+  revokeReceivablePaymentLink,
+} from '@/modules/receivables/services/receivablePaymentLink.service';
 
 import { installBrowserStorage } from '../../support/browserStorage.fixture';
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
@@ -40,7 +44,10 @@ describe('private receivable payment links', () => {
 
     const requests = calls.filter((call) => call.path === route);
 
-    assert.deepEqual(requests.map((call) => call.method), ['POST', 'GET', 'DELETE']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['POST', 'GET', 'DELETE'],
+    );
     assert.deepEqual(JSON.parse(String(requests[0]?.body)), { version: 3 });
     assert.ok(requests.every((call) => call.headers.has('Authorization')));
   });

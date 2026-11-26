@@ -7,6 +7,7 @@ import {
   disconnectMercadoPagoConnection,
   getMercadoPagoConnection,
 } from '@/modules/settings/services/mercadoPagoConnection.service';
+
 import { mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/mercado-pago/connection';
@@ -27,7 +28,8 @@ describe('Mercado Pago connection lifecycle', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === route && call.method === 'GET') return success({ ...connected, accessToken: 'private-fixture' });
+      if (call.path === route && call.method === 'GET')
+        return success({ ...connected, accessToken: 'private-fixture' });
       if (call.path === route && call.method === 'DELETE') return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -42,7 +44,10 @@ describe('Mercado Pago connection lifecycle', () => {
 
     await disconnectMercadoPagoConnection(organizationId);
 
-    assert.deepEqual(calls.filter((call) => call.path === route).map((call) => call.method), ['GET', 'DELETE']);
+    assert.deepEqual(
+      calls.filter((call) => call.path === route).map((call) => call.method),
+      ['GET', 'DELETE'],
+    );
   });
 
   it('parses the completion identity and rejects a malformed successful exchange without replaying it', async (t) => {

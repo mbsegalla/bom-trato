@@ -9,7 +9,7 @@ describe('BRL currency parser', () => {
     ['0,01', 1],
     ['1.234', 123400],
     ['1.23', 123],
-    ['0', 0]
+    ['0', 0],
   ] as const) {
     it('converts ' + input + ' to integer cents', () => assert.equal(parseBrlCurrencyToCents(input), expected));
   }

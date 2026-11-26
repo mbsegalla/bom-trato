@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { getReceivingSettings, saveReceivingSettings } from '@/modules/settings/services/receivingSettings.service';
+
 import { mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/receiving-settings';
@@ -12,7 +13,7 @@ const disabled = {
   pixKey: null,
   merchantName: null,
   merchantCity: null,
-  version: 1
+  version: 1,
 };
 
 describe('receiving settings HTTP service', () => {
@@ -20,12 +21,13 @@ describe('receiving settings HTTP service', () => {
     mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === route) return success({
-        ...disabled,
-        pixKey: 'private',
-        canConfigure: true,
-        encryptionAvailable: true
-      });
+      if (call.path === route)
+        return success({
+          ...disabled,
+          pixKey: 'private',
+          canConfigure: true,
+          encryptionAvailable: true,
+        });
       throw new Error('Unexpected request');
     });
 

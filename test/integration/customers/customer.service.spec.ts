@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { createCustomer, listCustomers } from '@/modules/customers/services/customer.service';
+
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/customers';
@@ -12,7 +13,7 @@ const input = {
   email: null,
   phone: '34999991234',
   defaultServiceAddress: null,
-  notes: null
+  notes: null,
 };
 
 describe('customer HTTP service', () => {
@@ -34,12 +35,14 @@ describe('customer HTTP service', () => {
       first,
       duplicate,
       listCustomers(receivableId, { ...params, search: 'Fixture' }),
-      listCustomers(organizationId, { ...params, search: 'Other' })
+      listCustomers(organizationId, { ...params, search: 'Other' }),
     ]);
     const customerRequests = calls.filter((call) => call.path.includes('/customers?'));
 
     assert.equal(customerRequests.length, 3);
-    assert.ok(customerRequests.some((call) => call.path.startsWith(route + '?') && call.path.includes('search=Fixture')));
+    assert.ok(
+      customerRequests.some((call) => call.path.startsWith(route + '?') && call.path.includes('search=Fixture')),
+    );
     assert.ok(customerRequests.some((call) => call.path.includes(receivableId + '/customers?')));
     assert.ok(customerRequests.some((call) => call.path.includes('search=Other')));
   });
@@ -49,11 +52,14 @@ describe('customer HTTP service', () => {
     mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path.startsWith(route + '?')) return ++attempts === 1 ? new Response(null, { status: 503 }) : success({
-        items: [],
-        page: 1,
-        hasMore: false
-      });
+      if (call.path.startsWith(route + '?'))
+        return ++attempts === 1
+          ? new Response(null, { status: 503 })
+          : success({
+              items: [],
+              page: 1,
+              hasMore: false,
+            });
       throw new Error('Unexpected request: ' + call.path);
     });
 

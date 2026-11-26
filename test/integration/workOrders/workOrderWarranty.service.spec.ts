@@ -12,7 +12,9 @@ const date = '2030-01-01T00:00:00.000Z';
 
 describe('work order warranty contracts', () => {
   it('rejects invalid terms and durations before accessing the API', async (t) => {
-    const calls = mockHttp(t, () => { throw new Error('Unexpected request'); });
+    const calls = mockHttp(t, () => {
+      throw new Error('Unexpected request');
+    });
 
     for (const invalid of [
       { ...input, durationDays: 0 },
@@ -41,7 +43,10 @@ describe('work order warranty contracts', () => {
 
     assert.deepEqual(await getWorkOrderWarranty(organizationId, receivableId), { warranty: null, locked: false });
 
-    const updated = await updateWorkOrderWarranty(organizationId, receivableId, 0, { ...input, terms: '  Fixture warranty  ' });
+    const updated = await updateWorkOrderWarranty(organizationId, receivableId, 0, {
+      ...input,
+      terms: '  Fixture warranty  ',
+    });
 
     assert.deepEqual(updated.warranty?.expiresAt, new Date(date));
 

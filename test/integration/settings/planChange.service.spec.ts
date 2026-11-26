@@ -40,7 +40,8 @@ describe('plan change contracts', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path.endsWith('/preview')) return success(change);
-      if (call.path.endsWith('/confirm')) return success({ ...change, status: 'PENDING_PAYMENT', clientSecret: 'fixture-secret' });
+      if (call.path.endsWith('/confirm'))
+        return success({ ...change, status: 'PENDING_PAYMENT', clientSecret: 'fixture-secret' });
       if (call.path.endsWith('/sync')) return success({ ...change, status: 'APPLIED' });
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -56,9 +57,10 @@ describe('plan change contracts', () => {
     assert.equal(browser.localStorage.getItem('bom-trato:plan-change:' + receivableId), organizationId);
 
     const requests = calls.filter((call) => call.path.startsWith(route));
-    assert.deepEqual(requests.map((call) => call.path), [
-      route + '/preview', route + '/' + receivableId + '/confirm', route + '/' + receivableId + '/sync',
-    ]);
+    assert.deepEqual(
+      requests.map((call) => call.path),
+      [route + '/preview', route + '/' + receivableId + '/confirm', route + '/' + receivableId + '/sync'],
+    );
     assert.deepEqual(JSON.parse(String(requests[0].body)), { planPriceId: receivableId });
   });
 
@@ -71,9 +73,15 @@ describe('plan change contracts', () => {
       if (call.path === route + '/' + receivableId) {
         attempt++;
         if (attempt === 1) return new Response(null, { status: 503 });
-        if (attempt === 2) return Response.json({
-          statusCode: 404, success: false, error: { code: 'PLAN_CHANGE_NOT_FOUND', message: 'missing' },
-        }, { status: 404 });
+        if (attempt === 2)
+          return Response.json(
+            {
+              statusCode: 404,
+              success: false,
+              error: { code: 'PLAN_CHANGE_NOT_FOUND', message: 'missing' },
+            },
+            { status: 404 },
+          );
         return success({ ...change, status: 'CANCELED' });
       }
       throw new Error('Unexpected request: ' + call.path);

@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 const token = 'a'.repeat(64);
 const route = '/api/public/reviews';
@@ -20,16 +20,21 @@ test('rejects a missing invitation without exposing a review form or contacting 
   expect(api.calls).toHaveLength(0);
 });
 
-test('requires a rating, trims the optional comment and clears the private token after submission', async ({ page, api }) => {
+test('requires a rating, trims the optional comment and clears the private token after submission', async ({
+  page,
+  api,
+}) => {
   api.respond('POST', route + '/resolve', () => success(preview));
-  api.respond('POST', route + '/submit', (call) => success({
-    reviewerDisplayName: preview.reviewerDisplayName,
-    rating: call.body.rating,
-    comment: call.body.comment,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    verified: true,
-    professionalSlug: preview.professionalSlug,
-  }));
+  api.respond('POST', route + '/submit', (call) =>
+    success({
+      reviewerDisplayName: preview.reviewerDisplayName,
+      rating: call.body.rating,
+      comment: call.body.comment,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      verified: true,
+      professionalSlug: preview.professionalSlug,
+    }),
+  );
 
   await page.goto('/avaliar#token=' + token);
 
@@ -46,7 +51,10 @@ test('requires a rating, trims the optional comment and clears the private token
 
   await expect(page.getByRole('heading', { name: 'Obrigado pela avaliação!' })).toBeVisible();
   await expect(page).toHaveURL(/\/avaliar$/);
-  await expect(page.getByRole('link', { name: 'Ver perfil do profissional' })).toHaveAttribute('href', '/profissionais/fixture');
+  await expect(page.getByRole('link', { name: 'Ver perfil do profissional' })).toHaveAttribute(
+    'href',
+    '/profissionais/fixture',
+  );
 
   const calls = api.calls.filter((call) => call.path === route + '/submit');
 

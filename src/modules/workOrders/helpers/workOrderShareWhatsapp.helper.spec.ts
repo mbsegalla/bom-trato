@@ -9,7 +9,7 @@ const order = {
   title: 'Fixture service',
   status: 'SCHEDULED',
   scheduledStartAt: new Date(2026, 0, 15, 10),
-  scheduledEndAt: new Date(2026, 0, 15, 12)
+  scheduledEndAt: new Date(2026, 0, 15, 12),
 } as WorkOrder;
 
 describe('work order portal message', () => {

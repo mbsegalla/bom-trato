@@ -5,7 +5,7 @@ import { installBrowserStorage } from '../../../../test/support/browserStorage.f
 import {
   getPasswordResetCooldownSeconds,
   startPasswordResetCooldown,
-  subscribeToPasswordResetCooldown
+  subscribeToPasswordResetCooldown,
 } from './passwordResetCooldown';
 import { getVerificationCooldownSeconds, startVerificationCooldown } from './verificationCooldown';
 

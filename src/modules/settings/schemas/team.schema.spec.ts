@@ -4,15 +4,14 @@ import { describe, it } from 'node:test';
 import {
   inviteMemberFormSchema,
   organizationInvitationTokenSchema,
-  teamEntitlementsResponseSchema
+  teamEntitlementsResponseSchema,
 } from './team.schema';
 
 describe('team invitation and entitlement contract', () => {
   it('validates invitation addresses and private token length', () => {
-    assert.deepEqual(
-      inviteMemberFormSchema.parse({ email: ' person@example.invalid ' }),
-      { email: 'person@example.invalid' }
-    );
+    assert.deepEqual(inviteMemberFormSchema.parse({ email: ' person@example.invalid ' }), {
+      email: 'person@example.invalid',
+    });
     assert.equal(inviteMemberFormSchema.safeParse({ email: 'bad' }).success, false);
     assert.equal(organizationInvitationTokenSchema.safeParse('a'.repeat(43)).success, true);
     assert.equal(organizationInvitationTokenSchema.safeParse('a'.repeat(42)).success, false);
@@ -24,7 +23,7 @@ describe('team invitation and entitlement contract', () => {
       maxUsers: 3,
       memberCount: 2,
       teamManagementEnabled: true,
-      canAddMember: true
+      canAddMember: true,
     };
 
     assert.deepEqual(teamEntitlementsResponseSchema.parse({ statusCode: 200, success: true, data }), data);
@@ -32,9 +31,9 @@ describe('team invitation and entitlement contract', () => {
       teamEntitlementsResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { ...data, memberCount: -1 }
+        data: { ...data, memberCount: -1 },
       }).success,
-      false
+      false,
     );
   });
 });

@@ -1,9 +1,12 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { date, installAuthenticatedApp, userId } from '../../support/authenticatedApp.fixture.mjs';
-import { workOrderId } from '../../support/operationalRecords.fixture.mjs';
 import { installWorkOrderDetails, orderDetails, workOrderRoute } from '../../support/operationalDetails.fixture.mjs';
+import { workOrderId } from '../../support/operationalRecords.fixture.mjs';
 
-test('requires a service address and assigned professional before enabling scheduling and execution', async ({ page, api }) => {
+test('requires a service address and assigned professional before enabling scheduling and execution', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = orderDetails();
 
@@ -51,12 +54,20 @@ test('requires a service address and assigned professional before enabling sched
   const assignment = api.calls.filter((call) => call.path === workOrderRoute + '/assign');
 
   expect(planning).toHaveLength(1);
-  expect(planning[0].body).toEqual({ version: 1, title: current.title, instructions: null, serviceAddress: 'Fixture address' });
+  expect(planning[0].body).toEqual({
+    version: 1,
+    title: current.title,
+    instructions: null,
+    serviceAddress: 'Fixture address',
+  });
   expect(assignment).toHaveLength(1);
   expect(assignment[0].body).toEqual({ version: 2, assignedToId: userId });
 });
 
-test('starts, saves execution notes and completes the service with sequential versions and locked editing', async ({ page, api }) => {
+test('starts, saves execution notes and completes the service with sequential versions and locked editing', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = orderDetails({ assignedToId: userId, serviceAddress: 'Fixture address' });
 
@@ -112,7 +123,9 @@ test('starts, saves execution notes and completes the service with sequential ve
   await expect(main.getByRole('button', { name: 'Salvar observações', exact: true })).toHaveCount(0);
   await expect(notes).toHaveAttribute('readonly', '');
 
-  const writes = api.calls.filter((call) => call.path.startsWith(workOrderRoute) && ['POST', 'PATCH'].includes(call.method));
+  const writes = api.calls.filter(
+    (call) => call.path.startsWith(workOrderRoute) && ['POST', 'PATCH'].includes(call.method),
+  );
 
   expect(writes.map(({ path, body }) => [path, body])).toEqual([
     [workOrderRoute + '/start', { version: 1 }],

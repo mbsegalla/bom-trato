@@ -5,15 +5,16 @@ import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   invalidateOrganizationMembers,
   listJoinedOrganizations,
-  listOrganizationMembers
+  listOrganizationMembers,
 } from '@/modules/organizations/services/organization.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 describe('organization HTTP service', () => {
@@ -22,27 +23,29 @@ describe('organization HTTP service', () => {
       id: organizationId,
       name: 'First',
       logoUrl: null,
-      role: 'OWNER'
+      role: 'OWNER',
     };
     const second = {
       id: receivableId,
       name: 'Second',
       logoUrl: null,
-      role: 'MEMBER'
+      role: 'MEMBER',
     };
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === '/api/organizations/mine?page=1&limit=100') return success({
-        page: 1,
-        hasMore: true,
-        items: [first]
-      });
-      if (call.path === '/api/organizations/mine?page=2&limit=100') return success({
-        page: 2,
-        hasMore: false,
-        items: [second]
-      });
+      if (call.path === '/api/organizations/mine?page=1&limit=100')
+        return success({
+          page: 1,
+          hasMore: true,
+          items: [first],
+        });
+      if (call.path === '/api/organizations/mine?page=2&limit=100')
+        return success({
+          page: 2,
+          hasMore: false,
+          items: [second],
+        });
       throw new Error('Unexpected request: ' + call.path);
     });
 
@@ -67,13 +70,15 @@ describe('organization HTTP service', () => {
       return success({
         page: 1,
         hasMore: false,
-        items: [{
-          id: issuanceId,
-          userId: org,
-          role: 'OWNER',
-          createdAt: '2026-01-01T00:00:00Z',
-          user: { name: org }
-        }]
+        items: [
+          {
+            id: issuanceId,
+            userId: org,
+            role: 'OWNER',
+            createdAt: '2026-01-01T00:00:00Z',
+            user: { name: org },
+          },
+        ],
       });
     });
 

@@ -17,7 +17,10 @@ describe('authenticated HTTP session', () => {
 
     assert.equal(results[0].accessToken, 'fixture-access');
     assert.strictEqual(results[0], results[1]);
-    assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf', '/api/auth/refresh']);
+    assert.deepEqual(
+      calls.map((call) => call.path),
+      ['/api/auth/csrf', '/api/auth/refresh'],
+    );
     assert.equal(calls[1].headers.get('X-CSRF-Token'), 'pre-refresh-csrf');
     assert.equal(calls[1].credentials, 'include');
     assert.equal(calls[1].cache, 'no-store');
@@ -48,7 +51,7 @@ describe('authenticated HTTP session', () => {
 
     assert.deepEqual(
       protectedRequests.map((call) => call.headers.get('Authorization')),
-      ['Bearer access-1', 'Bearer access-2']
+      ['Bearer access-1', 'Bearer access-2'],
     );
     for (const request of protectedRequests) {
       assert.equal(request.headers.get('X-CSRF-Token'), 'fixture-csrf');
@@ -58,9 +61,9 @@ describe('authenticated HTTP session', () => {
   });
 
   it('does not accept malformed session data', async (t) => {
-    mockHttp(t, (call) => call.path === '/api/auth/csrf'
-      ? success({ csrfToken: 'fixture-csrf' })
-      : success({ accessToken: 'incomplete' }));
+    mockHttp(t, (call) =>
+      call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : success({ accessToken: 'incomplete' }),
+    );
 
     await assert.rejects(restoreSession(), (error: unknown) => error instanceof SessionError && error.uncertain);
   });

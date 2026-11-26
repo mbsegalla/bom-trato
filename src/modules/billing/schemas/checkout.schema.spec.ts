@@ -12,17 +12,17 @@ describe('checkout response', () => {
       checkoutResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { ...data, clientSecret: '' }
+        data: { ...data, clientSecret: '' },
       }).success,
-      false
+      false,
     );
     assert.equal(
       checkoutResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { ...data, attemptId: 'bad' }
+        data: { ...data, attemptId: 'bad' },
       }).success,
-      false
+      false,
     );
   });
 });

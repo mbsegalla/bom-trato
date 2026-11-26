@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 test('masks the password, supports visibility toggle and navigates to account recovery', async ({ page, api }) => {
   await page.goto('/login');
@@ -27,7 +27,7 @@ test('shows invalid credentials, preserves the login page and submits CSRF-prote
     json: {
       statusCode: 401,
       success: false,
-      error: { code: 'INVALID_CREDENTIALS' }
+      error: { code: 'INVALID_CREDENTIALS' },
     },
   }));
 

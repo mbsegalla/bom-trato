@@ -1,4 +1,4 @@
-import { test as base, expect } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 
 export const appOrigin = 'http://127.0.0.1:3100';
 const apiOrigin = 'http://127.0.0.1:5000';
