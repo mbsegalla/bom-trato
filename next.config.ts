@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/acompanhar',
+        source: '/:privatePage(acompanhar|pagar)',
         headers: [
           {
             key: 'Cache-Control',

@@ -53,7 +53,15 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check code quality
+        id: quality
         run: pnpm check
+
+      - name: Show lint and formatting fixes
+        if: failure() && steps.quality.outcome == 'failure'
+        run: |
+          pnpm lint:fix || true
+          pnpm format
+          git --no-pager diff --no-ext-diff
 
       - name: Build frontend
         run: pnpm build
