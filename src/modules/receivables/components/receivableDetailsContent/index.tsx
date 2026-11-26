@@ -17,6 +17,7 @@ import { canEditReceivable, canRecordReceivablePayment } from '@/modules/receiva
 import { getReceivable } from '@/modules/receivables/services/receivable.service';
 import type { Receivable } from '@/modules/receivables/types/receivable.types';
 
+import { ReceivableChargeSection } from './components/receivableChargeSection';
 import { ReceivableContextCards } from './components/receivableContextCards';
 import { ReceivableDetailsHeader } from './components/receivableDetailsHeader';
 import { ReceivableMetrics } from './components/receivableMetrics';
@@ -143,6 +144,12 @@ function OrganizationReceivableDetails({ organizationId, receivableId }: Organiz
       )}
 
       <ReceivableMetrics receivable={receivable} />
+
+      <ReceivableChargeSection
+        key={`${receivable.id}:${receivable.version}`}
+        receivable={receivable}
+        onReceivableSaved={applyReceivable}
+      />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_22rem]">
         <ReceivablePayments receivable={receivable} onReceivableSaved={applyReceivable} />
