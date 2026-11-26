@@ -8,8 +8,12 @@ export function installBrowserStorage(t: TestContext) {
   const events = new EventTarget();
   const localStorage = {
     getItem: (key: string) => data.get(key) ?? null,
-    setItem: (key: string, value: string) => { data.set(key, value); },
-    removeItem: (key: string) => { data.delete(key); },
+    setItem: (key: string, value: string) => {
+      data.set(key, value);
+    },
+    removeItem: (key: string) => {
+      data.delete(key);
+    },
   };
   const windowFixture = {
     localStorage,
@@ -24,5 +28,6 @@ export function installBrowserStorage(t: TestContext) {
     if (previous) Object.defineProperty(globalThis, 'window', previous);
     else Reflect.deleteProperty(globalThis, 'window');
   });
+
   return windowFixture;
 }

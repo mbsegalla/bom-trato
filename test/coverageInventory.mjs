@@ -10,7 +10,9 @@ const output = join(root, 'coverage');
 try {
   mkdirSync(output, { recursive: true });
   const result = spawnSync(process.execPath, [join(root, 'test/run.mjs'), '--coverage'], {
-    cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
     env: { ...process.env, NODE_V8_COVERAGE: raw },
   });
   process.stdout.write(result.stdout ?? '');
@@ -26,6 +28,7 @@ try {
       return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
         const path = join(directory, entry.name);
         if (entry.isDirectory()) return sources(path);
+
         return /\.tsx?$/.test(entry.name) && !/(\.spec|\.d)\.tsx?$/.test(entry.name) ? [path] : [];
       });
     }
@@ -55,13 +58,23 @@ try {
     }
     const report = [
       '# Frontend source execution inventory',
-      '', 'Files executed by the Node regression suite, not a line-coverage percentage. Browser coverage is separate.',
-      '', '| Module | Executed files | Total TS/TSX files |', '|---|---:|---:|',
+      '',
+      'Files executed by the Node regression suite, not a line-coverage percentage. Browser coverage is separate.',
+      '',
+      '| Module | Executed files | Total TS/TSX files |',
+      '|---|---:|---:|',
       ...[...groups].sort(([a], [b]) => a.localeCompare(b)).map(([name, count]) => '| ' + [name, count.executed, count.total].join(' | ') + ' |'),
-      '', '## Files not observed (' + missing.length + ')', '', ...missing.map((file) => '- ' + file), '',
+      '',
+      '## Files not observed (' + missing.length + ')',
+      '',
+      ...missing.map((file) => '- ' + file),
+      '',
     ].join('\n');
     writeFileSync(join(output, 'inventory.md'), report);
-    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, report.split('## Files')[0] + '\nFiles not observed: ' + missing.length + '.\n');
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(
+      process.env.GITHUB_STEP_SUMMARY,
+      report.split('## Files')[0] + '\nFiles not observed: ' + missing.length + '.\n'
+    );
     console.log(report.split('## Files')[0]);
   }
 } finally {

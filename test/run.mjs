@@ -12,6 +12,7 @@ function findSpecs(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
     if (entry.isDirectory()) return ['node_modules', 'browser', 'coverage'].includes(entry.name) ? [] : findSpecs(path);
+
     return /\.spec\.tsx?$/.test(entry.name) ? [path] : [];
   });
 }
@@ -19,6 +20,7 @@ function findSpecs(directory) {
 const files = [...findSpecs(join(root, 'src')), ...findSpecs(join(root, 'test'))]
   .filter((path) => {
     const name = relative(root, path).split(sep).join('/');
+
     return filters.length === 0 || filters.some((filter) => name.includes(filter.replaceAll('\\', '/')));
   })
   .sort();
@@ -30,9 +32,15 @@ if (files.length === 0) {
 
 const result = spawnSync(process.execPath, [
   '--enable-source-maps',
-  '--import', resolve(root, 'test/setup/register.mjs'),
+  '--import',
+  resolve(root, 'test/setup/register.mjs'),
   '--test',
-  ...(coverage ? ['--experimental-test-coverage', '--test-coverage-include=src/**', '--test-coverage-exclude=**/*.spec.ts', '--test-coverage-exclude=**/*.spec.tsx'] : []),
+  ...(coverage ? [
+    '--experimental-test-coverage',
+    '--test-coverage-include=src/**',
+    '--test-coverage-exclude=**/*.spec.ts',
+    '--test-coverage-exclude=**/*.spec.tsx'
+  ] : []),
   ...files,
 ], {
   cwd: root,

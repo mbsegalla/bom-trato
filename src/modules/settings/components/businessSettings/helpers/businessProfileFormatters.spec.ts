@@ -10,6 +10,7 @@ describe('business document formatting', () => {
     assert.equal(formatBusinessDocumentInput('CNPJ', '12345678000199'), '12.345.678/0001-99');
     assert.equal(formatBusinessDocumentInput('CNPJ', '12345678000199999'), '12.345.678/0001-99');
   });
+
   it('does not display documents without an explicit type or value', () => {
     assert.equal(formatBusinessDocument(null, '12345678901'), '');
     assert.equal(formatBusinessDocument('CPF', null), '');
