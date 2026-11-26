@@ -23,7 +23,8 @@ test('requires explicit account confirmation and saves only normalized receiving
 
   installReceiving(api, () => current);
   api.respond('PUT', settingsRoute, ({ body }) => {
-    const { confirmed, ...fields } = body;
+    const fields = { ...body };
+    delete fields.confirmed;
 
     current = receivingSettings({ ...fields, version: body.version + 1 });
 
@@ -150,7 +151,8 @@ test('blocks stale writes until an explicit reload obtains the current version',
       return { status: 409, json: { success: false } };
     }
 
-    const { confirmed, ...fields } = body;
+    const fields = { ...body };
+    delete fields.confirmed;
 
     current = configuredPix({ ...fields, version: body.version + 1 });
 
