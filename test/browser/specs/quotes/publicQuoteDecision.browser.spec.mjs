@@ -52,7 +52,9 @@ test('validates a change request locally and sends only the trimmed message and 
   await page.getByRole('button', { name: 'Solicitar alteração' }).click();
   await page.getByRole('button', { name: 'Enviar solicitação' }).click();
 
-  await expect(page.getByRole('alert')).toContainText('Explique brevemente');
+  await expect(
+    page.getByRole('alert').filter({ hasText: 'Explique brevemente o que gostaria de alterar.' }),
+  ).toBeVisible();
   expect(api.calls.filter((call) => call.path === route + '/change-request')).toHaveLength(0);
 
   await page.getByPlaceholder('Ex.: Gostaria de retirar o segundo item do orçamento.').fill('  Alterar prazo de entrega  ');
