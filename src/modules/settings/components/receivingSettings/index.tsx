@@ -95,7 +95,10 @@ function OrganizationReceivingSettings({
 
   if (current === null) {
     return (
-      <p role="status" className="flex items-center gap-2 rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground">
+      <p
+        role="status"
+        className="flex items-center gap-2 rounded-2xl border border-border bg-card p-6 text-sm text-muted-foreground"
+      >
         <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
         Carregando dados de recebimento...
       </p>

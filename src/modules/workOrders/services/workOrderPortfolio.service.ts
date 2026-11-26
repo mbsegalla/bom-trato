@@ -1,16 +1,16 @@
 import { getApiConfig } from '@/config/api.config';
 import { authenticatedFetch, SessionError } from '@/modules/auth/services/session.service';
 
+import { workOrderShareTokenSchema } from '../schemas/workOrderPortal.schema';
 import {
   managementPortfolioStatusResponseSchema,
   portalPortfolioStatusResponseSchema,
   portfolioConsentFormSchema,
 } from '../schemas/workOrderPortfolio.schema';
-import { workOrderShareTokenSchema } from '../schemas/workOrderPortal.schema';
 import type {
   ManagementPortfolioStatus,
-  PortfolioConsentInput,
   PortalPortfolioStatus,
+  PortfolioConsentInput,
 } from '../types/workOrderPortfolio.types';
 
 function internalPath(organizationId: string, workOrderId: string): string {
@@ -120,8 +120,8 @@ export async function publishPortfolioPhoto(
   const response = await authenticatedFetch(
     `${internalPath(organizationId, workOrderId)}/${encodeURIComponent(photoId)}/publish`,
     {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ publish }),
     },
   );

@@ -156,7 +156,13 @@ export function ReceivingSettingsForm({
           </div>
         </div>
 
-        <Button type="button" variant="outline" disabled={saving || switchingOrganization} onClick={onReload} className="cursor-pointer">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={saving || switchingOrganization}
+          onClick={onReload}
+          className="cursor-pointer"
+        >
           <RefreshCw aria-hidden="true" className="size-4" />
           Atualizar
         </Button>
@@ -166,7 +172,9 @@ export function ReceivingSettingsForm({
         <ShieldCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primary" />
 
         <div>
-          <p className="text-sm font-medium">{settings.pixEnabled ? 'Destino Pix cadastrado' : 'Nenhum destino Pix cadastrado'}</p>
+          <p className="text-sm font-medium">
+            {settings.pixEnabled ? 'Destino Pix cadastrado' : 'Nenhum destino Pix cadastrado'}
+          </p>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             A chave é armazenada de forma criptografada. O cadastro não confirma a titularidade no banco e ainda não
             gera cobranças ou pagamentos.

@@ -22,7 +22,9 @@ export const receivingSettingsSchema = z
 
     return (
       (!data.canConfigure || data.encryptionAvailable) &&
-      (data.pixEnabled ? data.version > 0 && fields.every((value) => value !== null) : fields.every((value) => value === null))
+      (data.pixEnabled
+        ? data.version > 0 && fields.every((value) => value !== null)
+        : fields.every((value) => value === null))
     );
   });
 

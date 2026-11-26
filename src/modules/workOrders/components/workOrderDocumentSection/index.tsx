@@ -27,9 +27,7 @@ interface WorkOrderDocumentSectionProps {
 }
 
 type DocumentState =
-  | { kind: 'loading' }
-  | { kind: 'ready'; data: WorkOrderWarrantyResult }
-  | { kind: 'error'; message: string };
+  { kind: 'loading' } | { kind: 'ready'; data: WorkOrderWarrantyResult } | { kind: 'error'; message: string };
 
 export function WorkOrderDocumentSection({ organizationId, workOrderId, status }: WorkOrderDocumentSectionProps) {
   const router = useRouter();
@@ -179,7 +177,9 @@ export function WorkOrderDocumentSection({ organizationId, workOrderId, status }
 
       {state.kind === 'error' && (
         <div className="mt-6 space-y-3">
-          <p role="alert" className="text-sm text-destructive">{state.message}</p>
+          <p role="alert" className="text-sm text-destructive">
+            {state.message}
+          </p>
           <Button type="button" variant="outline" onClick={refresh}>
             <RefreshCw aria-hidden="true" className="size-4" />
             Tentar novamente
@@ -240,8 +240,8 @@ export function WorkOrderDocumentSection({ organizationId, workOrderId, status }
           )}
 
           <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-            A garantia comercial deve ser informada expressamente. Nenhum prazo é concedido automaticamente,
-            e as condições não afastam direitos legais do consumidor.
+            A garantia comercial deve ser informada expressamente. Nenhum prazo é concedido automaticamente, e as
+            condições não afastam direitos legais do consumidor.
           </p>
 
           {!locked && (

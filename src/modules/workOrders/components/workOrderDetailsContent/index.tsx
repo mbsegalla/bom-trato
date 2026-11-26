@@ -32,14 +32,14 @@ import {
 } from '../../services/workOrder.service';
 import type { WorkOrder } from '../../types/workOrder.types';
 import { WorkOrderAcceptanceSection } from '../workOrderAcceptanceSection';
-import { WorkOrderDocumentSection } from '../workOrderDocumentSection';
 import { WorkOrderAssignPanel } from '../workOrderAssignPanel';
 import { WorkOrderCancelDialog } from '../workOrderCancelDialog';
 import { WorkOrderChecklistSection } from '../workOrderChecklistSection';
+import { WorkOrderDocumentSection } from '../workOrderDocumentSection';
 import { WorkOrderExecutionNotes } from '../workOrderExecutionNotes';
 import { WorkOrderPhotosSection } from '../workOrderPhotosSection';
-import { WorkOrderPortfolioSection } from '../workOrderPortfolioSection';
 import { WorkOrderPlanningPanel } from '../workOrderPlanningPanel';
+import { WorkOrderPortfolioSection } from '../workOrderPortfolioSection';
 import { WorkOrderRecurrenceSection } from '../workOrderRecurrenceSection';
 import { WorkOrderScheduleHistory } from '../workOrderScheduleHistory';
 import { WorkOrderSchedulePanel } from '../workOrderSchedulePanel';

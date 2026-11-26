@@ -12,10 +12,7 @@ import { SessionError } from '@/modules/auth/services/session.service';
 import { getCustomerOverview } from '@/modules/customers/services/customer.service';
 import { formatBrazilianPhone } from '@/shared/formatters/phone.formatter';
 
-import {
-  canPrepareReceivableCharge,
-  createReceivableChargeMessage,
-} from '../../../helpers/receivableWhatsapp.helper';
+import { canPrepareReceivableCharge, createReceivableChargeMessage } from '../../../helpers/receivableWhatsapp.helper';
 import { getReceivable } from '../../../services/receivable.service';
 import type { Receivable } from '../../../types/receivable.types';
 

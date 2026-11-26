@@ -131,13 +131,13 @@ export function WorkOrderPortfolioSection({ organizationId, workOrderId, status 
     }
   }
 
-  const candidates = state.kind === 'ready'
-    ? state.photos.filter((photo) => photo.stage === 'BEFORE' || photo.stage === 'AFTER')
-    : [];
+  const candidates =
+    state.kind === 'ready' ? state.photos.filter((photo) => photo.stage === 'BEFORE' || photo.stage === 'AFTER') : [];
 
-  const statuses = state.kind === 'ready'
-    ? new Map(state.management.photos.map((photo) => [photo.id, photo]))
-    : new Map<string, ManagementPortfolioStatus['photos'][number]>();
+  const statuses =
+    state.kind === 'ready'
+      ? new Map(state.management.photos.map((photo) => [photo.id, photo]))
+      : new Map<string, ManagementPortfolioStatus['photos'][number]>();
 
   return (
     <section className="min-w-0 border-t border-border pt-8">
@@ -149,8 +149,8 @@ export function WorkOrderPortfolioSection({ organizationId, workOrderId, status 
           </div>
 
           <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-            Selecione fotos reais do antes e depois para a vitrine da empresa. Cada foto exige a autorização
-            explícita do cliente pelo portal, seguida da sua decisão de publicar.
+            Selecione fotos reais do antes e depois para a vitrine da empresa. Cada foto exige a autorização explícita
+            do cliente pelo portal, seguida da sua decisão de publicar.
           </p>
         </div>
 
@@ -181,8 +181,8 @@ export function WorkOrderPortfolioSection({ organizationId, workOrderId, status 
 
       {state.kind === 'ready' && candidates.length === 0 && (
         <p className="mt-5 rounded-xl bg-muted/40 p-5 text-sm leading-relaxed text-muted-foreground">
-          Nenhuma foto de antes ou depois foi registrada nesta ordem. Adicione fotos e permita a exibição
-          no Portal do Cliente para solicitar autorização de publicação.
+          Nenhuma foto de antes ou depois foi registrada nesta ordem. Adicione fotos e permita a exibição no Portal do
+          Cliente para solicitar autorização de publicação.
         </p>
       )}
 

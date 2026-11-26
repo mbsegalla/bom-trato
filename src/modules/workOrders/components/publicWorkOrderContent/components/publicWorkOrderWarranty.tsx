@@ -90,7 +90,11 @@ export function PublicWorkOrderWarranty({ portal, token }: PublicWorkOrderWarran
         Baixar relatório do atendimento
       </Button>
 
-      {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </section>
   );
 }
