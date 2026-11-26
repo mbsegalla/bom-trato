@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, Bot, Building2, CreditCard, Gift, Palette, ShieldCheck, Store, Users } from 'lucide-react';
+import { ArrowRight, Bot, Building2, CreditCard, Gift, Palette, ReceiptText, ShieldCheck, Store, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -18,11 +18,20 @@ import { AppearanceSettings } from './appearanceSettings';
 import { AutomationSettings } from './automationSettings';
 import { BusinessSettings } from './businessSettings';
 import { PublicProfileSettings } from './publicProfileSettings';
+import { ReceivingSettings } from './receivingSettings';
 import { SecuritySettings } from './securitySettings';
 import { SubscriptionSettings } from './subscriptionSettings';
 import { TeamSettings } from './teamSettings';
 
-export type SettingsTab = 'business' | 'showcase' | 'team' | 'billing' | 'automations' | 'appearance' | 'security';
+export type SettingsTab =
+  | 'business'
+  | 'showcase'
+  | 'team'
+  | 'receiving'
+  | 'billing'
+  | 'automations'
+  | 'appearance'
+  | 'security';
 
 interface SettingsContentProps {
   initialTab: SettingsTab;
@@ -54,6 +63,11 @@ const tabs = [
     value: 'team',
     label: 'Equipe',
     icon: Users,
+  },
+  {
+    value: 'receiving',
+    label: 'Recebimentos',
+    icon: ReceiptText,
   },
   {
     value: 'billing',
@@ -100,7 +114,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         <h1 className="font-heading text-3xl font-semibold tracking-tight sm:text-4xl">Configurações</h1>
 
         <p className="mt-2 text-muted-foreground">
-          Gerencie seu negócio, vitrine, equipe, assinatura, automações, aparência e segurança.
+          Gerencie seu negócio, vitrine, equipe, recebimentos, assinatura, automações, aparência e segurança.
         </p>
       </div>
 
@@ -128,6 +142,7 @@ export function SettingsContent({ initialTab }: SettingsContentProps) {
         {tab === 'business' && <BusinessSettings />}
         {tab === 'showcase' && <PublicProfileSettings />}
         {tab === 'team' && <TeamSettings />}
+        {tab === 'receiving' && <ReceivingSettings />}
         {tab === 'billing' && <BillingSettings />}
         {tab === 'automations' && <AutomationSettings />}
         {tab === 'appearance' && <AppearanceSettings />}

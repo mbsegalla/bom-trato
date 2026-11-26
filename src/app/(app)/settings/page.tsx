@@ -19,6 +19,8 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
     initialTab = 'showcase';
   } else if (tab === 'team') {
     initialTab = 'team';
+  } else if (tab === 'receiving') {
+    initialTab = 'receiving';
   } else if (tab === 'billing') {
     initialTab = 'billing';
   } else if (tab === 'automations') {
