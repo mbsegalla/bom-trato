@@ -24,6 +24,7 @@ export const test = base.extend({
       if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers });
       const call = {
         path: url.pathname,
+        query: Object.fromEntries(url.searchParams),
         method: request.method(),
         body: request.postData() ? request.postDataJSON() : null,
         headers: request.headers(),
