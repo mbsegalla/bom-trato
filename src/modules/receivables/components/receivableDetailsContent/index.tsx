@@ -23,6 +23,7 @@ import { ReceivableDetailsHeader } from './components/receivableDetailsHeader';
 import { ReceivableMetrics } from './components/receivableMetrics';
 import { ReceivablePaymentLinkSection } from './components/receivablePaymentLinkSection';
 import { ReceivableSandboxPixSection } from './components/receivableSandboxPixSection';
+import { ReceivableLivePixSection } from './components/receivableLivePixSection';
 import { ReceivablePixChargeSection } from './components/receivablePixChargeSection';
 
 interface OrganizationReceivableDetailsProps {
@@ -156,6 +157,12 @@ function OrganizationReceivableDetails({ organizationId, receivableId }: Organiz
 
       <ReceivableSandboxPixSection
         key={`sandbox-pix:${receivable.id}:${receivable.version}`}
+        receivable={receivable}
+        onReceivableChanged={() => setRefreshVersion((value) => value + 1)}
+      />
+
+      <ReceivableLivePixSection
+        key={`live-pix:${receivable.id}:${receivable.version}`}
         receivable={receivable}
         onReceivableChanged={() => setRefreshVersion((value) => value + 1)}
       />
