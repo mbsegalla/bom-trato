@@ -98,4 +98,43 @@ describe('business profile contracts', () => {
     assert.equal((await getBusinessProfile(organizationId)).name, profile.name);
     assert.equal(attempt, 3);
   });
+  for (const [status, message] of [
+    [400, /Confira os dados/], [403, /Somente o administrador/], [404, /Negócio não encontrado/],
+    [413, /no máximo 2 MB/], [503, /negócio está sendo atualizado/], [500, /salvar os dados/],
+  ] as const) {
+    it('preserves business profile error ' + status + ' without retrying a write', async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        return new Response(null, { status });
+      });
+      await restoreSession();
+      await assert.rejects(updateBusinessProfile(organizationId, { name: 'Updated fixture' }), message);
+      assert.equal(calls.filter((call) => call.path === route).length, 1);
+    });
+  }
+
+  it('rejects malformed profile update and logo responses', async (t) => {
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return success({ ...profile, logoUrl: 'not-a-url' });
+    });
+    await restoreSession();
+    await assert.rejects(updateBusinessProfile(organizationId, { name: 'Updated fixture' }), /interpretar/);
+    await assert.rejects(uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })), /interpretar/);
+    await assert.rejects(removeBusinessLogo(organizationId), /interpretar/);
+  });
+
+  it('does not retry an oversized upload or failed logo removal', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return new Response(null, { status: call.method === 'POST' ? 413 : 500 });
+    });
+    await restoreSession();
+    await assert.rejects(uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })), /no máximo 2 MB/);
+    await assert.rejects(removeBusinessLogo(organizationId), /remover a logo/);
+    assert.equal(calls.filter((call) => call.path === route + '/logo').length, 2);
+  });
 });
