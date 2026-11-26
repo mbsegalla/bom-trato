@@ -18,6 +18,7 @@ export default function robots(): MetadataRoute.Robots {
         '/schedule',
         '/receivables',
         '/pagar',
+        '/mercado-pago/',
         '/settings',
         '/onboarding',
         '/billing/return',
