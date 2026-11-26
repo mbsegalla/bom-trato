@@ -28,28 +28,40 @@ export const sandboxPixRecoveryStatusSchema = z.enum([
 
 const dateSchema = z.iso.datetime().transform((value) => new Date(value));
 
-const lastAttemptSchema = z.object({
-  status: sandboxPixRecoveryStatusSchema,
-  startedAt: dateSchema,
-  completedAt: dateSchema.nullable(),
-  paymentId: z.string().regex(/^[1-9]\d{0,29}$/).nullable(),
-}).refine((attempt) =>
-  verifiedStatusSchema.safeParse(attempt.status).success === (attempt.paymentId !== null),
-);
+const lastAttemptSchema = z
+  .object({
+    status: sandboxPixRecoveryStatusSchema,
+    startedAt: dateSchema,
+    completedAt: dateSchema.nullable(),
+    paymentId: z
+      .string()
+      .regex(/^[1-9]\d{0,29}$/)
+      .nullable(),
+  })
+  .refine((attempt) => verifiedStatusSchema.safeParse(attempt.status).success === (attempt.paymentId !== null));
 
-export const receivableSandboxPixRecoverySchema = z.object({
-  organizationId: z.uuid(),
-  receivableId: z.uuid(),
-  issuanceId: z.uuid().nullable(),
-  canRecover: z.boolean(),
-  nextRecoveryAt: dateSchema.nullable(),
-  lastAttempt: lastAttemptSchema.nullable(),
-  lastWebhook: z.object({
-    status: verifiedStatusSchema,
-    receivedAt: dateSchema,
-  }).nullable(),
-}).refine((review) => review.issuanceId !== null ||
-  (!review.canRecover && review.nextRecoveryAt === null && review.lastAttempt === null && review.lastWebhook === null),
-);
+export const receivableSandboxPixRecoverySchema = z
+  .object({
+    organizationId: z.uuid(),
+    receivableId: z.uuid(),
+    issuanceId: z.uuid().nullable(),
+    canRecover: z.boolean(),
+    nextRecoveryAt: dateSchema.nullable(),
+    lastAttempt: lastAttemptSchema.nullable(),
+    lastWebhook: z
+      .object({
+        status: verifiedStatusSchema,
+        receivedAt: dateSchema,
+      })
+      .nullable(),
+  })
+  .refine(
+    (review) =>
+      review.issuanceId !== null ||
+      (!review.canRecover &&
+        review.nextRecoveryAt === null &&
+        review.lastAttempt === null &&
+        review.lastWebhook === null),
+  );
 
 export const receivableSandboxPixRecoveryResponseSchema = apiResponseSchema(receivableSandboxPixRecoverySchema);

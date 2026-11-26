@@ -162,8 +162,8 @@ export function MercadoPagoSettingsPanel({ organizationId, switchingOrganization
           <div>
             <h2 className="font-heading text-xl font-semibold">Mercado Pago</h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Conecte a conta do seu negócio para preparar os recebimentos integrados. A assinatura do Bom Trato e
-              o Pix manual não são alterados.
+              Conecte a conta do seu negócio para preparar os recebimentos integrados. A assinatura do Bom Trato e o Pix
+              manual não são alterados.
             </p>
           </div>
         </div>
@@ -179,7 +179,9 @@ export function MercadoPagoSettingsPanel({ organizationId, switchingOrganization
           Consultando conexão...
         </p>
       ) : current.kind === 'error' ? (
-        <p role="alert" className="mt-5 text-sm text-destructive">{current.message}</p>
+        <p role="alert" className="mt-5 text-sm text-destructive">
+          {current.message}
+        </p>
       ) : (
         <div className="mt-5 space-y-4">
           <div className="rounded-xl border border-border bg-muted/30 p-4">
@@ -206,20 +208,30 @@ export function MercadoPagoSettingsPanel({ organizationId, switchingOrganization
           <div className="flex items-start gap-2 text-sm text-muted-foreground">
             <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
-              A autorização acontece no Mercado Pago. As credenciais ficam criptografadas no servidor.
-              Conectar a conta ainda não gera cobranças nem habilita baixas automáticas.
+              A autorização acontece no Mercado Pago. As credenciais ficam criptografadas no servidor. Conectar a conta
+              ainda não gera cobranças nem habilita baixas automáticas.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
             {current.data.canConnect && (
               <Button type="button" onClick={() => void connect()} disabled={disabled} className="cursor-pointer">
-                {busy ? <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> : <ExternalLink aria-hidden="true" className="size-4" />}
+                {busy ? (
+                  <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+                ) : (
+                  <ExternalLink aria-hidden="true" className="size-4" />
+                )}
                 {current.data.status === 'NOT_CONNECTED' ? 'Conectar Mercado Pago' : 'Reconectar Mercado Pago'}
               </Button>
             )}
             {current.data.canDisconnect && !confirmDisconnect && (
-              <Button type="button" variant="outline" onClick={() => setConfirmDisconnect(true)} disabled={disabled} className="cursor-pointer">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setConfirmDisconnect(true)}
+                disabled={disabled}
+                className="cursor-pointer"
+              >
                 Desconectar
               </Button>
             )}
@@ -244,7 +256,11 @@ export function MercadoPagoSettingsPanel({ organizationId, switchingOrganization
         </div>
       )}
 
-      {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </section>
   );
 }

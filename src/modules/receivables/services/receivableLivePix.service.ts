@@ -10,11 +10,16 @@ async function request(
 ): Promise<ReceivableLivePix> {
   const path = `/api/organizations/${encodeURIComponent(organizationId)}/receivables/${encodeURIComponent(receivableId)}/mercado-pago/live-pix`;
   const target = input && 'issuanceId' in input ? path + '/recovery' : path;
-  const response = await authenticatedFetch(target, input === undefined ? {} : {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
+  const response = await authenticatedFetch(
+    target,
+    input === undefined
+      ? {}
+      : {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(input),
+        },
+  );
 
   if (response.status === 401) {
     throw new SessionError('Sua sessão expirou. Entre novamente.', 401);

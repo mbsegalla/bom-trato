@@ -13,7 +13,7 @@ export function sessionResponse(accessToken = 'fixture-access'): Response {
     accessToken,
     expiresIn: 3600,
     tokenType: 'Bearer',
-    csrfToken: 'fixture-csrf'
+    csrfToken: 'fixture-csrf',
   });
 }
 

@@ -40,12 +40,20 @@ export function MercadoPagoCallback() {
       !/^[\x21-\x7E]{1,2048}$/.test(code) ||
       !/^[A-Za-z0-9_-]{43}$/.test(state)
     ) {
-      setView({ kind: 'error', message: 'A autorização não foi concluída. Volte às configurações e tente novamente.' });
+      queueMicrotask(() => {
+        setView({
+          kind: 'error',
+          message: 'A autorização não foi concluída. Volte às configurações e tente novamente.',
+        });
+      });
       return;
     }
 
     grant.current = { code, state };
-    setView({ kind: 'ready' });
+
+    queueMicrotask(() => {
+      setView({ kind: 'ready' });
+    });
   }, []);
 
   async function complete(): Promise<void> {
@@ -83,15 +91,17 @@ export function MercadoPagoCallback() {
         ) : view.kind === 'ready' ? (
           <>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Confirme a conexão com o negócio e a sessão que iniciaram esta autorização. A conta só será vinculada
-              após a validação pelo servidor.
+              Confirme a conexão com o negócio e a sessão que iniciaram esta autorização. A conta só será vinculada após
+              a validação pelo servidor.
             </p>
             <Button type="button" onClick={() => void complete()} className="w-full cursor-pointer">
               Concluir conexão
             </Button>
           </>
         ) : view.kind === 'error' ? (
-          <p role="alert" className="text-sm text-destructive">{view.message}</p>
+          <p role="alert" className="text-sm text-destructive">
+            {view.message}
+          </p>
         ) : (
           <div className="space-y-2 text-sm">
             <p className="font-medium">Conta vinculada com sucesso.</p>
@@ -99,13 +109,17 @@ export function MercadoPagoCallback() {
             <p>Conta Mercado Pago: {view.result.accountId}</p>
             <p>Ambiente: {view.result.liveMode ? 'Produção' : 'Testes'}</p>
             <p className="text-muted-foreground">
-              A conexão ainda não habilita cobranças automáticas. Selecione o negócio nas configurações para consultar o status.
+              A conexão ainda não habilita cobranças automáticas. Selecione o negócio nas configurações para consultar o
+              status.
             </p>
           </div>
         )}
 
         {view.kind !== 'submitting' && (
-          <Link href="/settings?tab=receiving" className="inline-block text-sm font-medium text-primary hover:underline">
+          <Link
+            href="/settings?tab=receiving"
+            className="inline-block text-sm font-medium text-primary hover:underline"
+          >
             Voltar para Recebimentos
           </Link>
         )}
