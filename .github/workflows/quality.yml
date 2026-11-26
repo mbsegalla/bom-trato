@@ -1,0 +1,117 @@
+name: Frontend quality validation
+
+on:
+  workflow_dispatch:
+  # A change to the request file explicitly starts validation on develop.
+  # Normal application commits do not trigger this workflow.
+  push:
+    branches:
+      - develop
+    paths:
+      - .github/quality-check.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Frontend quality checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    env:
+      HUSKY: '0'
+      NEXT_TELEMETRY_DISABLED: '1'
+      NEXT_PUBLIC_BASE_URL_API: http://127.0.0.1:5000
+      NEXT_PUBLIC_SITE_URL: https://bom-trato.example
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ci-placeholder.apps.googleusercontent.com
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_ci_placeholder
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Run tests
+        run: pnpm test:coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: frontend-quality-coverage
+          path: coverage/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Build frontend
+        run: pnpm build
+
+  browser:
+    name: Browser regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HUSKY: '0'
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+        with:
+          run_install: false
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - name: Install application dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install isolated browser test tooling
+        run: npm install --prefix test/browser --package-lock=false --ignore-scripts --no-audit --no-fund
+      - name: Install Chromium
+        run: npm --prefix test/browser exec -- playwright install --with-deps chromium
+      - name: Run browser tests
+        run: pnpm test:browser
+      - name: Upload browser report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: frontend-quality-browser-report
+          path: |
+            test/browser/playwright-report/
+            test/browser/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
