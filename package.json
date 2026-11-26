@@ -12,7 +12,11 @@
     "format:check": "prettier . --check",
     "typecheck": "next typegen && tsc --noEmit",
     "check": "pnpm lint && pnpm format:check && pnpm typecheck",
-    "commit": "cz"
+    "commit": "cz",
+    "test": "node test/run.mjs",
+    "test:unit": "node test/run.mjs src",
+    "test:integration": "node test/run.mjs test/integration",
+    "test:coverage": "node test/run.mjs --coverage"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
