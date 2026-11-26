@@ -3,7 +3,6 @@ name: Frontend CI
 on:
   push:
     branches:
-      - ci/preflight
       - develop
       - main
   pull_request:
