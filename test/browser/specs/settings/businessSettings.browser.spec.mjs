@@ -1,6 +1,13 @@
 import { test, expect, success } from '../../support/api.fixture.mjs';
-import { date, installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
+import { installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
 import { businessProfile, profileRoute } from '../../support/settings.fixture.mjs';
+
+test.beforeEach(({ api }) => {
+  api.respond('GET', '/api/address/states', () => success([
+    { code: 'MG', name: 'Minas Gerais' },
+    { code: 'SP', name: 'São Paulo' },
+  ]));
+});
 
 test('saves normalized business data with a zero-day receivable term and preserves automation preferences', async ({ page, api }) => {
   await installAuthenticatedApp(page, api);
@@ -19,6 +26,7 @@ test('saves normalized business data with a zero-day receivable term and preserv
   const name = main.getByLabel('Nome do negócio *', { exact: true });
 
   await expect(name).toHaveValue('Fixture business');
+  await expect(main.getByLabel('Estado', { exact: true }).locator('option[value="MG"]')).toHaveCount(1);
   await name.fill('  Updated fixture business  ');
   await main.getByLabel('Prazo padrão para vencimento', { exact: true }).fill('0');
   await main.getByRole('button', { name: 'Salvar alterações', exact: true }).click();
@@ -47,6 +55,7 @@ test('prevents business profile edits from nonowners while showing persisted val
 
   await expect(name).toHaveValue('Fixture business');
   await expect(name).toHaveAttribute('readonly', '');
+  await expect(main.getByLabel('Estado', { exact: true }).locator('option[value="MG"]')).toHaveCount(1);
   await expect(term).toHaveValue('15');
   await expect(term).toHaveAttribute('readonly', '');
   await expect(main.getByRole('button', { name: 'Salvar alterações', exact: true })).toHaveCount(0);
