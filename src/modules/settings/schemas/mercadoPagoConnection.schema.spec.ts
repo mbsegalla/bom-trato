@@ -9,11 +9,12 @@ describe('Mercado Pago OAuth completion contract', () => {
       organizationId: '11111111-1111-4111-8111-111111111111',
       organizationName: 'Empresa',
       accountId: '123456',
-      liveMode: false
+      liveMode: false,
     };
 
     assert.deepEqual(mercadoPagoCompletionSchema.parse({ ...input, accessToken: 'hidden' }), input);
 
-    for (const accountId of ['0', 'abc', '-1', '1'.repeat(31)]) assert.equal(mercadoPagoCompletionSchema.safeParse({ ...input, accountId }).success, false);
+    for (const accountId of ['0', 'abc', '-1', '1'.repeat(31)])
+      assert.equal(mercadoPagoCompletionSchema.safeParse({ ...input, accountId }).success, false);
   });
 });

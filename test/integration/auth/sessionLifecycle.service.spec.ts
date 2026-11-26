@@ -38,9 +38,10 @@ describe('session lifecycle contracts', () => {
       loginWithGoogle('fixture-credential', receivableId, { termsVersion: '1', privacyNoticeVersion: '2' }),
     ]);
 
-    assert.deepEqual(calls.map((call) => call.path), [
-      '/api/auth/csrf', '/api/auth/login', '/api/auth/csrf', '/api/auth/google',
-    ]);
+    assert.deepEqual(
+      calls.map((call) => call.path),
+      ['/api/auth/csrf', '/api/auth/login', '/api/auth/csrf', '/api/auth/google'],
+    );
     assert.deepEqual(JSON.parse(String(calls[1].body)), { email: user.email, password: 'fixture-password' });
     assert.deepEqual(JSON.parse(String(calls[3].body)), {
       credential: 'fixture-credential',
@@ -63,8 +64,13 @@ describe('session lifecycle contracts', () => {
       throw new Error('Unexpected request: ' + call.path);
     });
 
-    await assert.rejects(login(user.email, 'wrong'), (error: unknown) =>
-      error instanceof SessionError && error.status === 401 && error.code === 'INVALID_CREDENTIALS' && !error.uncertain,
+    await assert.rejects(
+      login(user.email, 'wrong'),
+      (error: unknown) =>
+        error instanceof SessionError &&
+        error.status === 401 &&
+        error.code === 'INVALID_CREDENTIALS' &&
+        !error.uncertain,
     );
     await assert.rejects(login(user.email, 'wrong'), /Muitas tentativas/);
     await login(user.email, 'fixture-password');
@@ -77,14 +83,17 @@ describe('session lifecycle contracts', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path === '/api/auth/me') return success(user);
-      if (call.path === '/api/auth/sessions') return success([{
-        id: receivableId,
-        createdAt: date,
-        lastRefreshedAt: date,
-        absoluteExpiresAt: date,
-        userAgent: null,
-        current: false,
-      }]);
+      if (call.path === '/api/auth/sessions')
+        return success([
+          {
+            id: receivableId,
+            createdAt: date,
+            lastRefreshedAt: date,
+            absoluteExpiresAt: date,
+            userAgent: null,
+            current: false,
+          },
+        ]);
       if (call.path === '/api/auth/sessions/' + receivableId) return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -114,7 +123,8 @@ describe('session lifecycle contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse('token-' + ++refreshes);
-      if (call.path === '/api/auth/logout' || call.path === '/api/auth/logout-all') return new Response(null, { status: 204 });
+      if (call.path === '/api/auth/logout' || call.path === '/api/auth/logout-all')
+        return new Response(null, { status: 204 });
       if (call.path === '/api/protected') return success({});
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -126,9 +136,10 @@ describe('session lifecycle contracts', () => {
     await authenticatedFetch('/api/protected');
 
     assert.equal(refreshes, 3);
-    assert.deepEqual(calls.filter((call) => call.path === '/api/protected').map((call) => call.headers.get('Authorization')), [
-      'Bearer token-2', 'Bearer token-3',
-    ]);
+    assert.deepEqual(
+      calls.filter((call) => call.path === '/api/protected').map((call) => call.headers.get('Authorization')),
+      ['Bearer token-2', 'Bearer token-3'],
+    );
   });
   it('refreshes once after concurrent unauthorized responses and replays with the new token', async (t) => {
     let refreshes = 0;
@@ -144,12 +155,12 @@ describe('session lifecycle contracts', () => {
     });
 
     await restoreSession();
-    const responses = await Promise.all([
-      authenticatedFetch('/api/protected'),
-      authenticatedFetch('/api/protected'),
-    ]);
+    const responses = await Promise.all([authenticatedFetch('/api/protected'), authenticatedFetch('/api/protected')]);
 
-    assert.deepEqual(responses.map((response) => response.status), [200, 200]);
+    assert.deepEqual(
+      responses.map((response) => response.status),
+      [200, 200],
+    );
     assert.equal(refreshes, 2);
     assert.equal(calls.filter((call) => call.path === '/api/protected').length, 4);
   });
@@ -202,7 +213,10 @@ describe('session lifecycle contracts', () => {
     await authenticatedFetch('/api/protected');
 
     assert.equal(refreshes, 3);
-    assert.equal(calls.filter((call) => call.path === '/api/protected')[0]?.headers.get('Authorization'), 'Bearer token-3');
+    assert.equal(
+      calls.filter((call) => call.path === '/api/protected')[0]?.headers.get('Authorization'),
+      'Bearer token-3',
+    );
   });
   for (const [code, message] of [
     ['GOOGLE_ACCOUNT_LINK_REQUIRED', /conta já existe/],
@@ -217,24 +231,47 @@ describe('session lifecycle contracts', () => {
         if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
         return Response.json({ error: { code } }, { status: 409 });
       });
-      await assert.rejects(loginWithGoogle('fixture-credential'), (error: unknown) =>
-        error instanceof SessionError && error.status === 409 && error.code === code && message.test(error.message));
+      await assert.rejects(
+        loginWithGoogle('fixture-credential'),
+        (error: unknown) =>
+          error instanceof SessionError && error.status === 409 && error.code === code && message.test(error.message),
+      );
       assert.equal(calls.filter((call) => call.path === '/api/auth/google').length, 1);
-      assert.deepEqual(JSON.parse(String(calls[1]?.body)), { credential: 'fixture-credential', selectedPlanPriceId: null });
+      assert.deepEqual(JSON.parse(String(calls[1]?.body)), {
+        credential: 'fixture-credential',
+        selectedPlanPriceId: null,
+      });
     });
   }
 
-  for (const [status, message] of [[401, /validar sua conta Google/], [403, /validar sua conta Google/], [500, /entrar com Google/]] as const) {
+  for (const [status, message] of [
+    [401, /validar sua conta Google/],
+    [403, /validar sua conta Google/],
+    [500, /entrar com Google/],
+  ] as const) {
     it('maps generic Google failure ' + status + ' with correct uncertainty', async (t) => {
-      mockHttp(t, (call) => call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }));
-      await assert.rejects(loginWithGoogle('fixture-credential'), (error: unknown) =>
-        error instanceof SessionError && error.status === status && error.uncertain === (status >= 500) && message.test(error.message));
+      mockHttp(t, (call) =>
+        call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }),
+      );
+      await assert.rejects(
+        loginWithGoogle('fixture-credential'),
+        (error: unknown) =>
+          error instanceof SessionError &&
+          error.status === status &&
+          error.uncertain === status >= 500 &&
+          message.test(error.message),
+      );
     });
   }
 
-  for (const [status, message] of [[403, /Confirme seu e-mail/], [500, /Não foi possível entrar/]] as const) {
+  for (const [status, message] of [
+    [403, /Confirme seu e-mail/],
+    [500, /Não foi possível entrar/],
+  ] as const) {
     it('reports login failure ' + status + ' without silently retrying', async (t) => {
-      const calls = mockHttp(t, (call) => call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }));
+      const calls = mockHttp(t, (call) =>
+        call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }),
+      );
       await assert.rejects(login(user.email, 'fixture-password'), message);
       assert.equal(calls.filter((call) => call.path === '/api/auth/login').length, 1);
     });
@@ -242,9 +279,14 @@ describe('session lifecycle contracts', () => {
 
   it('does not start login while CSRF is rate limited', async (t) => {
     const calls = mockHttp(t, () => new Response(null, { status: 429 }));
-    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
-      error instanceof SessionError && error.status === 429 && !error.uncertain);
-    assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf']);
+    await assert.rejects(
+      login(user.email, 'fixture-password'),
+      (error: unknown) => error instanceof SessionError && error.status === 429 && !error.uncertain,
+    );
+    assert.deepEqual(
+      calls.map((call) => call.path),
+      ['/api/auth/csrf'],
+    );
   });
 
   it('marks a malformed login success or interrupted submission as uncertain', async (t) => {
@@ -254,11 +296,15 @@ describe('session lifecycle contracts', () => {
       if (interrupted) throw new Error('fixture transport failure');
       return success({ invalid: true });
     });
-    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
-      error instanceof SessionError && error.uncertain && error.status === 0);
+    await assert.rejects(
+      login(user.email, 'fixture-password'),
+      (error: unknown) => error instanceof SessionError && error.uncertain && error.status === 0,
+    );
     interrupted = true;
-    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
-      error instanceof SessionError && error.uncertain && error.status === 0);
+    await assert.rejects(
+      login(user.email, 'fixture-password'),
+      (error: unknown) => error instanceof SessionError && error.uncertain && error.status === 0,
+    );
     assert.equal(calls.filter((call) => call.path === '/api/auth/login').length, 2);
   });
 

@@ -8,7 +8,8 @@ import {
   markAllInAppNotificationsRead,
   markInAppNotificationRead,
 } from '@/modules/notifications/services/notification.service';
-import { mockHttp, organizationId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+
+import { issuanceId, mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/notifications';
 const ticket = 'a'.repeat(43);
@@ -23,10 +24,23 @@ describe('notification error recovery and ticket validation', () => {
       if (call.path.startsWith(route + '?')) {
         attempt++;
 
-        return attempt === 1 ? new Response(null, { status: 503 }) : success({
-          items: [{ id: issuanceId, organizationId, type: 'PAYMENT_FAILED', title: 'Fixture', message: 'Fixture', href: '/settings/billing', readAt: null, createdAt: date }],
-          unreadCount: 1,
-        });
+        return attempt === 1
+          ? new Response(null, { status: 503 })
+          : success({
+              items: [
+                {
+                  id: issuanceId,
+                  organizationId,
+                  type: 'PAYMENT_FAILED',
+                  title: 'Fixture',
+                  message: 'Fixture',
+                  href: '/settings/billing',
+                  readAt: null,
+                  createdAt: date,
+                },
+              ],
+              unreadCount: 1,
+            });
       }
       throw new Error('Unexpected request: ' + call.path);
     });
@@ -81,9 +95,12 @@ describe('notification error recovery and ticket validation', () => {
     await assert.rejects(markInAppNotificationRead(organizationId, issuanceId), /atualizar a notificação/);
     await assert.rejects(markAllInAppNotificationsRead(organizationId), /marcar as notificações como lidas/);
 
-    assert.deepEqual(calls.filter((call) => call.path.startsWith(route)).map((call) => [call.method, call.path]), [
-      ['POST', route + '/' + issuanceId + '/read'],
-      ['POST', route + '/read-all'],
-    ]);
+    assert.deepEqual(
+      calls.filter((call) => call.path.startsWith(route)).map((call) => [call.method, call.path]),
+      [
+        ['POST', route + '/' + issuanceId + '/read'],
+        ['POST', route + '/read-all'],
+      ],
+    );
   });
 });

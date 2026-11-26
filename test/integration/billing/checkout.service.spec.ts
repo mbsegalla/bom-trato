@@ -3,13 +3,14 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { startCheckout } from '@/modules/billing/services/checkout.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const result = { attemptId: issuanceId, clientSecret: 'fixture-secret' };
@@ -28,19 +29,16 @@ describe('subscription checkout HTTP service', () => {
 
     assert.strictEqual(first, startCheckout(organizationId, 'price-a'));
 
-    await Promise.all([
-      first,
-      startCheckout(receivableId, 'price-a'),
-      startCheckout(organizationId, 'price-b')
-    ]);
+    await Promise.all([first, startCheckout(receivableId, 'price-a'), startCheckout(organizationId, 'price-b')]);
     const requests = calls.filter((call) => call.path.endsWith('/billing/checkout'));
 
     assert.equal(requests.length, 3);
     assert.ok(requests.some((call) => call.path.includes(receivableId)));
-    assert.deepEqual(
-      requests.map((call) => JSON.parse(String(call.body)).planPriceId).sort(),
-      ['price-a', 'price-a', 'price-b']
-    );
+    assert.deepEqual(requests.map((call) => JSON.parse(String(call.body)).planPriceId).sort(), [
+      'price-a',
+      'price-a',
+      'price-b',
+    ]);
     assert.ok(requests.every((call) => call.method === 'POST'));
   });
 
@@ -64,8 +62,12 @@ describe('subscription checkout HTTP service', () => {
     assert.equal(calls.filter((call) => call.path.endsWith('/billing/checkout')).length, 3);
   });
   for (const [status, message] of [
-    [400, /dados do pagamento são inválidos/], [403, /permissão/], [404, /encontrar o negócio/],
-    [429, /Muitas tentativas/], [503, /pagamento está sendo preparado/], [500, /iniciar o pagamento/],
+    [400, /dados do pagamento são inválidos/],
+    [403, /permissão/],
+    [404, /encontrar o negócio/],
+    [429, /Muitas tentativas/],
+    [503, /pagamento está sendo preparado/],
+    [500, /iniciar o pagamento/],
   ] as const) {
     it('maps checkout failure ' + status + ' and releases the flight', async (t) => {
       let fail = true;

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { z } from 'zod';
+
 import { apiResponseSchema } from './apiResponse.schema';
 
 describe('API response envelope', () => {
@@ -14,10 +15,10 @@ describe('API response envelope', () => {
         success: true,
         data: {
           id: 'item',
-          privateToken: 'hidden'
-        }
+          privateToken: 'hidden',
+        },
       }),
-      { id: 'item' }
+      { id: 'item' },
     );
   });
 
@@ -26,19 +27,19 @@ describe('API response envelope', () => {
       {
         statusCode: 200,
         success: false,
-        data: { id: 'item' }
+        data: { id: 'item' },
       },
       {
         statusCode: '200',
         success: true,
-        data: { id: 'item' }
+        data: { id: 'item' },
       },
       { statusCode: 200, success: true },
       {
         statusCode: 200,
         success: true,
-        data: { id: '' }
-      }
+        data: { id: '' },
+      },
     ]) {
       assert.equal(schema.safeParse(value).success, false);
     }

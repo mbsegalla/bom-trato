@@ -1,8 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getTrialProgress, hasActiveTrial, hasEndedTrial, getTrialRemainingDaysLabel, getOnboardingHref, getTrialSubscriptionHref } from './trial.helper';
 import type { OnboardingState } from '../types/onboarding.types';
+import {
+  getOnboardingHref,
+  getTrialProgress,
+  getTrialRemainingDaysLabel,
+  getTrialSubscriptionHref,
+  hasActiveTrial,
+  hasEndedTrial,
+} from './trial.helper';
 
 const trial = {
   startsAt: new Date('2026-01-01T00:00:00Z'),
@@ -10,7 +17,7 @@ const trial = {
   remainingDays: 7,
   active: true,
   convertedAt: null,
-  revokedAt: null
+  revokedAt: null,
 };
 const state: OnboardingState = {
   step: 'APP',
@@ -18,7 +25,7 @@ const state: OnboardingState = {
   selectedPlanPriceId: null,
   accessSource: 'TRIAL',
   trialEligible: false,
-  trial
+  trial,
 };
 
 describe('trial UI state', () => {
@@ -38,8 +45,8 @@ describe('trial UI state', () => {
       trial: {
         ...trial,
         active: false,
-        remainingDays: 0
-      }
+        remainingDays: 0,
+      },
     };
 
     assert.equal(hasEndedTrial(expired), true);
@@ -53,7 +60,10 @@ describe('trial UI state', () => {
     assert.equal(hasEndedTrial({ ...state, step: 'PAYMENT', accessSource: 'NONE', trial: null }), false);
     assert.equal(hasEndedTrial({ ...state, step: 'PAYMENT', accessSource: 'NONE' }), false);
     assert.equal(hasEndedTrial({ ...state, accessSource: 'NONE', trial: { ...trial, active: false } }), false);
-    assert.equal(hasEndedTrial({ ...state, step: 'PAYMENT', accessSource: 'NONE', trial: { ...trial, active: false } }), true);
+    assert.equal(
+      hasEndedTrial({ ...state, step: 'PAYMENT', accessSource: 'NONE', trial: { ...trial, active: false } }),
+      true,
+    );
   });
 
   it('handles zero and negative trial durations and pluralizes remaining days', () => {

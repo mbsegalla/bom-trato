@@ -14,23 +14,24 @@ describe('dashboard financial response', () => {
         pendingCount: 0,
         pendingAmountInCents: 0,
         overdueCount: 0,
-        overdueAmountInCents: 0
+        overdueAmountInCents: 0,
       },
-      periodReceipts: { count: 0, amountInCents: 0 }
+      periodReceipts: { count: 0, amountInCents: 0 },
     };
 
     assert.equal(dashboardFinancialSchema.safeParse({ statusCode: 200, success: true, data }).success, true);
 
-    for (const amountInCents of [-1, 1.5]) assert.equal(
-      dashboardFinancialSchema.safeParse({
-        statusCode: 200,
-        success: true,
-        data: {
-          ...data,
-          periodReceipts: { count: 1, amountInCents }
-        }
-      }).success,
-      false
-    );
+    for (const amountInCents of [-1, 1.5])
+      assert.equal(
+        dashboardFinancialSchema.safeParse({
+          statusCode: 200,
+          success: true,
+          data: {
+            ...data,
+            periodReceipts: { count: 1, amountInCents },
+          },
+        }).success,
+        false,
+      );
   });
 });

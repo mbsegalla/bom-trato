@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 const token = 'a'.repeat(43);
 const password = 'Fixture!password123';
@@ -13,7 +13,10 @@ test('rejects duplicate reset tokens without submitting a password', async ({ pa
   expect(api.calls).toHaveLength(0);
 });
 
-test('validates password confirmation, sends CSRF-protected data once and clears the reset fragment', async ({ page, api }) => {
+test('validates password confirmation, sends CSRF-protected data once and clears the reset fragment', async ({
+  page,
+  api,
+}) => {
   api.respond('GET', '/api/auth/csrf', () => success({ csrfToken: 'fixture-csrf' }));
   api.respond('POST', endpoint, () => success({}));
 

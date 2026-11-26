@@ -2,9 +2,21 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
-import { archiveCatalogService, getCatalogService, restoreCatalogService, updateCatalogService } from '@/modules/serviceCatalog/services/catalogService.service';
+import {
+  archiveCatalogService,
+  getCatalogService,
+  restoreCatalogService,
+  updateCatalogService,
+} from '@/modules/serviceCatalog/services/catalogService.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/services/' + receivableId;
 const date = '2025-01-01T00:00:00.000Z';
@@ -15,7 +27,15 @@ const input = {
   amountInCents: 1500,
   estimatedDurationMinutes: 60,
 };
-const item = { ...input, id: receivableId, organizationId, currency: 'brl', archivedAt: null, createdAt: date, updatedAt: date };
+const item = {
+  ...input,
+  id: receivableId,
+  organizationId,
+  currency: 'brl',
+  archivedAt: null,
+  createdAt: date,
+  updatedAt: date,
+};
 
 describe('catalog detail and mutation contracts', () => {
   it('updates, archives and restores the scoped service preserving integer amounts', async (t) => {
@@ -35,9 +55,14 @@ describe('catalog detail and mutation contracts', () => {
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => [call.path, call.method]), [
-      [route, 'PATCH'], [route + '/archive', 'POST'], [route + '/restore', 'POST'],
-    ]);
+    assert.deepEqual(
+      requests.map((call) => [call.path, call.method]),
+      [
+        [route, 'PATCH'],
+        [route + '/archive', 'POST'],
+        [route + '/restore', 'POST'],
+      ],
+    );
     assert.deepEqual(JSON.parse(String(requests[0]?.body)), input);
   });
 
@@ -45,7 +70,8 @@ describe('catalog detail and mutation contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path.endsWith('/services/' + receivableId)) return success({ ...item, organizationId: call.path.split('/')[3] });
+      if (call.path.endsWith('/services/' + receivableId))
+        return success({ ...item, organizationId: call.path.split('/')[3] });
       throw new Error('Unexpected request: ' + call.path);
     });
 
@@ -85,8 +111,11 @@ describe('catalog detail and mutation contracts', () => {
     assert.equal(attempt, 2);
   });
   for (const [status, message] of [
-    [400, /Confira os dados/], [403, /permissão/], [409, /estado atual/],
-    [503, /catálogo está sendo atualizado/], [500, /atualizar o serviço/],
+    [400, /Confira os dados/],
+    [403, /permissão/],
+    [409, /estado atual/],
+    [503, /catálogo está sendo atualizado/],
+    [500, /atualizar o serviço/],
   ] as const) {
     it('rejects a service update with HTTP ' + status + ' without implicit retries', async (t) => {
       const calls = mockHttp(t, (call) => {

@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { createCatalogService, listCatalogServices } from '@/modules/serviceCatalog/services/catalogService.service';
+
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
 describe('catalog service HTTP boundary', () => {
@@ -23,7 +24,7 @@ describe('catalog service HTTP boundary', () => {
     await Promise.all([
       first,
       listCatalogServices(receivableId, params),
-      listCatalogServices(organizationId, { ...params, status: 'ARCHIVED' })
+      listCatalogServices(organizationId, { ...params, status: 'ARCHIVED' }),
     ]);
 
     assert.equal(calls.filter((call) => call.path.includes('/services?')).length, 3);
@@ -35,7 +36,7 @@ describe('catalog service HTTP boundary', () => {
       description: null,
       unit: 'SERVICE' as const,
       amountInCents: 1001,
-      estimatedDurationMinutes: null
+      estimatedDurationMinutes: null,
     };
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });

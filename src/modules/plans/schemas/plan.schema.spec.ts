@@ -10,7 +10,7 @@ describe('plan pricing contract', () => {
       amountInCents: 4990,
       currency: 'brl',
       interval: 'MONTH',
-      intervalCount: 1
+      intervalCount: 1,
     };
 
     assert.deepEqual(planPriceSchema.parse(input), input);
@@ -20,7 +20,8 @@ describe('plan pricing contract', () => {
       { amountInCents: 1.5 },
       { currency: 'usd' },
       { interval: 'DAY' },
-      { intervalCount: 0 }
-    ]) assert.equal(planPriceSchema.safeParse({ ...input, ...patch }).success, false);
+      { intervalCount: 0 },
+    ])
+      assert.equal(planPriceSchema.safeParse({ ...input, ...patch }).success, false);
   });
 });

@@ -2,6 +2,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { registerHooks } from 'node:module';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+
 import ts from 'typescript';
 
 // Test-only resolver for Next.js source aliases and TypeScript/TSX.
@@ -13,19 +14,15 @@ const sourceRoot = join(root, 'src');
 function isProjectFile(path) {
   const local = relative(root, path);
 
-  return !isAbsolute(local) && local !== '..' && !local.startsWith('..' + sep) &&
-    !local.split(sep).includes('node_modules');
+  return (
+    !isAbsolute(local) && local !== '..' && !local.startsWith('..' + sep) && !local.split(sep).includes('node_modules')
+  );
 }
 
 function candidate(path) {
-  return [
-    path,
-    path + '.ts',
-    path + '.tsx',
-    join(path, 'index.ts'),
-    join(path, 'index.tsx')
-  ]
-    .find((entry) => isProjectFile(entry) && existsSync(entry) && statSync(entry).isFile());
+  return [path, path + '.ts', path + '.tsx', join(path, 'index.ts'), join(path, 'index.tsx')].find(
+    (entry) => isProjectFile(entry) && existsSync(entry) && statSync(entry).isFile(),
+  );
 }
 
 registerHooks({

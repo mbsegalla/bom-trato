@@ -6,16 +6,17 @@ import {
   createWorkOrderChecklistItem,
   reorderWorkOrderChecklist,
   updateWorkOrderChecklistItem,
-  WorkOrderChecklistError
+  WorkOrderChecklistError,
 } from '@/modules/workOrders/services/workOrderChecklist.service';
 import type { WorkOrderChecklistItem } from '@/modules/workOrders/types/workOrderChecklist.types';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const now = new Date('2026-01-01T00:00:00Z');
@@ -29,7 +30,7 @@ const item: WorkOrderChecklistItem = {
   visibleInPortal: false,
   version: 3,
   createdAt: now,
-  updatedAt: now
+  updatedAt: now,
 };
 
 describe('checklist service', () => {
@@ -48,7 +49,7 @@ describe('checklist service', () => {
     assert.equal(request.method, 'PATCH');
     assert.equal(
       request.path,
-      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/checklist/reorder'
+      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/checklist/reorder',
     );
     assert.deepEqual(JSON.parse(String(request.body)), { items: [{ id: issuanceId, version: 3 }] });
   });
@@ -64,11 +65,18 @@ describe('checklist service', () => {
 
     await restoreSession();
 
-    await assert.rejects(createWorkOrderChecklistItem(organizationId, receivableId, { title: 'New' }), (error: unknown) => error instanceof WorkOrderChecklistError && error.refreshRequired && /50 itens/.test(error.message));
+    await assert.rejects(
+      createWorkOrderChecklistItem(organizationId, receivableId, { title: 'New' }),
+      (error: unknown) =>
+        error instanceof WorkOrderChecklistError && error.refreshRequired && /50 itens/.test(error.message),
+    );
 
     conflict = false;
 
-    await assert.rejects(updateWorkOrderChecklistItem(organizationId, receivableId, item, { completed: true }), (error: unknown) => error instanceof WorkOrderChecklistError && error.refreshRequired);
+    await assert.rejects(
+      updateWorkOrderChecklistItem(organizationId, receivableId, item, { completed: true }),
+      (error: unknown) => error instanceof WorkOrderChecklistError && error.refreshRequired,
+    );
     assert.equal(calls.filter((call) => call.path.includes('/checklist')).length, 2);
   });
 });

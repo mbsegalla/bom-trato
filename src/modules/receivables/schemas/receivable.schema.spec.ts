@@ -3,8 +3,8 @@ import { describe, it } from 'node:test';
 
 import {
   createReceivableFormSchema,
+  receivableCancelFormSchema,
   receivablePaymentFormSchema,
-  receivableCancelFormSchema
 } from './receivable.schema';
 
 describe('receivable forms', () => {
@@ -24,7 +24,7 @@ describe('receivable forms', () => {
       amountInCents: '100,01',
       receivedAt: '2020-01-01T00:00:00Z',
       method: 'PIX',
-      notes: ''
+      notes: '',
     };
 
     assert.equal(receivablePaymentFormSchema.parse(input).amountInCents, 10001);
@@ -33,8 +33,9 @@ describe('receivable forms', () => {
       { receivedAt: '2999-01-01T00:00:00Z' },
       { amountInCents: '0' },
       { amountInCents: '-1' },
-      { method: 'UNKNOWN' }
-    ]) assert.equal(receivablePaymentFormSchema.safeParse({ ...input, ...patch }).success, false);
+      { method: 'UNKNOWN' },
+    ])
+      assert.equal(receivablePaymentFormSchema.safeParse({ ...input, ...patch }).success, false);
 
     assert.equal(receivableCancelFormSchema.safeParse({ reason: '  ' }).success, false);
   });

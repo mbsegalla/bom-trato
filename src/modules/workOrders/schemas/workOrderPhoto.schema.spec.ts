@@ -9,30 +9,30 @@ describe('work order photo form', () => {
       workOrderPhotoFormSchema.parse({
         stage: 'BEFORE',
         caption: ' ',
-        visibleInPortal: false
+        visibleInPortal: false,
       }),
       {
         stage: 'BEFORE',
         caption: null,
-        visibleInPortal: false
-      }
+        visibleInPortal: false,
+      },
     );
     assert.equal(workOrderPhotoFormSchema.safeParse({ stage: 'BEFORE', caption: '' }).success, false);
     assert.equal(
       workOrderPhotoFormSchema.safeParse({
         stage: 'UNKNOWN',
         caption: '',
-        visibleInPortal: false
+        visibleInPortal: false,
       }).success,
-      false
+      false,
     );
     assert.equal(
       workOrderPhotoFormSchema.safeParse({
         stage: 'AFTER',
         caption: 'a'.repeat(241),
-        visibleInPortal: false
+        visibleInPortal: false,
       }).success,
-      false
+      false,
     );
   });
 });

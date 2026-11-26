@@ -5,7 +5,7 @@ import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   getReceivableLivePix,
   issueReceivableLivePix,
-  recoverReceivableLivePix
+  recoverReceivableLivePix,
 } from '@/modules/receivables/services/receivableLivePix.service';
 
 import {
@@ -14,7 +14,7 @@ import {
   organizationId,
   receivableId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/receivables/' + receivableId + '/mercado-pago/live-pix';
@@ -42,7 +42,7 @@ const issue = {
   buyerEmail: 'fixture@example.invalid',
   buyerDocumentType: 'CPF' as const,
   buyerDocumentNumber: '19119119100',
-  confirmed: true as const
+  confirmed: true as const,
 };
 
 describe('live Pix HTTP service', () => {

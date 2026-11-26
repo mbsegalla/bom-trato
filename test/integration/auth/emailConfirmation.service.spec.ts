@@ -7,7 +7,9 @@ import { mockHttp, organizationId, sessionResponse, success } from '../../suppor
 
 describe('email confirmation recovery', () => {
   it('rejects invalid tokens without making requests', async (t) => {
-    const calls = mockHttp(t, () => { throw new Error('Unexpected request'); });
+    const calls = mockHttp(t, () => {
+      throw new Error('Unexpected request');
+    });
 
     await assert.rejects(verifyEmailOnce('invalid'), /inválido/);
 
@@ -42,19 +44,21 @@ describe('email confirmation recovery', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/verify-email') return new Response(null, { status: 503 });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === '/api/auth/me') return success({
-        id: organizationId,
-        name: 'Fixture user',
-        email: 'owner@example.invalid',
-        emailVerified: true,
-        selectedPlanPriceId: null,
-      });
+      if (call.path === '/api/auth/me')
+        return success({
+          id: organizationId,
+          name: 'Fixture user',
+          email: 'owner@example.invalid',
+          emailVerified: true,
+          selectedPlanPriceId: null,
+        });
       throw new Error('Unexpected request: ' + call.path);
     });
 
     assert.deepEqual(await verifyEmailOnce('b'.repeat(43)), { kind: 'recovered', email: 'owner@example.invalid' });
-    assert.deepEqual(calls.map((call) => call.path), [
-      '/api/auth/csrf', '/api/auth/verify-email', '/api/auth/csrf', '/api/auth/refresh', '/api/auth/me',
-    ]);
+    assert.deepEqual(
+      calls.map((call) => call.path),
+      ['/api/auth/csrf', '/api/auth/verify-email', '/api/auth/csrf', '/api/auth/refresh', '/api/auth/me'],
+    );
   });
 });

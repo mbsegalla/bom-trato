@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { resolveReceivablePaymentLink } from '@/modules/receivables/services/receivablePaymentLink.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 const token = 'a'.repeat(64);
@@ -30,7 +31,7 @@ describe('public payment link HTTP service', () => {
         amountInCents: 100,
         currency: 'brl',
         copyAndPaste,
-        expiresAt
+        expiresAt,
       });
     });
 

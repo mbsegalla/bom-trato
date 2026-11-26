@@ -1,16 +1,36 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { installAuthenticatedApp } from '../../support/authenticatedApp.fixture.mjs';
-import { installReceivableDetails, unpaidReceivable, receivableRoute } from '../../support/operationalDetails.fixture.mjs';
+import {
+  installReceivableDetails,
+  receivableRoute,
+  unpaidReceivable,
+} from '../../support/operationalDetails.fixture.mjs';
 import { receivableId } from '../../support/operationalRecords.fixture.mjs';
-import { fixtureCode, issuanceId, liveRoute, notFoundAttempt, pendingFields, reviewFields, sandboxPix, sandboxReview, sandboxRoute } from '../../support/providerPix.fixture.mjs';
+import {
+  fixtureCode,
+  issuanceId,
+  liveRoute,
+  notFoundAttempt,
+  pendingFields,
+  reviewFields,
+  sandboxPix,
+  sandboxReview,
+  sandboxRoute,
+} from '../../support/providerPix.fixture.mjs';
 
 function panel(page) {
-  return page.getByRole('main').locator('section').filter({
-    has: page.getByRole('heading', { name: 'Pix integrado — Mercado Pago', exact: true }),
-  });
+  return page
+    .getByRole('main')
+    .locator('section')
+    .filter({
+      has: page.getByRole('heading', { name: 'Pix integrado — Mercado Pago', exact: true }),
+    });
 }
 
-test('issues a labeled sandbox QR with test-only buyer fields and never changes the real financial ledger', async ({ page, api }) => {
+test('issues a labeled sandbox QR with test-only buyer fields and never changes the real financial ledger', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = sandboxPix();
 
@@ -35,16 +55,29 @@ test('issues a labeled sandbox QR with test-only buyer fields and never changes 
   await section.getByRole('checkbox', { name: /Confirmo que esta é uma emissão de teste/ }).check();
   await issue.click();
 
-  await expect(section.getByRole('img', { name: 'QR Code Pix de teste — não utilizar para pagamentos reais' })).toBeVisible();
+  await expect(
+    section.getByRole('img', { name: 'QR Code Pix de teste — não utilizar para pagamentos reais' }),
+  ).toBeVisible();
   await expect(section.getByLabel('Pix Copia e Cola — somente teste', { exact: true })).toHaveValue(fixtureCode);
   await expect(section.getByText(/O saldo real não é alterado/)).toBeVisible();
   await expect(page.getByText('Nenhum pagamento registrado.', { exact: true })).toBeVisible();
 
-  expect(api.calls.filter((call) => call.path === sandboxRoute && call.method === 'POST').map((call) => call.body)).toEqual([{
-    version: 1, testBuyerEmail: 'fixture@example.invalid', testDocumentType: 'CPF',
-    testDocumentNumber: '00000000000', confirmed: true,
-  }]);
-  expect(api.calls.filter((call) => call.method === 'POST' && (call.path === liveRoute || call.path === receivableRoute + '/payments'))).toHaveLength(0);
+  expect(
+    api.calls.filter((call) => call.path === sandboxRoute && call.method === 'POST').map((call) => call.body),
+  ).toEqual([
+    {
+      version: 1,
+      testBuyerEmail: 'fixture@example.invalid',
+      testDocumentType: 'CPF',
+      testDocumentNumber: '00000000000',
+      confirmed: true,
+    },
+  ]);
+  expect(
+    api.calls.filter(
+      (call) => call.method === 'POST' && (call.path === liveRoute || call.path === receivableRoute + '/payments'),
+    ),
+  ).toHaveLength(0);
 });
 
 test('keeps an unresolved sandbox issuance blocked after a provider lookup finds no payment', async ({ page, api }) => {
@@ -75,7 +108,10 @@ test('keeps an unresolved sandbox issuance blocked after a provider lookup finds
   await expect(section.getByRole('button', { name: 'Consultar no Mercado Pago', exact: true })).toBeDisabled();
   await expect(section.getByRole('button', { name: 'Gerar Pix de teste', exact: true })).toHaveCount(0);
 
-  expect(api.calls.filter((call) => call.path === sandboxRoute + '/recovery' && call.method === 'POST').map((call) => call.body))
-    .toEqual([{ issuanceId }]);
+  expect(
+    api.calls
+      .filter((call) => call.path === sandboxRoute + '/recovery' && call.method === 'POST')
+      .map((call) => call.body),
+  ).toEqual([{ issuanceId }]);
   expect(api.calls.filter((call) => call.path === sandboxRoute && call.method === 'POST')).toHaveLength(0);
 });

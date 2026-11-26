@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { resolveReviewInvitation, submitReview } from '@/modules/reviews/services/review.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 const token = 'a'.repeat(64);
@@ -29,9 +30,18 @@ describe('review preview and response contracts', () => {
   });
 
   it('rejects malformed previews and invalid submitted ratings', async (t) => {
-    mockHttp(t, (call) => call.path.endsWith('/resolve')
-      ? success({ ...preview, expiresAt: 'invalid' })
-      : success({ reviewerDisplayName: 'Cliente T.', rating: 6, comment: null, createdAt: date, verified: true, professionalSlug: 'fixture' }));
+    mockHttp(t, (call) =>
+      call.path.endsWith('/resolve')
+        ? success({ ...preview, expiresAt: 'invalid' })
+        : success({
+            reviewerDisplayName: 'Cliente T.',
+            rating: 6,
+            comment: null,
+            createdAt: date,
+            verified: true,
+            professionalSlug: 'fixture',
+          }),
+    );
 
     await assert.rejects(resolveReviewInvitation(token), /interpretar/);
     await assert.rejects(submitReview(token, { rating: 5, comment: null }), /interpretar/);

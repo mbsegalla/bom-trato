@@ -11,7 +11,14 @@ import {
   updateWorkOrderExecutionNotes,
 } from '@/modules/workOrders/services/workOrder.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const base = '/api/organizations/' + organizationId + '/work-orders';
 const route = base + '/' + receivableId;
@@ -70,21 +77,27 @@ describe('work order lifecycle contracts', () => {
 
     const requests = calls.filter((call) => call.path.startsWith(base));
 
-    assert.deepEqual(requests.map((call) => [call.path, call.method]), [
-      [base, 'POST'],
-      [route, 'PATCH'],
-      [route + '/start', 'POST'],
-      [route + '/execution-notes', 'PATCH'],
-      [route + '/cancel', 'POST'],
-    ]);
+    assert.deepEqual(
+      requests.map((call) => [call.path, call.method]),
+      [
+        [base, 'POST'],
+        [route, 'PATCH'],
+        [route + '/start', 'POST'],
+        [route + '/execution-notes', 'PATCH'],
+        [route + '/cancel', 'POST'],
+      ],
+    );
 
-    assert.deepEqual(requests.map((call) => JSON.parse(String(call.body))), [
-      { quoteId: issuanceId },
-      { version: 1, ...planning },
-      { version: 2 },
-      { version: 3, ...notes },
-      { version: 4, reason: 'Fixture cancellation' },
-    ]);
+    assert.deepEqual(
+      requests.map((call) => JSON.parse(String(call.body))),
+      [
+        { quoteId: issuanceId },
+        { version: 1, ...planning },
+        { version: 2 },
+        { version: 3, ...notes },
+        { version: 4, reason: 'Fixture cancellation' },
+      ],
+    );
   });
 
   it('deduplicates detail reads for the same organization without sharing another organization response', async (t) => {

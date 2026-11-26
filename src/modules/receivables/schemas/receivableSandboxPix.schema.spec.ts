@@ -17,7 +17,7 @@ describe('sandbox Pix contract', () => {
       paymentId: null,
       expiresAt: null,
       copyAndPaste: null,
-      liveMode: false
+      liveMode: false,
     };
 
     assert.equal(receivableSandboxPixSchema.safeParse(view).success, true);
@@ -25,9 +25,9 @@ describe('sandbox Pix contract', () => {
     assert.equal(
       receivableSandboxPixSchema.safeParse({
         ...view,
-        issuanceId: '33333333-3333-4333-8333-333333333333'
+        issuanceId: '33333333-3333-4333-8333-333333333333',
       }).success,
-      false
+      false,
     );
   });
 
@@ -37,7 +37,7 @@ describe('sandbox Pix contract', () => {
       testBuyerEmail: 'fixture@example.invalid',
       testDocumentType: 'CPF',
       testDocumentNumber: '19119119100',
-      confirmed: true
+      confirmed: true,
     };
 
     assert.equal(createReceivableSandboxPixSchema.safeParse(input).success, true);

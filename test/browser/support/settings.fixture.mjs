@@ -146,7 +146,9 @@ export function installTeam(api, readMembers, readInvitations, readEntitlements 
 export function installBilling(api, readSubscription, readInvoices = () => ({ items: [], nextCursor: null })) {
   api.respond('GET', billingRoute + '/subscription', () => success(readSubscription()));
   api.respond('GET', billingRoute + '/entitlements', () => success(entitlements()));
-  api.respond('GET', billingRoute + '/payment-method', () => success({ brand: 'visa', last4: '4242', expMonth: 12, expYear: 2030 }));
+  api.respond('GET', billingRoute + '/payment-method', () =>
+    success({ brand: 'visa', last4: '4242', expMonth: 12, expYear: 2030 }),
+  );
   api.respond('GET', billingRoute + '/invoices', ({ query }) => success(readInvoices(query)));
   api.respond('GET', '/api/plans', () => success([plan]));
 }

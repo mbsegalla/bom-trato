@@ -11,7 +11,14 @@ import {
 } from '@/modules/workOrders/services/workOrderPhoto.service';
 import { PublicWorkOrderError } from '@/modules/workOrders/services/workOrderPortal.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/photos';
 const date = '2025-01-01T00:00:00.000Z';
@@ -35,17 +42,27 @@ describe('work order photo mutation contracts', () => {
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path === route && call.method === 'POST') return success(photo);
       if (call.path === route && call.method === 'GET') return success([photo]);
-      if (call.path === route + '/' + issuanceId && call.method === 'PATCH') return success({ ...photo, visibleInPortal: true, version: 2 });
-      if (call.path === route + '/' + issuanceId && call.method === 'DELETE') return new Response(null, { status: 204 });
+      if (call.path === route + '/' + issuanceId && call.method === 'PATCH')
+        return success({ ...photo, visibleInPortal: true, version: 2 });
+      if (call.path === route + '/' + issuanceId && call.method === 'DELETE')
+        return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
     });
 
     await restoreSession();
 
     const file = new File(['fixture'], 'fixture.webp', { type: 'image/webp' });
-    const created = await uploadWorkOrderPhoto(organizationId, receivableId, file, { stage: 'BEFORE', caption: null, visibleInPortal: false });
+    const created = await uploadWorkOrderPhoto(organizationId, receivableId, file, {
+      stage: 'BEFORE',
+      caption: null,
+      visibleInPortal: false,
+    });
     const list = await listWorkOrderPhotos(organizationId, receivableId);
-    const updated = await updateWorkOrderPhoto(organizationId, receivableId, created, { stage: 'BEFORE', caption: null, visibleInPortal: true });
+    const updated = await updateWorkOrderPhoto(organizationId, receivableId, created, {
+      stage: 'BEFORE',
+      caption: null,
+      visibleInPortal: true,
+    });
 
     await deleteWorkOrderPhoto(organizationId, receivableId, updated);
 
@@ -67,7 +84,8 @@ describe('work order photo mutation contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === route) return Response.json({ error: { code: 'WORK_ORDER_PHOTO_LIMIT_REACHED' } }, { status: 409 });
+      if (call.path === route)
+        return Response.json({ error: { code: 'WORK_ORDER_PHOTO_LIMIT_REACHED' } }, { status: 409 });
       throw new Error('Unexpected request: ' + call.path);
     });
 
@@ -75,7 +93,9 @@ describe('work order photo mutation contracts', () => {
 
     await assert.rejects(
       uploadWorkOrderPhoto(organizationId, receivableId, new File(['fixture'], 'photo.webp', { type: 'image/webp' }), {
-        stage: 'BEFORE', caption: null, visibleInPortal: false,
+        stage: 'BEFORE',
+        caption: null,
+        visibleInPortal: false,
       }),
       /20 fotos/,
     );
@@ -101,11 +121,13 @@ describe('public photo content contracts', () => {
     assert.equal(calls.length, 0);
     assert.equal((await getPublicWorkOrderPhotoContent(token, issuanceId)).type, 'image/webp');
 
-    await assert.rejects(getPublicWorkOrderPhotoContent(token, issuanceId), (error: unknown) =>
-      error instanceof PublicWorkOrderError && !error.retryable,
+    await assert.rejects(
+      getPublicWorkOrderPhotoContent(token, issuanceId),
+      (error: unknown) => error instanceof PublicWorkOrderError && !error.retryable,
     );
-    await assert.rejects(getPublicWorkOrderPhotoContent(token, issuanceId), (error: unknown) =>
-      error instanceof PublicWorkOrderError && error.retryable,
+    await assert.rejects(
+      getPublicWorkOrderPhotoContent(token, issuanceId),
+      (error: unknown) => error instanceof PublicWorkOrderError && error.retryable,
     );
 
     for (const call of calls) {

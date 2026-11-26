@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 test('password recovery gives a non-enumerating response and persists the resend cooldown', async ({ page, api }) => {
   api.respond('GET', '/api/auth/csrf', () => success({ csrfToken: 'fixture-csrf' }));

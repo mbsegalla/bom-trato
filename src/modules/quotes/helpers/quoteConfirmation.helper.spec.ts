@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { getQuoteConfirmationContent } from './quoteConfirmation.helper';
 import type { QuoteItem } from '../types/quote.types';
+import { getQuoteConfirmationContent } from './quoteConfirmation.helper';
 
 describe('quote confirmations', () => {
   it('distinguishes recording a customer approval from destructive decisions', () => {

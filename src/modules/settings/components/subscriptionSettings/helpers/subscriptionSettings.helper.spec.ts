@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import type { Plan, PlanPrice } from '@/modules/plans/types/plan.types';
+
 import { findCurrentPlan } from './subscriptionSettings.helper';
 
 const price: PlanPrice = { id: 'month', amountInCents: 1000, currency: 'brl', interval: 'MONTH', intervalCount: 1 };
@@ -16,7 +17,11 @@ const first: Plan = {
   prices: [price],
 };
 const second: Plan = {
-  ...first, id: 'second', code: 'SECOND', name: 'Second', prices: [yearly],
+  ...first,
+  id: 'second',
+  code: 'SECOND',
+  name: 'Second',
+  prices: [yearly],
 };
 
 describe('current subscription plan selection', () => {

@@ -20,10 +20,14 @@ describe('billing mutation contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === route + '/payment-method/setup') return success({
-        updateId: receivableId, status: 'PENDING', clientSecret: 'fixture-secret',
-      });
-      if (call.path.endsWith('/complete')) return success({ updateId: receivableId, status: 'APPLIED', clientSecret: null });
+      if (call.path === route + '/payment-method/setup')
+        return success({
+          updateId: receivableId,
+          status: 'PENDING',
+          clientSecret: 'fixture-secret',
+        });
+      if (call.path.endsWith('/complete'))
+        return success({ updateId: receivableId, status: 'APPLIED', clientSecret: null });
       if (call.path.endsWith('/portal')) return success({ url: 'https://billing.example.invalid/portal' });
       if (call.path.startsWith(route)) return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
@@ -40,10 +44,17 @@ describe('billing mutation contracts', () => {
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => call.path), [
-      route + '/cancel', route + '/resume', route + '/sync', route + '/payment-method/setup',
-      route + '/payment-method/updates/' + receivableId + '/complete', route + '/portal',
-    ]);
+    assert.deepEqual(
+      requests.map((call) => call.path),
+      [
+        route + '/cancel',
+        route + '/resume',
+        route + '/sync',
+        route + '/payment-method/setup',
+        route + '/payment-method/updates/' + receivableId + '/complete',
+        route + '/portal',
+      ],
+    );
     assert.ok(requests.every((call) => call.method === 'POST' && call.headers.has('Authorization')));
     assert.deepEqual(JSON.parse(String(requests[3].body)), { accepted: true });
   });
@@ -52,11 +63,15 @@ describe('billing mutation contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path.endsWith('/sync')) return Response.json({
-        statusCode: 409,
-        success: false,
-        error: { code: 'BILLING_RECONCILIATION_REQUIRED', message: 'reconcile' },
-      }, { status: 409 });
+      if (call.path.endsWith('/sync'))
+        return Response.json(
+          {
+            statusCode: 409,
+            success: false,
+            error: { code: 'BILLING_RECONCILIATION_REQUIRED', message: 'reconcile' },
+          },
+          { status: 409 },
+        );
       if (call.path.endsWith('/portal')) return success({ url: 'not-a-url' });
       throw new Error('Unexpected request: ' + call.path);
     });

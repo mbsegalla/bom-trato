@@ -49,7 +49,7 @@ try {
       const path = relative(root, file).split(sep).join('/');
       if (isAbsolute(path) || path.startsWith('../')) continue;
       const module = /^src\/modules\/([^/]+)\//.exec(path)?.[1];
-      const key = module ?? (path.split('/')[1] ?? 'other');
+      const key = module ?? path.split('/')[1] ?? 'other';
       const count = groups.get(key) ?? { total: 0, executed: 0 };
       count.total += 1;
       if (seen.has(file)) count.executed += 1;
@@ -63,7 +63,9 @@ try {
       '',
       '| Module | Executed files | Total TS/TSX files |',
       '|---|---:|---:|',
-      ...[...groups].sort(([a], [b]) => a.localeCompare(b)).map(([name, count]) => '| ' + [name, count.executed, count.total].join(' | ') + ' |'),
+      ...[...groups]
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([name, count]) => '| ' + [name, count.executed, count.total].join(' | ') + ' |'),
       '',
       '## Files not observed (' + missing.length + ')',
       '',
@@ -71,10 +73,11 @@ try {
       '',
     ].join('\n');
     writeFileSync(join(output, 'inventory.md'), report);
-    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(
-      process.env.GITHUB_STEP_SUMMARY,
-      report.split('## Files')[0] + '\nFiles not observed: ' + missing.length + '.\n'
-    );
+    if (process.env.GITHUB_STEP_SUMMARY)
+      appendFileSync(
+        process.env.GITHUB_STEP_SUMMARY,
+        report.split('## Files')[0] + '\nFiles not observed: ' + missing.length + '.\n',
+      );
     console.log(report.split('## Files')[0]);
   }
 } finally {

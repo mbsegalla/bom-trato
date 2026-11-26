@@ -3,19 +3,33 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import {
-  completeWorkOrder, getWorkOrder, getWorkOrderScheduleHistory, getWorkOrderStatusHistory,
-  listWorkOrders, sendWorkOrderReviewInvitation,
+  completeWorkOrder,
+  getWorkOrder,
+  getWorkOrderScheduleHistory,
+  getWorkOrderStatusHistory,
+  listWorkOrders,
+  sendWorkOrderReviewInvitation,
 } from '@/modules/workOrders/services/workOrder.service';
 
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders';
 const order = route + '/' + receivableId;
 
 describe('work order service failure and review boundaries', () => {
   for (const [status, message] of [
-    [400, /Confira os dados/], [403, /permissão/], [404, /não encontrada/],
-    [409, /conflito de agenda/], [503, /ordens de serviço estão sendo atualizadas/],
+    [400, /Confira os dados/],
+    [403, /permissão/],
+    [404, /não encontrada/],
+    [409, /conflito de agenda/],
+    [503, /ordens de serviço estão sendo atualizadas/],
     [500, /concluir a ordem/],
   ] as const) {
     it('preserves completion failure ' + status + ' without replaying the write', async (t) => {
@@ -73,10 +87,24 @@ describe('work order service failure and review boundaries', () => {
     });
     await restoreSession();
     await listWorkOrders(organizationId, { page: 1, status: 'ALL' });
-    await listWorkOrders(organizationId, { page: 1, limit: 5, status: 'SCHEDULED', customerId: receivableId, assignedToId: issuanceId });
-    const queries = calls.filter((call) => call.path.startsWith(route + '?')).map((call) => new URLSearchParams(call.path.split('?')[1]));
+    await listWorkOrders(organizationId, {
+      page: 1,
+      limit: 5,
+      status: 'SCHEDULED',
+      customerId: receivableId,
+      assignedToId: issuanceId,
+    });
+    const queries = calls
+      .filter((call) => call.path.startsWith(route + '?'))
+      .map((call) => new URLSearchParams(call.path.split('?')[1]));
     assert.deepEqual([...queries[0]!.keys()].sort(), ['limit', 'page']);
-    assert.deepEqual(Object.fromEntries(queries[1]!), { page: '1', limit: '5', status: 'SCHEDULED', customerId: receivableId, assignedToId: issuanceId });
+    assert.deepEqual(Object.fromEntries(queries[1]!), {
+      page: '1',
+      limit: '5',
+      status: 'SCHEDULED',
+      customerId: receivableId,
+      assignedToId: issuanceId,
+    });
   });
 
   for (const [code, message] of [

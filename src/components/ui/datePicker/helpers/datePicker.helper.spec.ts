@@ -3,17 +3,17 @@ import { describe, it } from 'node:test';
 
 import {
   addMonths,
-  formatDatePickerDisplay,
-  formatMonthYear,
-  isSameDay,
-  isSameMonth,
-  toMinutePrecision,
   buildCalendarDays,
+  formatDatePickerDisplay,
   formatDatePickerValue,
+  formatMonthYear,
   isCalendarDayDisabled,
   isDateTimeWithinLimits,
+  isSameDay,
+  isSameMonth,
   parseDatePickerValue,
-  roundUpToMinuteStep
+  roundUpToMinuteStep,
+  toMinutePrecision,
 } from './datePicker.helper';
 
 describe('date picker calendar rules', () => {
@@ -26,18 +26,10 @@ describe('date picker calendar rules', () => {
   });
 
   it('rejects invalid calendar and clock values without normalizing them into another date', () => {
-    for (const date of [
-      '2027-02-29',
-      '2028-04-31',
-      '2028-13-01',
-      '2028-01-00',
-      '2028-01-01T00:00'
-    ]) assert.equal(parseDatePickerValue(date, 'date'), null);
-    for (const date of [
-      '2028-01-01T24:00',
-      '2028-01-01T10:60',
-      '2028-01-01T10:30Z'
-    ]) assert.equal(parseDatePickerValue(date, 'datetime'), null);
+    for (const date of ['2027-02-29', '2028-04-31', '2028-13-01', '2028-01-00', '2028-01-01T00:00'])
+      assert.equal(parseDatePickerValue(date, 'date'), null);
+    for (const date of ['2028-01-01T24:00', '2028-01-01T10:60', '2028-01-01T10:30Z'])
+      assert.equal(parseDatePickerValue(date, 'datetime'), null);
   });
 
   it('builds six complete calendar weeks and handles year boundaries', () => {
@@ -57,11 +49,11 @@ describe('date picker calendar rules', () => {
     assert.equal(isDateTimeWithinLimits(sameDay, min), false);
     assert.equal(
       formatDatePickerValue(roundUpToMinuteStep(new Date(2028, 1, 29, 23, 59, 30), 15), 'datetime'),
-      '2028-03-01T00:00'
+      '2028-03-01T00:00',
     );
     assert.equal(
       formatDatePickerValue(roundUpToMinuteStep(new Date(2028, 1, 29, 12, 30), 15), 'datetime'),
-      '2028-02-29T12:30'
+      '2028-02-29T12:30',
     );
   });
   it('rejects missing values and accepts a valid local date at midnight', () => {

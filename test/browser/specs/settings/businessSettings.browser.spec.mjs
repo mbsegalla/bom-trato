@@ -1,15 +1,20 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
 import { businessProfile, profileRoute } from '../../support/settings.fixture.mjs';
 
 test.beforeEach(({ api }) => {
-  api.respond('GET', '/api/address/states', () => success([
-    { code: 'MG', name: 'Minas Gerais' },
-    { code: 'SP', name: 'São Paulo' },
-  ]));
+  api.respond('GET', '/api/address/states', () =>
+    success([
+      { code: 'MG', name: 'Minas Gerais' },
+      { code: 'SP', name: 'São Paulo' },
+    ]),
+  );
 });
 
-test('saves normalized business data with a zero-day receivable term and preserves automation preferences', async ({ page, api }) => {
+test('saves normalized business data with a zero-day receivable term and preserves automation preferences', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = businessProfile({ autoQuoteFollowUpEnabled: true });
 

@@ -4,8 +4,9 @@ import { describe, it } from 'node:test';
 import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   completeMercadoPagoConnection,
-  startMercadoPagoConnection
+  startMercadoPagoConnection,
 } from '@/modules/settings/services/mercadoPagoConnection.service';
+
 import { mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 const origin = 'https://web.example.invalid';

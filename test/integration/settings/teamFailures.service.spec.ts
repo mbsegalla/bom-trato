@@ -3,18 +3,30 @@ import { describe, it } from 'node:test';
 
 import { restoreSession, SessionError } from '@/modules/auth/services/session.service';
 import {
-  acceptOrganizationInvitation, getTeamEntitlements, inviteOrganizationMember, listOrganizationInvitations,
-  previewOrganizationInvitation, removeOrganizationMember, resendOrganizationInvitation,
-  revokeOrganizationInvitation, TeamRequestError,
+  acceptOrganizationInvitation,
+  getTeamEntitlements,
+  inviteOrganizationMember,
+  listOrganizationInvitations,
+  previewOrganizationInvitation,
+  removeOrganizationMember,
+  resendOrganizationInvitation,
+  revokeOrganizationInvitation,
+  TeamRequestError,
 } from '@/modules/settings/services/team.service';
 
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId;
 const token = 'a'.repeat(43);
-const failure = (code: string, status: number) => Response.json({
-  statusCode: status, success: false, error: { code, message: 'private upstream detail' },
-}, { status });
+const failure = (code: string, status: number) =>
+  Response.json(
+    {
+      statusCode: status,
+      success: false,
+      error: { code, message: 'private upstream detail' },
+    },
+    { status },
+  );
 
 describe('team permissions and failure recovery', () => {
   for (const [code, status, message] of [
@@ -42,16 +54,24 @@ describe('team permissions and failure recovery', () => {
         return failure(code, status);
       });
       await restoreSession();
-      await assert.rejects(inviteOrganizationMember(organizationId, 'member@example.invalid'), (error: unknown) =>
-        error instanceof TeamRequestError && error.code === code && error.status === status &&
-        error.message.includes(message) && !error.message.includes('private upstream detail'));
+      await assert.rejects(
+        inviteOrganizationMember(organizationId, 'member@example.invalid'),
+        (error: unknown) =>
+          error instanceof TeamRequestError &&
+          error.code === code &&
+          error.status === status &&
+          error.message.includes(message) &&
+          !error.message.includes('private upstream detail'),
+      );
       assert.equal(calls.filter((call) => call.path === route + '/invitations').length, 1);
     });
   }
 
   for (const [status, message] of [
-    [403, 'não tem permissão'], [404, 'recurso solicitado não foi encontrado'],
-    [429, 'Muitas solicitações'], [500, 'Não foi possível enviar o convite'],
+    [403, 'não tem permissão'],
+    [404, 'recurso solicitado não foi encontrado'],
+    [429, 'Muitas solicitações'],
+    [500, 'Não foi possível enviar o convite'],
   ] as const) {
     it('uses a safe fallback for malformed HTTP ' + status, async (t) => {
       mockHttp(t, (call) => {
@@ -60,8 +80,14 @@ describe('team permissions and failure recovery', () => {
         return new Response('not JSON', { status });
       });
       await restoreSession();
-      await assert.rejects(inviteOrganizationMember(organizationId, 'member@example.invalid'), (error: unknown) =>
-        error instanceof TeamRequestError && error.code === null && error.status === status && error.message.includes(message));
+      await assert.rejects(
+        inviteOrganizationMember(organizationId, 'member@example.invalid'),
+        (error: unknown) =>
+          error instanceof TeamRequestError &&
+          error.code === null &&
+          error.status === status &&
+          error.message.includes(message),
+      );
     });
   }
 
@@ -84,7 +110,10 @@ describe('team permissions and failure recovery', () => {
         return failure('TEAM_BUSY', 503);
       });
       await restoreSession();
-      await assert.rejects(operation(), (error: unknown) => error instanceof TeamRequestError && error.code === 'TEAM_BUSY');
+      await assert.rejects(
+        operation(),
+        (error: unknown) => error instanceof TeamRequestError && error.code === 'TEAM_BUSY',
+      );
       assert.equal(calls.filter((call) => !call.path.startsWith('/api/auth/')).length, 1);
     });
 
@@ -113,8 +142,12 @@ describe('team permissions and failure recovery', () => {
     await assert.rejects(listOrganizationInvitations(organizationId), /equipe está sendo atualizada/);
     fail = false;
     assert.deepEqual(await listOrganizationInvitations(organizationId), []);
-    assert.deepEqual(calls.filter((call) => call.path.includes('/invitations?')).map((call) =>
-      new URLSearchParams(call.path.split('?')[1]).get('page')), ['1', '2', '1', '2']);
+    assert.deepEqual(
+      calls
+        .filter((call) => call.path.includes('/invitations?'))
+        .map((call) => new URLSearchParams(call.path.split('?')[1]).get('page')),
+      ['1', '2', '1', '2'],
+    );
   });
 
   it('surfaces session expiry after exactly one replay', async (t) => {

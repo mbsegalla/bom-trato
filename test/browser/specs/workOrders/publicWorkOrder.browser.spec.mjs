@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 const token = 'a'.repeat(64);
 const hash = 'b'.repeat(64);
@@ -27,15 +27,17 @@ function portal(overrides = {}) {
       completedAt: date,
       canceledAt: null,
       createdAt: date,
-      items: [{
-        name: 'Fixture inspection',
-        description: null,
-        unit: 'SERVICE',
-        quantityInThousandths: 1000,
-        unitAmountInCents: 10000,
-        totalInCents: 10000,
-        position: 0,
-      }],
+      items: [
+        {
+          name: 'Fixture inspection',
+          description: null,
+          unit: 'SERVICE',
+          quantityInThousandths: 1000,
+          unitAmountInCents: 10000,
+          totalInCents: 10000,
+          position: 0,
+        },
+      ],
     },
     financial: {
       receivedInCents: 5000,
@@ -48,8 +50,18 @@ function portal(overrides = {}) {
     ],
     checklist: {
       items: [
-        { id: '11111111-1111-4111-8111-111111111111', title: 'Inspection completed', completed: true, completedAt: date },
-        { id: '22222222-2222-4222-8222-222222222222', title: 'Final verification', completed: false, completedAt: null },
+        {
+          id: '11111111-1111-4111-8111-111111111111',
+          title: 'Inspection completed',
+          completed: true,
+          completedAt: date,
+        },
+        {
+          id: '22222222-2222-4222-8222-222222222222',
+          title: 'Final verification',
+          completed: false,
+          completedAt: null,
+        },
       ],
       progress: { total: 2, completed: 1 },
     },
@@ -81,11 +93,12 @@ test('refuses malformed private links without requesting the service', async ({ 
   expect(api.calls).toHaveLength(0);
 });
 
-test('retries a temporary portal failure and displays only the shared checklist and financial progress', async ({ page, api }) => {
+test('retries a temporary portal failure and displays only the shared checklist and financial progress', async ({
+  page,
+  api,
+}) => {
   let unavailable = true;
-  api.respond('POST', route, () => unavailable
-    ? { status: 503, json: { success: false } }
-    : success(portal()));
+  api.respond('POST', route, () => (unavailable ? { status: 503, json: { success: false } } : success(portal())));
 
   await page.goto('/acompanhar#token=' + token);
 
@@ -98,10 +111,12 @@ test('retries a temporary portal failure and displays only the shared checklist 
   await expect(page.getByText('Fixture warranty terms', { exact: true })).toBeVisible();
   await expect(page.getByText('Inspection completed', { exact: true })).toBeVisible();
   await expect(page.getByText('Final verification', { exact: true })).toBeVisible();
-  await expect(page.getByRole('progressbar', { name: 'Progresso das etapas compartilhadas do atendimento' }))
-    .toHaveAttribute('aria-valuetext', '1 de 2 itens concluídos');
-  await expect(page.getByRole('progressbar', { name: 'Percentual do valor contratado registrado como recebido' }))
-    .toHaveAttribute('value', '50');
+  await expect(
+    page.getByRole('progressbar', { name: 'Progresso das etapas compartilhadas do atendimento' }),
+  ).toHaveAttribute('aria-valuetext', '1 de 2 itens concluídos');
+  await expect(
+    page.getByRole('progressbar', { name: 'Percentual do valor contratado registrado como recebido' }),
+  ).toHaveAttribute('value', '50');
 
   const calls = api.calls.filter((call) => call.path === route);
 
@@ -112,7 +127,10 @@ test('retries a temporary portal failure and displays only the shared checklist 
   }
 });
 
-test('requires signer and consent, allows cancellation of confirmation and registers an acceptance only once', async ({ page, api }) => {
+test('requires signer and consent, allows cancellation of confirmation and registers an acceptance only once', async ({
+  page,
+  api,
+}) => {
   api.respond('POST', route, () => success(portal()));
   api.respond('POST', acceptanceRoute, () => success({ acceptedAt: date, completedAt: date }));
 
@@ -121,7 +139,9 @@ test('requires signer and consent, allows cancellation of confirmation and regis
   const section = page.getByRole('region', { name: 'Aceite da conclusão', exact: true });
 
   await section.getByRole('button', { name: 'Registrar aceite da conclusão' }).click();
-  await expect(section.getByRole('alert').filter({ hasText: 'Informe seu nome com pelo menos 2 caracteres.' })).toBeVisible();
+  await expect(
+    section.getByRole('alert').filter({ hasText: 'Informe seu nome com pelo menos 2 caracteres.' }),
+  ).toBeVisible();
   await expect(section.getByRole('alert').filter({ hasText: 'Marque a confirmação da conclusão' })).toBeVisible();
 
   const confirmation = await fillAcceptance(page);
@@ -150,7 +170,10 @@ test('requires signer and consent, allows cancellation of confirmation and regis
   expect(calls[0].headers.authorization).toBeUndefined();
 });
 
-test('blocks another submission after an uncertain or stale acceptance until the service is refreshed', async ({ page, api }) => {
+test('blocks another submission after an uncertain or stale acceptance until the service is refreshed', async ({
+  page,
+  api,
+}) => {
   api.respond('POST', route, () => success(portal()));
   api.respond('POST', acceptanceRoute, () => ({
     status: 409,
@@ -173,12 +196,14 @@ test('blocks another submission after an uncertain or stale acceptance until the
 
 test('does not display acceptance or warranty actions for work that is still in progress', async ({ page, api }) => {
   const current = portal();
-  api.respond('POST', route, () => success({
-    ...current,
-    workOrder: { ...current.workOrder, status: 'IN_PROGRESS', completedAt: null },
-    acceptance: null,
-    warranty: null,
-  }));
+  api.respond('POST', route, () =>
+    success({
+      ...current,
+      workOrder: { ...current.workOrder, status: 'IN_PROGRESS', completedAt: null },
+      acceptance: null,
+      warranty: null,
+    }),
+  );
 
   await page.goto('/acompanhar#token=' + token);
 

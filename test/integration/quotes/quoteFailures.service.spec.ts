@@ -3,8 +3,17 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import {
-  approveQuote, createQuoteShare, decidePublicQuote, downloadPublicQuotePdf, downloadQuotePdf,
-  getQuote, getQuoteStatusHistory, listQuotes, requestPublicQuoteChange, resolvePublicQuote, revokeQuoteShare,
+  approveQuote,
+  createQuoteShare,
+  decidePublicQuote,
+  downloadPublicQuotePdf,
+  downloadQuotePdf,
+  getQuote,
+  getQuoteStatusHistory,
+  listQuotes,
+  requestPublicQuoteChange,
+  resolvePublicQuote,
+  revokeQuoteShare,
 } from '@/modules/quotes/services/quote.service';
 
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
@@ -15,8 +24,11 @@ const route = '/api/organizations/' + organizationId + '/quotes/' + receivableId
 
 describe('quote service failure and public sharing boundaries', () => {
   for (const [status, message] of [
-    [400, /Confira os dados/], [403, /permissão/], [404, /não encontrado/],
-    [503, /orçamentos estão sendo atualizados/], [500, /atualizar o status/],
+    [400, /Confira os dados/],
+    [403, /permissão/],
+    [404, /não encontrado/],
+    [503, /orçamentos estão sendo atualizados/],
+    [500, /atualizar o status/],
   ] as const) {
     it('maps quote mutation failure ' + status + ' without repeating approval', async (t) => {
       const calls = mockHttp(t, (call) => {
@@ -104,16 +116,34 @@ describe('quote service failure and public sharing boundaries', () => {
 
   for (const [name, operation, missing, fallback, malformed] of [
     ['resolve', () => resolvePublicQuote(token), 404, /link não está mais disponível/, /interpretar o orçamento/],
-    ['decision', () => decidePublicQuote(token, 1, 'decline'), 409, /já foi alterado ou decidido/, /interpretar a confirmação/],
-    ['change', () => requestPublicQuoteChange(token, 1, 'Fixture change'), 409, /já recebeu uma resposta/, /interpretar a confirmação/],
+    [
+      'decision',
+      () => decidePublicQuote(token, 1, 'decline'),
+      409,
+      /já foi alterado ou decidido/,
+      /interpretar a confirmação/,
+    ],
+    [
+      'change',
+      () => requestPublicQuoteChange(token, 1, 'Fixture change'),
+      409,
+      /já recebeu uma resposta/,
+      /interpretar a confirmação/,
+    ],
   ] as const) {
     it('reports a closed public ' + name + ' and rejects malformed success data', async (t) => {
       let attempt = 0;
-      const calls = mockHttp(t, () => ++attempt === 1 ? new Response(null, { status: missing }) : success({ invalid: true }));
+      const calls = mockHttp(t, () =>
+        ++attempt === 1 ? new Response(null, { status: missing }) : success({ invalid: true }),
+      );
       await assert.rejects(operation(), fallback);
       await assert.rejects(operation(), malformed);
       assert.equal(calls.length, 2);
-      assert.ok(calls.every((call) => call.method === 'POST' && !call.headers.has('Authorization') && !call.path.includes(token)));
+      assert.ok(
+        calls.every(
+          (call) => call.method === 'POST' && !call.headers.has('Authorization') && !call.path.includes(token),
+        ),
+      );
     });
   }
 

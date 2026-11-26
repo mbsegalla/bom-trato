@@ -3,13 +3,14 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { listAutomationEvents } from '@/modules/settings/services/automation.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const event = {
@@ -23,7 +24,7 @@ const event = {
   availableAt: '2026-01-01T00:00:00Z',
   createdAt: '2026-01-01T00:00:00Z',
   finishedAt: '2026-01-01T00:00:00Z',
-  lastErrorCode: null
+  lastErrorCode: null,
 };
 
 describe('automation history contract', () => {
@@ -47,7 +48,7 @@ describe('automation history contract', () => {
     await assert.rejects(listAutomationEvents(organizationId), /interpretar/);
     assert.equal(
       calls.at(-1)?.path,
-      '/api/organizations/' + organizationId + '/notifications/automation-events?limit=20'
+      '/api/organizations/' + organizationId + '/notifications/automation-events?limit=20',
     );
   });
 });

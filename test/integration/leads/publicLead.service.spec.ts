@@ -2,14 +2,15 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { createPublicLead } from '@/modules/leads/services/publicLead.service';
-import { mockHttp, organizationId, issuanceId, success } from '../../support/http.fixture';
+
+import { issuanceId, mockHttp, organizationId, success } from '../../support/http.fixture';
 
 const input = {
   name: 'Fixture customer',
   email: '',
   phone: '34999991234',
   catalogServiceId: null,
-  message: 'Preciso de uma revisao'
+  message: 'Preciso de uma revisao',
 };
 
 describe('public lead service', () => {
@@ -26,7 +27,7 @@ describe('public lead service', () => {
 
   it('reports uncertain success and unavailable professionals without repeating the request', async (t) => {
     let missing = false;
-    const calls = mockHttp(t, () => missing ? new Response(null, { status: 404 }) : success({ id: 'invalid' }));
+    const calls = mockHttp(t, () => (missing ? new Response(null, { status: 404 }) : success({ id: 'invalid' })));
 
     await assert.rejects(createPublicLead('fixture', organizationId, input), /confirmar sua solicitação/);
 

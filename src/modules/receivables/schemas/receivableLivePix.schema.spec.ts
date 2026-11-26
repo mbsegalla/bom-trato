@@ -33,8 +33,9 @@ describe('live Pix contract', () => {
       { amountInCents: 0 },
       { copyAndPaste: null },
       { available: false },
-      { canIssue: true }
-    ]) assert.equal(receivableLivePixSchema.safeParse({ ...view, ...patch }).success, false);
+      { canIssue: true },
+    ])
+      assert.equal(receivableLivePixSchema.safeParse({ ...view, ...patch }).success, false);
   });
 
   it('never accepts a QR in a settled, expired or review state', () => {
@@ -45,9 +46,9 @@ describe('live Pix contract', () => {
           ...view,
           status,
           copyAndPaste: null,
-          expiresAt: null
+          expiresAt: null,
         }).success,
-        true
+        true,
       );
     }
   });
@@ -58,16 +59,12 @@ describe('live Pix contract', () => {
       buyerEmail: 'fixture@example.invalid',
       buyerDocumentType: 'CPF',
       buyerDocumentNumber: '19119119100',
-      confirmed: true
+      confirmed: true,
     };
 
     assert.equal(createReceivableLivePixSchema.safeParse(input).success, true);
 
-    for (const patch of [
-      { confirmed: false },
-      { buyerDocumentType: 'CNPJ' },
-      { version: 0 },
-      { buyerEmail: 'bad' }
-    ]) assert.equal(createReceivableLivePixSchema.safeParse({ ...input, ...patch }).success, false);
+    for (const patch of [{ confirmed: false }, { buyerDocumentType: 'CNPJ' }, { version: 0 }, { buyerEmail: 'bad' }])
+      assert.equal(createReceivableLivePixSchema.safeParse({ ...input, ...patch }).success, false);
   });
 });

@@ -15,8 +15,8 @@ describe('sandbox recovery evidence', () => {
       status: 'VERIFIED_APPROVED',
       startedAt: '2026-01-01T00:00:00Z',
       completedAt: '2026-01-01T00:00:01Z',
-      paymentId: '123'
-    }
+      paymentId: '123',
+    },
   };
 
   it('requires a payment identity for verified evidence and forbids identity on unverified outcomes', () => {
@@ -26,20 +26,20 @@ describe('sandbox recovery evidence', () => {
         ...view,
         lastAttempt: {
           ...view.lastAttempt,
-          paymentId: null
-        }
+          paymentId: null,
+        },
       }).success,
-      false
+      false,
     );
     assert.equal(
       receivableSandboxPixRecoverySchema.safeParse({
         ...view,
         lastAttempt: {
           ...view.lastAttempt,
-          status: 'NOT_FOUND'
-        }
+          status: 'NOT_FOUND',
+        },
       }).success,
-      false
+      false,
     );
     assert.equal(receivableSandboxPixRecoverySchema.safeParse({ ...view, issuanceId: null }).success, false);
   });

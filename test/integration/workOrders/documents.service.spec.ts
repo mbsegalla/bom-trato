@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { downloadWorkOrderReport } from '@/modules/workOrders/services/workOrderDocument.service';
+
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
 describe('work order report download', () => {
@@ -26,7 +27,7 @@ describe('work order report download', () => {
     await assert.rejects(downloadWorkOrderReport(organizationId, receivableId), /interpretar o relatório/);
     assert.equal(
       calls.at(-1)?.path,
-      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/report.pdf'
+      '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/report.pdf',
     );
   });
 });

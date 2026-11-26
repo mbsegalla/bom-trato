@@ -5,8 +5,9 @@ import {
   getPublicProfessional,
   getPublicProfessionals,
   getPublicWhatsappUrl,
-  PublicDirectoryError
+  PublicDirectoryError,
 } from '@/modules/publicProfiles/services/publicDirectory.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 describe('public directory HTTP service', () => {
@@ -19,13 +20,13 @@ describe('public directory HTTP service', () => {
         limit: 10,
         search: ' Reparo & Instalacao ',
         city: ' Uberlandia ',
-        state: ' mg '
+        state: ' mg ',
       }),
       {
         items: [],
         page: 2,
-        hasMore: false
-      }
+        hasMore: false,
+      },
     );
 
     const url = new URL(calls[0]!.path, 'https://api.example.invalid');
@@ -40,12 +41,18 @@ describe('public directory HTTP service', () => {
 
   it('distinguishes a missing public profile from a malformed upstream response', async (t) => {
     let missing = true;
-    mockHttp(t, () => missing ? new Response(null, { status: 404 }) : success({ slug: 'fixture' }));
+    mockHttp(t, () => (missing ? new Response(null, { status: 404 }) : success({ slug: 'fixture' })));
 
-    await assert.rejects(getPublicProfessional('fixture'), (error: unknown) => error instanceof PublicDirectoryError && error.status === 404);
+    await assert.rejects(
+      getPublicProfessional('fixture'),
+      (error: unknown) => error instanceof PublicDirectoryError && error.status === 404,
+    );
 
     missing = false;
 
-    await assert.rejects(getPublicProfessional('fixture'), (error: unknown) => error instanceof PublicDirectoryError && error.status === 0);
+    await assert.rejects(
+      getPublicProfessional('fixture'),
+      (error: unknown) => error instanceof PublicDirectoryError && error.status === 0,
+    );
   });
 });

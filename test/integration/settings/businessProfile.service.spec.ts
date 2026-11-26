@@ -2,7 +2,12 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
-import { getBusinessProfile, removeBusinessLogo, updateBusinessProfile, uploadBusinessLogo } from '@/modules/settings/services/business.service';
+import {
+  getBusinessProfile,
+  removeBusinessLogo,
+  updateBusinessProfile,
+  uploadBusinessLogo,
+} from '@/modules/settings/services/business.service';
 
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
@@ -66,13 +71,22 @@ describe('business profile contracts', () => {
 
     await restoreSession();
 
-    assert.equal((await updateBusinessProfile(organizationId, { defaultReceivableDueDays: 30 })).defaultReceivableDueDays, 30);
-    assert.equal((await uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.webp', { type: 'image/webp' }))).logoUrl, logoUrl);
+    assert.equal(
+      (await updateBusinessProfile(organizationId, { defaultReceivableDueDays: 30 })).defaultReceivableDueDays,
+      30,
+    );
+    assert.equal(
+      (await uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.webp', { type: 'image/webp' }))).logoUrl,
+      logoUrl,
+    );
     assert.equal((await removeBusinessLogo(organizationId)).logoUrl, null);
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => call.method), ['PATCH', 'POST', 'DELETE']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['PATCH', 'POST', 'DELETE'],
+    );
     assert.deepEqual(JSON.parse(String(requests[0]?.body)), { defaultReceivableDueDays: 30 });
   });
 
@@ -99,8 +113,12 @@ describe('business profile contracts', () => {
     assert.equal(attempt, 3);
   });
   for (const [status, message] of [
-    [400, /Confira os dados/], [403, /Somente o administrador/], [404, /Negócio não encontrado/],
-    [413, /no máximo 2 MB/], [503, /negócio está sendo atualizado/], [500, /salvar os dados/],
+    [400, /Confira os dados/],
+    [403, /Somente o administrador/],
+    [404, /Negócio não encontrado/],
+    [413, /no máximo 2 MB/],
+    [503, /negócio está sendo atualizado/],
+    [500, /salvar os dados/],
   ] as const) {
     it('preserves business profile error ' + status + ' without retrying a write', async (t) => {
       const calls = mockHttp(t, (call) => {
@@ -122,7 +140,10 @@ describe('business profile contracts', () => {
     });
     await restoreSession();
     await assert.rejects(updateBusinessProfile(organizationId, { name: 'Updated fixture' }), /interpretar/);
-    await assert.rejects(uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })), /interpretar/);
+    await assert.rejects(
+      uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })),
+      /interpretar/,
+    );
     await assert.rejects(removeBusinessLogo(organizationId), /interpretar/);
   });
 
@@ -133,7 +154,10 @@ describe('business profile contracts', () => {
       return new Response(null, { status: call.method === 'POST' ? 413 : 500 });
     });
     await restoreSession();
-    await assert.rejects(uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })), /no máximo 2 MB/);
+    await assert.rejects(
+      uploadBusinessLogo(organizationId, new File(['fixture'], 'logo.png', { type: 'image/png' })),
+      /no máximo 2 MB/,
+    );
     await assert.rejects(removeBusinessLogo(organizationId), /remover a logo/);
     assert.equal(calls.filter((call) => call.path === route + '/logo').length, 2);
   });
