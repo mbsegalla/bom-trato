@@ -12,7 +12,9 @@ describe('authenticated HTTP session', () => {
       if (call.path === '/api/auth/refresh') return sessionResponse();
       throw new Error('Unexpected request: ' + call.path);
     });
+
     const results = await Promise.all([restoreSession(), restoreSession(), restoreSession()]);
+
     assert.equal(results[0].accessToken, 'fixture-access');
     assert.strictEqual(results[0], results[1]);
     assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf', '/api/auth/refresh']);
@@ -29,17 +31,25 @@ describe('authenticated HTTP session', () => {
       if (call.path === '/api/auth/refresh') return sessionResponse('access-' + ++refreshes);
       if (call.path === '/api/protected') {
         protectedCalls++;
+
         return new Response(null, { status: 401 });
       }
       throw new Error('Unexpected request: ' + call.path);
     });
+
     await restoreSession();
     const result = await authenticatedFetch('/api/protected', { method: 'GET', headers: { 'X-Trace': 'fixture' } });
+
     assert.equal(result.status, 401);
     assert.equal(refreshes, 2);
     assert.equal(protectedCalls, 2);
+
     const protectedRequests = calls.filter((call) => call.path === '/api/protected');
-    assert.deepEqual(protectedRequests.map((call) => call.headers.get('Authorization')), ['Bearer access-1', 'Bearer access-2']);
+
+    assert.deepEqual(
+      protectedRequests.map((call) => call.headers.get('Authorization')),
+      ['Bearer access-1', 'Bearer access-2']
+    );
     for (const request of protectedRequests) {
       assert.equal(request.headers.get('X-CSRF-Token'), 'fixture-csrf');
       assert.equal(request.headers.get('X-Trace'), 'fixture');
@@ -51,6 +61,7 @@ describe('authenticated HTTP session', () => {
     mockHttp(t, (call) => call.path === '/api/auth/csrf'
       ? success({ csrfToken: 'fixture-csrf' })
       : success({ accessToken: 'incomplete' }));
+
     await assert.rejects(restoreSession(), (error: unknown) => error instanceof SessionError && error.uncertain);
   });
 });

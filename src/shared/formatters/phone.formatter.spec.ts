@@ -12,6 +12,7 @@ describe('Brazilian phone formatting', () => {
   for (const input of ['123', '00999991234', '34899991234', '3412221234', '34abc999991234']) {
     it('rejects invalid phone ' + input, () => assert.equal(isValidBrazilianPhone(input), false));
   }
+
   it('accepts valid mobile and landline formats', () => {
     assert.equal(isValidBrazilianPhone('+55 (34) 99999-1234'), true);
     assert.equal(isValidBrazilianPhone('(34) 3222-1234'), true);

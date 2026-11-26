@@ -23,7 +23,8 @@ export const test = base.extend({
       };
       if (request.method() === 'OPTIONS') return route.fulfill({ status: 204, headers });
       const call = {
-        path: url.pathname, method: request.method(),
+        path: url.pathname,
+        method: request.method(),
         body: request.postData() ? request.postDataJSON() : null,
         headers: request.headers(),
       };
@@ -31,15 +32,20 @@ export const test = base.extend({
       const handler = handlers.get(call.method + ' ' + call.path);
       if (!handler) {
         unexpected.push(call.method + ' ' + call.path);
+
         return route.fulfill({ status: 500, headers, json: { success: false } });
       }
       const result = await handler(call);
+
       return route.fulfill({ status: result.status ?? 200, headers, json: result.json });
     });
     await use({
       calls,
-      respond(method, path, handler) { handlers.set(method + ' ' + path, handler); },
+      respond(method, path, handler) {
+        handlers.set(method + ' ' + path, handler);
+      },
     });
+
     expect(unexpected, 'Unexpected local API requests').toEqual([]);
   },
 });

@@ -12,14 +12,21 @@ describe('auth identity HTTP boundary', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path === '/api/auth/identities') return success({ providers });
+
       return new Response(null, { status: 409 });
     });
+
     await restoreSession();
+
     assert.deepEqual(await getAuthIdentityProviders(), ['GOOGLE']);
+
     providers = ['UNKNOWN'];
+
     await assert.rejects(getAuthIdentityProviders(), /interpretar/);
     await assert.rejects(linkGoogleIdentity('fixture-credential'), /vincular/);
+
     const post = calls.at(-1)!;
+
     assert.equal(post.path, '/api/auth/google/link');
     assert.equal(post.method, 'POST');
     assert.deepEqual(JSON.parse(String(post.body)), { credential: 'fixture-credential' });

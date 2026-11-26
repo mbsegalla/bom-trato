@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { installBrowserStorage } from '../../../../test/support/browserStorage.fixture';
-import { getPasswordResetCooldownSeconds, startPasswordResetCooldown, subscribeToPasswordResetCooldown } from './passwordResetCooldown';
+import {
+  getPasswordResetCooldownSeconds,
+  startPasswordResetCooldown,
+  subscribeToPasswordResetCooldown
+} from './passwordResetCooldown';
 import { getVerificationCooldownSeconds, startVerificationCooldown } from './verificationCooldown';
 
 describe('request cooldown persistence', () => {
@@ -11,7 +15,9 @@ describe('request cooldown persistence', () => {
     let now = Date.now();
     t.mock.method(Date, 'now', () => now);
     let changes = 0;
-    const unsubscribe = subscribeToPasswordResetCooldown(() => { changes += 1; });
+    const unsubscribe = subscribeToPasswordResetCooldown(() => {
+      changes += 1;
+    });
     try {
       assert.equal(getPasswordResetCooldownSeconds(), 0);
       startPasswordResetCooldown(60);
@@ -34,6 +40,7 @@ describe('request cooldown persistence', () => {
       unsubscribe();
     }
     browser.dispatchEvent(new Event('focus'));
+
     assert.equal(changes, 3);
   });
 });

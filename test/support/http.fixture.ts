@@ -9,7 +9,12 @@ export function success(data: unknown): Response {
 }
 
 export function sessionResponse(accessToken = 'fixture-access'): Response {
-  return success({ accessToken, expiresIn: 3600, tokenType: 'Bearer', csrfToken: 'fixture-csrf' });
+  return success({
+    accessToken,
+    expiresIn: 3600,
+    tokenType: 'Bearer',
+    csrfToken: 'fixture-csrf'
+  });
 }
 
 export interface HttpCall {
@@ -35,7 +40,9 @@ export function mockHttp(t: TestContext, handler: (call: HttpCall) => Response |
       cache: init?.cache,
     };
     calls.push(call);
+
     return handler(call);
   });
+
   return calls;
 }

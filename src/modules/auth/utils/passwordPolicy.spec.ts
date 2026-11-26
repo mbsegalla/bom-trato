@@ -12,6 +12,7 @@ describe('password policy', () => {
     assert.equal(isPasswordValid('lowercase!123'), false);
     assert.equal(isPasswordValid('Uppercase1234'), false);
   });
+
   it('counts Unicode code points and accepts Unicode uppercase and symbols', () => {
     assert.equal(isPasswordValid('Á' + '😀'.repeat(11)), true);
     assert.equal(getPasswordRequirements('A!').filter((rule) => rule.isSatisfied).length, 2);

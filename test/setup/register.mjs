@@ -7,16 +7,24 @@ import ts from 'typescript';
 // Test-only resolver for Next.js source aliases and TypeScript/TSX.
 // Do not transform packages or change the production Next configuration.
 const root = fileURLToPath(new URL('../../', import.meta.url));
+
 const sourceRoot = join(root, 'src');
 
 function isProjectFile(path) {
   const local = relative(root, path);
+
   return !isAbsolute(local) && local !== '..' && !local.startsWith('..' + sep) &&
     !local.split(sep).includes('node_modules');
 }
 
 function candidate(path) {
-  return [path, path + '.ts', path + '.tsx', join(path, 'index.ts'), join(path, 'index.tsx')]
+  return [
+    path,
+    path + '.ts',
+    path + '.tsx',
+    join(path, 'index.ts'),
+    join(path, 'index.tsx')
+  ]
     .find((entry) => isProjectFile(entry) && existsSync(entry) && statSync(entry).isFile());
 }
 
@@ -47,6 +55,7 @@ registerHooks({
         inlineSources: true,
       },
     });
+
     return { format: 'module', source: result.outputText, shortCircuit: true };
   },
 });

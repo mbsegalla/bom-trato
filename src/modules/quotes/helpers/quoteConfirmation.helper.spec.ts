@@ -11,7 +11,9 @@ describe('quote confirmations', () => {
     assert.match(getQuoteConfirmationContent({ kind: 'APPROVE' })!.description, /outro canal/);
     assert.equal(getQuoteConfirmationContent({ kind: 'DECLINE' })?.destructive, true);
     assert.equal(getQuoteConfirmationContent({ kind: 'CANCEL' })?.destructive, true);
+
     const item = { name: 'Fixture item' } as QuoteItem;
+
     assert.match(getQuoteConfirmationContent({ kind: 'REMOVE_ITEM', item })!.description, /Fixture item/);
   });
 });

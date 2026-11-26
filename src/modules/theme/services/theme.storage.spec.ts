@@ -9,18 +9,28 @@ describe('theme storage', () => {
     assert.equal(getStoredThemePreference(), 'system');
     assert.doesNotThrow(() => storeThemePreference('dark'));
   });
+
   it('persists supported themes and ignores unexpected storage values', (t) => {
     const browser = installBrowserStorage(t);
     storeThemePreference('dark');
+
     assert.equal(browser.localStorage.getItem(THEME_STORAGE_KEY), 'dark');
     assert.equal(getStoredThemePreference(), 'dark');
+
     browser.localStorage.setItem(THEME_STORAGE_KEY, 'unknown');
+
     assert.equal(getStoredThemePreference(), 'system');
   });
+
   it('falls back safely when browser storage is unavailable', (t) => {
     const browser = installBrowserStorage(t);
-    t.mock.method(browser.localStorage, 'getItem', () => { throw new Error('Storage blocked'); });
-    t.mock.method(browser.localStorage, 'setItem', () => { throw new Error('Storage blocked'); });
+    t.mock.method(browser.localStorage, 'getItem', () => {
+      throw new Error('Storage blocked');
+    });
+    t.mock.method(browser.localStorage, 'setItem', () => {
+      throw new Error('Storage blocked');
+    });
+
     assert.equal(getStoredThemePreference(), 'system');
     assert.doesNotThrow(() => storeThemePreference('light'));
   });
