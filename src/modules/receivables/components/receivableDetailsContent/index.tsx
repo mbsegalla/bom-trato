@@ -21,6 +21,7 @@ import { ReceivableChargeSection } from './components/receivableChargeSection';
 import { ReceivableContextCards } from './components/receivableContextCards';
 import { ReceivableDetailsHeader } from './components/receivableDetailsHeader';
 import { ReceivableMetrics } from './components/receivableMetrics';
+import { ReceivablePixChargeSection } from './components/receivablePixChargeSection';
 
 interface OrganizationReceivableDetailsProps {
   organizationId: string;
@@ -144,6 +145,12 @@ function OrganizationReceivableDetails({ organizationId, receivableId }: Organiz
       )}
 
       <ReceivableMetrics receivable={receivable} />
+
+      <ReceivablePixChargeSection
+        key={`pix:${receivable.id}:${receivable.version}`}
+        receivable={receivable}
+        onReceivableChanged={() => setRefreshVersion((value) => value + 1)}
+      />
 
       <ReceivableChargeSection
         key={`${receivable.id}:${receivable.version}`}
