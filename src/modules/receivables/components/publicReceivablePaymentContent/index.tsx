@@ -103,7 +103,9 @@ export function PublicReceivablePaymentContent() {
         ) : (
           <>
             <p className="mt-4 text-sm text-muted-foreground">{state.payment.organizationName}</p>
-            <p className="mt-2 font-heading text-3xl font-semibold">{formatBrlCurrency(state.payment.amountInCents)}</p>
+            <p className="mt-2 font-heading text-3xl font-semibold">
+              {formatBrlCurrency(state.payment.amountInCents)}
+            </p>
             <p className="mt-2 text-sm text-muted-foreground">Recebedor informado: {state.payment.merchantName}</p>
 
             <svg
