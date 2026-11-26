@@ -11,6 +11,19 @@ import {
 const route = organizationRoute(organizationId, 'notifications');
 const secondId = '55555555-5555-4555-8555-555555555555';
 
+function notificationControls(page) {
+  const header = page.getByRole('banner');
+  const bell = header.getByRole('button', { name: /^Notificações(?:, \d+ não lidas)?$/ });
+  const popover = header.getByRole('region', { name: 'Notificações', exact: true });
+
+  return { bell, popover };
+}
+
+async function expectClosed(bell, popover) {
+  await expect(bell).toHaveAttribute('aria-expanded', 'false');
+  await expect(popover).toBeHidden();
+}
+
 test('opens and closes notifications and acknowledges all unread items through the scoped hook', async ({ page, api }) => {
   await installAuthenticatedApp(page, api);
 
@@ -30,17 +43,20 @@ test('opens and closes notifications and acknowledges all unread items through t
 
   await page.goto('/customers');
 
-  const bell = page.getByRole('button', { name: 'Notificações, 2 não lidas' });
-  await bell.click();
+  const { bell, popover } = notificationControls(page);
 
-  const popover = page.getByRole('region', { name: 'Notificações' });
+  await expect(bell).toHaveAccessibleName('Notificações, 2 não lidas');
+  await expectClosed(bell, popover);
+  await bell.click();
+  await expect(bell).toHaveAttribute('aria-expanded', 'true');
 
   await expect(popover.getByText('Fixture notification', { exact: true })).toBeVisible();
   await expect(popover.getByText('2 não lidas', { exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(popover).toHaveCount(0);
+  await bell.click();
+  await expectClosed(bell, popover);
 
   await bell.click();
+  await expect(bell).toHaveAttribute('aria-expanded', 'true');
   await popover.getByRole('button', { name: 'Marcar lidas', exact: true }).click();
 
   await expect(popover.getByText('Nenhuma notificação não lida', { exact: true })).toBeVisible();
@@ -74,16 +90,17 @@ test('refreshes the list when an SSE notification arrives and reconnects using a
   expect(new URL(firstUrl).searchParams.get('ticket')).toBe(ticket);
 
   // Wait for the initial list to finish before sending the simulated SSE event.
-  await page.getByRole('button', { name: 'Notificações', exact: true }).click();
-  const popover = page.getByRole('region', { name: 'Notificações' });
+  const { bell, popover } = notificationControls(page);
+
+  await bell.click();
   await expect(popover.getByText('Tudo tranquilo por aqui', { exact: true })).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(popover).toHaveCount(0);
+  await bell.click();
+  await expectClosed(bell, popover);
 
   unreadCount = 1;
 
   await page.evaluate(() => window.fixtureEventSources[0].dispatchEvent(new Event('notifications-changed')));
-  await expect(page.getByRole('button', { name: 'Notificações, 1 não lidas' })).toBeVisible();
+  await expect(bell).toHaveAccessibleName('Notificações, 1 não lidas');
 
   await page.evaluate(() => window.fixtureEventSources[0].onerror(new Event('error')));
   await expect.poll(() => page.evaluate(() => window.fixtureEventSources.length)).toBe(2);
@@ -111,9 +128,11 @@ test('shows an explicit retry for a failed notification read and acknowledges an
   });
 
   await page.goto('/customers');
-  await page.getByRole('button', { name: 'Notificações', exact: true }).click();
 
-  const popover = page.getByRole('region', { name: 'Notificações' });
+  const { bell, popover } = notificationControls(page);
+
+  await bell.click();
+  await expect(bell).toHaveAttribute('aria-expanded', 'true');
 
   await expect(popover.getByRole('alert').filter({ hasText: 'Não foi possível carregar suas notificações.' })).toBeVisible();
 
@@ -123,7 +142,7 @@ test('shows an explicit retry for a failed notification read and acknowledges an
   await expect(popover.getByText('Fixture notification', { exact: true })).toBeVisible();
   await popover.getByRole('button', { name: /Fixture notification/ }).click();
 
-  await expect(popover).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Notificações', exact: true })).toBeVisible();
-  expect(api.calls.filter((call) => call.path === route + '/' + notification().id + '/read')).toHaveLength(1);
+  await expect.poll(() => api.calls.filter((call) => call.path === route + '/' + notification().id + '/read').length).toBe(1);
+  await expect(bell).toHaveAccessibleName('Notificações');
+  await expectClosed(bell, popover);
 });
