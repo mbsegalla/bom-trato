@@ -25,7 +25,7 @@ test('rate-limited password recovery disables resubmission and keeps the form vi
   await page.goto('/forgot-password');
   await page.getByLabel('E-mail', { exact: true }).fill('fixture@example.invalid');
   await page.getByRole('button', { name: 'Enviar link de recuperação' }).click();
-  await expect(page.getByRole('alert')).toContainText('Muitas tentativas');
+  await expect(page.getByRole('alert').filter({ hasText: 'Muitas tentativas' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Enviar novamente em/ })).toBeDisabled();
   expect(api.calls.filter((call) => call.path === '/api/auth/forgot-password')).toHaveLength(1);
 });
