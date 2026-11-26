@@ -14,8 +14,7 @@ import { resolveReceivablePaymentLink } from '../../services/receivablePaymentLi
 import type { PublicReceivablePaymentLink } from '../../types/receivablePaymentLink.types';
 
 type PaymentState =
-  | { kind: 'ready'; payment: PublicReceivablePaymentLink; qr: ReceivablePixQrCode }
-  | { kind: 'error'; message: string };
+  { kind: 'ready'; payment: PublicReceivablePaymentLink; qr: ReceivablePixQrCode } | { kind: 'error'; message: string };
 
 export function PublicReceivablePaymentContent() {
   const [state, setState] = useState<PaymentState | null>(null);
@@ -103,9 +102,7 @@ export function PublicReceivablePaymentContent() {
         ) : (
           <>
             <p className="mt-4 text-sm text-muted-foreground">{state.payment.organizationName}</p>
-            <p className="mt-2 font-heading text-3xl font-semibold">
-              {formatBrlCurrency(state.payment.amountInCents)}
-            </p>
+            <p className="mt-2 font-heading text-3xl font-semibold">{formatBrlCurrency(state.payment.amountInCents)}</p>
             <p className="mt-2 text-sm text-muted-foreground">Recebedor informado: {state.payment.merchantName}</p>
 
             <svg
