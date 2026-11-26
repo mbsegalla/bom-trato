@@ -130,4 +130,78 @@ describe('session lifecycle contracts', () => {
       'Bearer token-2', 'Bearer token-3',
     ]);
   });
+  it('refreshes once after concurrent unauthorized responses and replays with the new token', async (t) => {
+    let refreshes = 0;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse('token-' + ++refreshes);
+      if (call.path === '/api/protected') {
+        return call.headers.get('Authorization') === 'Bearer token-1'
+          ? new Response(null, { status: 401 })
+          : success({});
+      }
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+    const responses = await Promise.all([
+      authenticatedFetch('/api/protected'),
+      authenticatedFetch('/api/protected'),
+    ]);
+
+    assert.deepEqual(responses.map((response) => response.status), [200, 200]);
+    assert.equal(refreshes, 2);
+    assert.equal(calls.filter((call) => call.path === '/api/protected').length, 4);
+  });
+
+  it('does not refresh indefinitely when the renewed token is also unauthorized', async (t) => {
+    let refreshes = 0;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse('token-' + ++refreshes);
+      if (call.path === '/api/protected') return new Response(null, { status: 401 });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    assert.equal((await authenticatedFetch('/api/protected')).status, 401);
+    assert.equal(refreshes, 2);
+    assert.equal(calls.filter((call) => call.path === '/api/protected').length, 2);
+  });
+
+  it('does not refresh or replay a forbidden request', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path === '/api/protected') return new Response(null, { status: 403 });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    assert.equal((await authenticatedFetch('/api/protected')).status, 403);
+    assert.equal(calls.filter((call) => call.path === '/api/auth/refresh').length, 1);
+    assert.equal(calls.filter((call) => call.path === '/api/protected').length, 1);
+  });
+
+  it('clears stale credentials after a failed refresh and permits a later recovery', async (t) => {
+    let refreshes = 0;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') {
+        refreshes++;
+        return refreshes === 2 ? new Response(null, { status: 401 }) : sessionResponse('token-' + refreshes);
+      }
+      if (call.path === '/api/protected') return success({});
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+    await assert.rejects(restoreSession(), (error: unknown) => error instanceof SessionError && error.status === 401);
+    await authenticatedFetch('/api/protected');
+
+    assert.equal(refreshes, 3);
+    assert.equal(calls.filter((call) => call.path === '/api/protected')[0]?.headers.get('Authorization'), 'Bearer token-3');
+  });
 });
