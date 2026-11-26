@@ -50,3 +50,41 @@ scheduling/photos/acceptance, subscription changes, Pix QR refresh and
 payment confirmation; API-backed end-to-end journeys, accessibility and
 mobile behavior; broader component/hook and service failure scenarios.
 The mock suite cannot homologate Stripe, Mercado Pago or Google OAuth.
+
+## Second regression expansion: coverage and browser tests
+
+The frontend CI executes the Node suite with native line/branch/function
+coverage and publishes `frontend-coverage`. Native coverage measures the
+files loaded by the suite; `coverage/inventory.md` separately inventories
+**all** production TS/TSX files by module, including never-observed files.
+Do not interpret the execution inventory as line coverage. Targets for
+application rules (90%) and components/hooks (80%) are planning goals,
+not measured results or enforced gates. The browser suite is not included
+in the Node coverage percentages.
+
+The standalone Playwright suite runs actual Next pages in Chromium with
+desktop and mobile viewports, intercepting the API at a fixed localhost
+origin and rejecting external browser requests. It tests password controls,
+login error and CSRF, account recovery navigation, public quote token
+admission, and refreshing/removing a public Pix QR. All data is synthetic.
+This is browser-level regression with a mocked HTTP boundary, not a
+full frontend/backend E2E test or a real payment test.
+
+Install the pinned browser tooling separately (no changes to the root
+pnpm lockfile; this first standalone setup does not commit an npm lockfile):
+
+```bash
+npm install --prefix test/browser --package-lock=false --ignore-scripts --no-audit --no-fund
+npm --prefix test/browser exec -- playwright install chromium
+pnpm test:browser
+```
+
+The suite builds Next with fake public settings, starts a dedicated local
+server on port 3100, and will not reuse another running server. The new
+browser workflow runs independently of the existing required validation
+job and uploads screenshots/traces/HTML on failure. Review its first run
+before making that job mandatory in repository protection rules. Keep
+browser reports/dependencies out of version control. Remaining priorities
+are authenticated organization switching, interactive dashboard and CRUD
+journeys, onboarding, quotes, work orders, notifications, and complete
+API-backed E2E flows against disposable services. Never use live credentials.
