@@ -88,3 +88,7 @@ browser reports/dependencies out of version control. Remaining priorities
 are authenticated organization switching, interactive dashboard and CRUD
 journeys, onboarding, quotes, work orders, notifications, and complete
 API-backed E2E flows against disposable services. Never use live credentials.
+
+## Third regression expansion — HTTP service contracts
+
+The previous CI baseline was 108 Node tests and 10 browser tests passing. This increment adds isolated HTTP service integration specs for registration, password recovery, organization paging and scoped member cache, onboarding, checkout, notifications, public quote decisions, work order mutations and Mercado Pago OAuth redirect validation. Existing synthetic HTTP fixtures are reused; no real provider or account is accessed. The Node coverage percentage still covers exercised files only: use the source execution inventory to find unobserved modules and prioritize the next interactive component/hook and API-backed E2E work. The existing Playwright suites and CI requirements remain unchanged.
