@@ -31,3 +31,32 @@ describe('current subscription plan selection', () => {
     assert.equal(findCurrentPlan([{ ...first, prices: [] }], 'month'), null);
   });
 });
+
+describe('current subscription plan catalog edge cases', () => {
+  it('skips empty plans and matches a later price within a multi-price plan', () => {
+    const empty = { ...first, prices: [] };
+    const multi = { ...second, prices: [price, yearly] };
+
+    assert.deepEqual(findCurrentPlan([empty, multi], 'year'), { plan: multi, price: yearly });
+  });
+
+  it('does not confuse the plan identifier with a price identifier', () => {
+    assert.equal(findCurrentPlan([first, second], first.id), null);
+    assert.equal(findCurrentPlan([first, second], second.id), null);
+  });
+
+  it('requires exact case-sensitive price identity', () => {
+    assert.equal(findCurrentPlan([first, second], 'YEAR'), null);
+    assert.equal(findCurrentPlan([first, second], ' year '), null);
+  });
+
+  it('returns the original catalog references without modifying the catalog', () => {
+    const plans = [first, second];
+    const before = JSON.stringify(plans);
+    const result = findCurrentPlan(plans, 'year');
+
+    assert.equal(result?.plan, second);
+    assert.equal(result?.price, yearly);
+    assert.equal(JSON.stringify(plans), before);
+  });
+});
