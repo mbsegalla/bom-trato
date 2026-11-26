@@ -153,10 +153,7 @@ function OrganizationReceivableDetails({ organizationId, receivableId }: Organiz
         onReceivableChanged={() => setRefreshVersion((value) => value + 1)}
       />
 
-      <ReceivablePaymentLinkSection
-        key={`link:${receivable.id}:${receivable.version}`}
-        receivable={receivable}
-      />
+      <ReceivablePaymentLinkSection key={`link:${receivable.id}:${receivable.version}`} receivable={receivable} />
 
       <ReceivableChargeSection
         key={`${receivable.id}:${receivable.version}`}
