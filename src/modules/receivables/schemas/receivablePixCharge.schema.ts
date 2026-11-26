@@ -11,7 +11,10 @@ export const receivablePixChargeSchema = z.object({
   currency: z.literal('brl'),
   merchantName: z.string().min(1).max(25),
   txid: z.string().regex(/^[A-Z0-9]{25}$/),
-  copyAndPaste: z.string().max(300).regex(/^000201[\x20-\x7E]+6304[0-9A-F]{4}$/),
+  copyAndPaste: z
+    .string()
+    .max(300)
+    .regex(/^000201[\x20-\x7E]+6304[0-9A-F]{4}$/),
 });
 
 export const receivablePixChargeResponseSchema = apiResponseSchema(receivablePixChargeSchema);

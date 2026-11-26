@@ -34,11 +34,7 @@ export async function getReceivablePixCharge(
   const payload: unknown = await response.json();
   const parsed = receivablePixChargeResponseSchema.safeParse(payload);
 
-  if (
-    !parsed.success ||
-    parsed.data.organizationId !== organizationId ||
-    parsed.data.receivableId !== receivableId
-  ) {
+  if (!parsed.success || parsed.data.organizationId !== organizationId || parsed.data.receivableId !== receivableId) {
     throw new Error('Não foi possível confirmar as instruções Pix.');
   }
 

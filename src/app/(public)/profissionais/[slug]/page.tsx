@@ -8,12 +8,12 @@ import { siteConfig } from '@/config/site.config';
 import { PublicLeadRequest } from '@/modules/leads/components/publicLeadRequest';
 import { MarketingHeader } from '@/modules/marketing/components/marketingHeader';
 import { OrganizationLogo } from '@/modules/organizations/components/organizationLogo';
+import { ProfessionalPortfolio } from '@/modules/publicProfiles/components/professionalPortfolio';
 import {
   getPublicProfessional,
   getPublicWhatsappUrl,
   PublicDirectoryError,
 } from '@/modules/publicProfiles/services/publicDirectory.service';
-import { ProfessionalPortfolio } from '@/modules/publicProfiles/components/professionalPortfolio';
 import type { PublicProfessional } from '@/modules/publicProfiles/types/publicProfile.types';
 import { RatingSummary } from '@/modules/reviews/components/ratingSummary';
 import { ReviewCard } from '@/modules/reviews/components/reviewCard';

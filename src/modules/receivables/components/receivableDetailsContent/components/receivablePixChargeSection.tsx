@@ -124,7 +124,10 @@ export function ReceivablePixChargeSection({ receivable, onReceivableChanged }: 
           <p className="mt-1 text-sm text-muted-foreground">
             Gere um QR Code estático com o saldo em aberto e a chave cadastrada em Recebimentos.
           </p>
-          <Link href="/settings?tab=receiving" className="mt-2 inline-block text-sm font-medium text-primary hover:underline">
+          <Link
+            href="/settings?tab=receiving"
+            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          >
             Configurar recebimentos
           </Link>
         </div>
@@ -169,9 +172,11 @@ export function ReceivablePixChargeSection({ receivable, onReceivableChanged }: 
 
             <div className="min-w-0">
               <p className="text-sm text-muted-foreground">Valor em aberto</p>
-              <p className="mt-1 font-heading text-2xl font-semibold">{formatBrlCurrency(preview.charge.amountInCents)}</p>
+              <p className="mt-1 font-heading text-2xl font-semibold">
+                {formatBrlCurrency(preview.charge.amountInCents)}
+              </p>
               <p className="mt-3 text-sm text-muted-foreground">Recebedor informado</p>
-              <p className="mt-1 break-words font-medium">{preview.charge.merchantName}</p>
+              <p className="mt-1 font-medium break-words">{preview.charge.merchantName}</p>
               <p className="mt-3 text-xs break-all text-muted-foreground">Referência: {preview.charge.txid}</p>
 
               <label htmlFor="receivable-pix-copy" className="mt-4 block text-sm font-medium">
@@ -182,7 +187,7 @@ export function ReceivablePixChargeSection({ receivable, onReceivableChanged }: 
                 readOnly
                 spellCheck={false}
                 value={preview.charge.copyAndPaste}
-                className="mt-2 min-h-24 break-all font-mono text-xs"
+                className="mt-2 min-h-24 font-mono text-xs break-all"
               />
               <Button type="button" variant="outline" onClick={() => void copy()} className="mt-3 cursor-pointer">
                 <Clipboard aria-hidden="true" className="size-4" />
@@ -193,9 +198,9 @@ export function ReceivablePixChargeSection({ receivable, onReceivableChanged }: 
 
           <p className="text-xs leading-relaxed text-muted-foreground">
             Confira o recebedor e o valor no aplicativo do banco antes de pagar. O Pix estático contém a chave
-            cadastrada e pode ser reutilizado; códigos já compartilhados não podem ser cancelados pelo Bom Trato.
-            Gere novamente após alterações no saldo ou na chave. Confirme o recebimento no banco antes de registrar
-            o pagamento manualmente.
+            cadastrada e pode ser reutilizado; códigos já compartilhados não podem ser cancelados pelo Bom Trato. Gere
+            novamente após alterações no saldo ou na chave. Confirme o recebimento no banco antes de registrar o
+            pagamento manualmente.
           </p>
 
           <Button type="button" variant="ghost" onClick={() => setPreview(null)} className="cursor-pointer">

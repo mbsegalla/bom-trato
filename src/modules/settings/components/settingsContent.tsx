@@ -1,6 +1,17 @@
 'use client';
 
-import { ArrowRight, Bot, Building2, CreditCard, Gift, Palette, ReceiptText, ShieldCheck, Store, Users } from 'lucide-react';
+import {
+  ArrowRight,
+  Bot,
+  Building2,
+  CreditCard,
+  Gift,
+  Palette,
+  ReceiptText,
+  ShieldCheck,
+  Store,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -24,14 +35,7 @@ import { SubscriptionSettings } from './subscriptionSettings';
 import { TeamSettings } from './teamSettings';
 
 export type SettingsTab =
-  | 'business'
-  | 'showcase'
-  | 'team'
-  | 'receiving'
-  | 'billing'
-  | 'automations'
-  | 'appearance'
-  | 'security';
+  'business' | 'showcase' | 'team' | 'receiving' | 'billing' | 'automations' | 'appearance' | 'security';
 
 interface SettingsContentProps {
   initialTab: SettingsTab;

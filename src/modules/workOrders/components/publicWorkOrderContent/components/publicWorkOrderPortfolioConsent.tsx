@@ -13,8 +13,8 @@ import {
   getPortalPortfolioStatus,
   revokePortfolioPhoto,
 } from '../../../services/workOrderPortfolio.service';
-import type { PortalPortfolioStatus } from '../../../types/workOrderPortfolio.types';
 import type { PublicWorkOrderPhoto } from '../../../types/workOrderPhoto.types';
+import type { PortalPortfolioStatus } from '../../../types/workOrderPortfolio.types';
 import { WorkOrderPhotoImage } from '../../workOrderPhotoImage';
 
 interface PublicWorkOrderPortfolioConsentProps {
@@ -24,9 +24,7 @@ interface PublicWorkOrderPortfolioConsentProps {
 }
 
 type ConsentState =
-  | { kind: 'loading' }
-  | { kind: 'ready'; status: PortalPortfolioStatus }
-  | { kind: 'error'; message: string };
+  { kind: 'loading' } | { kind: 'ready'; status: PortalPortfolioStatus } | { kind: 'error'; message: string };
 
 export function PublicWorkOrderPortfolioConsent({ photos, token, completed }: PublicWorkOrderPortfolioConsentProps) {
   const [state, setState] = useState<ConsentState>({ kind: 'loading' });
@@ -79,9 +77,7 @@ export function PublicWorkOrderPortfolioConsent({ photos, token, completed }: Pu
   }
 
   function toggle(id: string, checked: boolean): void {
-    setSelectedIds((current) =>
-      checked ? [...current, id] : current.filter((photoId) => photoId !== id),
-    );
+    setSelectedIds((current) => (checked ? [...current, id] : current.filter((photoId) => photoId !== id)));
   }
 
   async function authorize(): Promise<void> {
@@ -143,8 +139,8 @@ export function PublicWorkOrderPortfolioConsent({ photos, token, completed }: Pu
       </div>
 
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-        A empresa só poderá mostrar fotos do seu atendimento em sua vitrine pública com sua autorização expressa.
-        O link do atendimento continua privado; apenas as imagens escolhidas poderão ser publicadas.
+        A empresa só poderá mostrar fotos do seu atendimento em sua vitrine pública com sua autorização expressa. O link
+        do atendimento continua privado; apenas as imagens escolhidas poderão ser publicadas.
       </p>
 
       {state.kind === 'loading' && (
@@ -156,7 +152,9 @@ export function PublicWorkOrderPortfolioConsent({ photos, token, completed }: Pu
 
       {state.kind === 'error' && (
         <div className="mt-5 space-y-3">
-          <p role="alert" className="text-sm text-destructive">{state.message}</p>
+          <p role="alert" className="text-sm text-destructive">
+            {state.message}
+          </p>
           <Button type="button" variant="outline" onClick={refresh}>
             <RefreshCw aria-hidden="true" className="size-4" />
             Tentar novamente

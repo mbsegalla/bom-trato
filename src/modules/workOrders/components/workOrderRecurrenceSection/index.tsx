@@ -27,9 +27,7 @@ interface WorkOrderRecurrenceSectionProps {
 }
 
 type RecurrenceState =
-  | { kind: 'loading' }
-  | { kind: 'ready'; data: WorkOrderRecurrenceView }
-  | { kind: 'error'; message: string };
+  { kind: 'loading' } | { kind: 'ready'; data: WorkOrderRecurrenceView } | { kind: 'error'; message: string };
 
 const intervalOptions = [
   { value: 'DAY', label: 'Dias' },
@@ -186,8 +184,7 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
 
   const data = state.kind === 'ready' ? state.data : null;
   const disabled = saving || !data?.canConfigure;
-  const minVisitOn =
-    data?.completedOn && (!enabled || data.completedOn > data.today) ? data.completedOn : data?.today;
+  const minVisitOn = data?.completedOn && (!enabled || data.completedOn > data.today) ? data.completedOn : data?.today;
   const overdue = data?.recurrence?.enabled && data.recurrence.nextVisitOn < data.today;
 
   return (

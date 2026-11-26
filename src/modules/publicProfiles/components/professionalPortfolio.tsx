@@ -35,7 +35,9 @@ export function ProfessionalPortfolio({ slug, photos }: ProfessionalPortfolioPro
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {photos.map((photo) => <ProfessionalPortfolioImage key={photo.id} slug={slug} photo={photo} />)}
+        {photos.map((photo) => (
+          <ProfessionalPortfolioImage key={photo.id} slug={slug} photo={photo} />
+        ))}
       </div>
     </section>
   );
