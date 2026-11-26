@@ -8,3 +8,7 @@
 - Document migrations, dependencies, environment variables and any remaining validation limitations in the delivery and PR.
 
 See [CI workflow](docs/ci.md) for the complete procedure.
+
+## Tests
+
+Follow [docs/testing.md](docs/testing.md). Keep unit tests colocated with their owning feature, service integration tests under test/integration, and shared synthetic fixtures under test/support. Add a regression test for every behavior change. Run the relevant tests and full functional CI before merging.

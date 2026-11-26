@@ -30,6 +30,6 @@ See the repository Actions tab for run results and logs. No automatic deployment
 
 ## Frontend validation
 
-The `Frontend validation` job runs `pnpm typecheck` and builds Next.js. It uses a loopback API address and nonfunctional public configuration placeholders. The build may download the project's existing Google Fonts through Next.js; it does not need a live Bom Trato API or real Stripe or Google credentials.
+The `Frontend validation` job runs `pnpm typecheck`, `pnpm test` and builds Next.js. It uses a loopback API address and nonfunctional public configuration placeholders. The build may download the project's existing Google Fonts through Next.js; it does not need a live Bom Trato API or real Stripe or Google credentials.
 
-The frontend currently has no automated test script or test suite configured. Add a real test suite separately before making automated frontend tests a mandatory check. Successful typecheck and build do not replace local lint/formatting, browser or payment integration testing.
+The frontend now runs isolated unit, schema, component-render and mocked HTTP integration tests; see [testing](testing.md). Successful typecheck and build do not replace local lint/formatting, browser or payment integration testing.
