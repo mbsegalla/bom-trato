@@ -167,7 +167,8 @@ function OrganizationRecurrencesContent({ organizationId }: { organizationId: st
 
       <p className="mt-4 text-sm text-muted-foreground">
         As datas seguem o horário de Brasília. Serviços ativos com geração automática configurada podem criar
-        orçamentos em rascunho. Nenhum agendamento, aprovação ou cobrança é realizado automaticamente.
+        orçamentos em rascunho. Quando habilitados na plataforma, os lembretes chegam à central de notificações do
+        administrador. Nenhum agendamento, aprovação ou cobrança é realizado automaticamente.
       </p>
 
       <section className="mt-8">

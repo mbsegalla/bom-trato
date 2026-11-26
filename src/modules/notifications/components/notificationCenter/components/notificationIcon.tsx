@@ -34,7 +34,10 @@ export function NotificationIcon({ type }: { type: InAppNotificationType }) {
     case 'WORK_ORDER_RESCHEDULED':
       return <CalendarClock aria-hidden="true" className="size-4" />;
     case 'WORK_ORDER_REMINDER':
+    case 'WORK_ORDER_RECURRENCE_REMINDER':
       return <CalendarClock aria-hidden="true" className="size-4" />;
+    case 'WORK_ORDER_RECURRING_QUOTE_CREATED':
+      return <FileClock aria-hidden="true" className="size-4" />;
     case 'ORGANIZATION_MEMBER_JOINED':
       return <UserRoundPlus aria-hidden="true" className="size-4" />;
     case 'PAYMENT_FAILED':
