@@ -66,4 +66,55 @@ describe('registration HTTP service', () => {
 
     assert.equal(calls.length, 2);
   });
+  for (const [status, message] of [
+    [400, /requisitos de senha/], [422, /requisitos de senha/], [403, /validar a solicitação/],
+    [409, /criar a conta/], [429, /Muitas tentativas/], [500, /concluir o cadastro/],
+  ] as const) {
+    it('maps registration HTTP ' + status + ' without repeating the POST', async (t) => {
+      const calls = mockHttp(t, (call) => call.path === '/api/auth/csrf'
+        ? success({ csrfToken: 'fixture-csrf' })
+        : Response.json({ error: { code: 'UNKNOWN', message: 'private detail' } }, { status }));
+      const result = await registerUser(input);
+      assert.equal(result.success, false);
+      if (!result.success) {
+        assert.match(result.message, message);
+        assert.ok(!result.message.includes('private detail'));
+      }
+      assert.equal(calls.filter((call) => call.path === '/api/auth/register').length, 1);
+    });
+  }
+
+  for (const payload of [null, 123, {}, { error: null }, { error: 123 }, { error: {} }, { error: { code: 123 } }]) {
+    it('uses a generic response for malformed registration error ' + JSON.stringify(payload), async (t) => {
+      mockHttp(t, (call) => call.path === '/api/auth/csrf'
+        ? success({ csrfToken: 'fixture-csrf' }) : Response.json(payload, { status: 409 }));
+      const result = await registerUser(input);
+      assert.equal(result.success, false);
+      if (!result.success) assert.match(result.message, /criar a conta/);
+    });
+  }
+
+  it('stops registration if the CSRF request is rate limited', async (t) => {
+    const calls = mockHttp(t, () => new Response(null, { status: 429, headers: { 'Retry-After': '60' } }));
+    const result = await registerUser(input);
+    assert.equal(result.success, false);
+    if (!result.success) assert.match(result.message, /Muitas tentativas/);
+    assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf']);
+  });
+
+  it('stops registration when the CSRF success response is malformed', async (t) => {
+    const calls = mockHttp(t, () => success({ invalid: true }));
+    const result = await registerUser(input);
+    assert.equal(result.success, false);
+    if (!result.success) assert.match(result.message, /iniciar o cadastro/);
+    assert.equal(calls.length, 1);
+  });
+
+  it('does not submit registration after a CSRF network failure', async (t) => {
+    const calls = mockHttp(t, () => { throw new Error('fixture network failure'); });
+    const result = await registerUser(input);
+    assert.equal(result.success, false);
+    if (!result.success) assert.match(result.message, /iniciar o cadastro/);
+    assert.equal(calls.length, 1);
+  });
 });

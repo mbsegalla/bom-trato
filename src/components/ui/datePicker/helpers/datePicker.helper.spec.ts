@@ -3,6 +3,11 @@ import { describe, it } from 'node:test';
 
 import {
   addMonths,
+  formatDatePickerDisplay,
+  formatMonthYear,
+  isSameDay,
+  isSameMonth,
+  toMinutePrecision,
   buildCalendarDays,
   formatDatePickerValue,
   isCalendarDayDisabled,
@@ -58,5 +63,56 @@ describe('date picker calendar rules', () => {
       formatDatePickerValue(roundUpToMinuteStep(new Date(2028, 1, 29, 12, 30), 15), 'datetime'),
       '2028-02-29T12:30'
     );
+  });
+  it('rejects missing values and accepts a valid local date at midnight', () => {
+    assert.equal(parseDatePickerValue(undefined, 'date'), null);
+    assert.equal(parseDatePickerValue('', 'datetime'), null);
+    const value = parseDatePickerValue('2028-02-29', 'date');
+    assert.ok(value);
+    assert.equal(value.getHours(), 0);
+    assert.equal(value.getMinutes(), 0);
+    assert.equal(formatDatePickerValue(value, 'date'), '2028-02-29');
+  });
+
+  it('formats local display dates without converting to UTC', () => {
+    const date = new Date(2028, 1, 29, 9, 5);
+    assert.equal(formatDatePickerDisplay(date, 'date'), '29/02/2028');
+    assert.match(formatDatePickerDisplay(date, 'datetime'), /29\/02\/2028.*09:05/);
+    assert.equal(formatMonthYear(date), 'Fevereiro de 2028');
+  });
+
+  it('compares calendar days independently of time and rejects distinct years or months', () => {
+    const date = new Date(2028, 1, 29, 9);
+    assert.equal(isSameDay(date, new Date(2028, 1, 29, 18)), true);
+    assert.equal(isSameDay(date, new Date(2028, 1, 28)), false);
+    assert.equal(isSameDay(date, new Date(2028, 2, 29)), false);
+    assert.equal(isSameDay(date, new Date(2027, 1, 28)), false);
+    assert.equal(isSameMonth(date, new Date(2028, 1, 1)), true);
+    assert.equal(isSameMonth(date, new Date(2028, 2, 1)), false);
+    assert.equal(isSameMonth(date, new Date(2027, 1, 1)), false);
+  });
+
+  it('treats day and instant boundaries as inclusive with optional minimum and maximum', () => {
+    const min = new Date(2028, 1, 10, 9);
+    const max = new Date(2028, 1, 12, 17);
+    assert.equal(isCalendarDayDisabled(new Date(2028, 1, 9), min, max), true);
+    assert.equal(isCalendarDayDisabled(new Date(2028, 1, 13), min, max), true);
+    assert.equal(isCalendarDayDisabled(new Date(2028, 1, 12, 23), undefined, max), false);
+    assert.equal(isCalendarDayDisabled(min), false);
+    assert.equal(isDateTimeWithinLimits(min, min, max), true);
+    assert.equal(isDateTimeWithinLimits(max, min, max), true);
+    assert.equal(isDateTimeWithinLimits(new Date(max.getTime() + 1), undefined, max), false);
+    assert.equal(isDateTimeWithinLimits(min), true);
+  });
+
+  it('rounds an aligned minute with seconds or milliseconds up and never mutates the input', () => {
+    const source = new Date(2028, 1, 29, 12, 30, 0, 1);
+    assert.equal(formatDatePickerValue(roundUpToMinuteStep(source, 15), 'datetime'), '2028-02-29T12:45');
+    assert.equal(source.getMilliseconds(), 1);
+    const precise = toMinutePrecision(source);
+    assert.notStrictEqual(precise, source);
+    assert.equal(precise.getMilliseconds(), 0);
+    assert.equal(precise.getSeconds(), 0);
+    assert.equal(precise.getMinutes(), 30);
   });
 });

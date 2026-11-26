@@ -61,4 +61,20 @@ describe('plan price presentation', () => {
     assert.equal(getPricePeriodLabel(yearly), '/ ano');
     assert.match(getRecurringBillingLabel({ ...yearly, intervalCount: 2 }), /a cada 2 anos/);
   });
+  it('does not advertise annual savings for missing or multi-period prices', () => {
+    assert.equal(getAnnualSavingsPercentage({ ...plan, prices: [] }), null);
+    assert.equal(getAnnualSavingsPercentage({ ...plan, prices: [monthly] }), null);
+    assert.equal(getAnnualSavingsPercentage({ ...plan, prices: [{ ...monthly, intervalCount: 3 }, yearly] }), null);
+    assert.equal(getAnnualSavingsPercentage({ ...plan, prices: [monthly, { ...yearly, intervalCount: 2 }] }), null);
+    assert.equal(getAnnualSavingsPercentage({ ...plan, prices: [monthly, { ...yearly, amountInCents: 12001 }] }), null);
+    assert.equal(getMonthlyEquivalentAmount({ ...yearly, intervalCount: 2 }), 417);
+  });
+
+  it('uses accurate monthly, yearly and multi-period recurring billing descriptions', () => {
+    assert.match(getRecurringBillingLabel(monthly), /recorrente mensal/);
+    assert.match(getRecurringBillingLabel(yearly), /recorrente anual/);
+    assert.equal(getPricePeriodLabel({ ...monthly, intervalCount: 3 }), '/ 3 meses');
+    assert.equal(getPricePeriodLabel({ ...yearly, intervalCount: 2 }), '/ 2 anos');
+    assert.match(getRecurringBillingLabel({ ...monthly, intervalCount: 3 }), /a cada 3 meses/);
+  });
 });

@@ -62,4 +62,61 @@ describe('address HTTP service', () => {
     assert.equal(sp[0]?.name, 'Sao Paulo');
     assert.equal(calls.filter((call) => call.path.startsWith('/api/address/')).length, 3);
   });
+  for (const [status, message] of [
+    [400, /CEP ou estado válido/], [502, /temporariamente indisponível/], [503, /temporariamente indisponível/],
+    [500, /consultar o CEP/],
+  ] as const) {
+    it('surfaces CEP provider HTTP ' + status + ' without caching the failure', async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        return new Response(null, { status });
+      });
+      await restoreSession();
+      await assert.rejects(findAddressByPostalCode('38400-000'), message);
+      await assert.rejects(findAddressByPostalCode('38400000'), message);
+      assert.equal(calls.filter((call) => call.path.endsWith('/38400000')).length, 2);
+    });
+  }
+
+  it('rejects malformed postal code and city payloads and permits a new explicit city request', async (t) => {
+    let fail = true;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path.includes('/postal-codes/')) return success({ invalid: true });
+      return fail ? success([{ code: 'invalid', name: 42 }]) : success([{ code: '4106902', name: 'Curitiba' }]);
+    });
+    await restoreSession();
+    await assert.rejects(findAddressByPostalCode('80000000'), /interpretar/);
+    await assert.rejects(listBrazilianCities('PR'), /interpretar/);
+    fail = false;
+    assert.equal((await listBrazilianCities(' pr '))[0]?.name, 'Curitiba');
+    assert.equal((await listBrazilianCities('PR'))[0]?.name, 'Curitiba');
+    assert.equal(calls.filter((call) => call.path.includes('/PR/cities')).length, 2);
+  });
+
+  it('rejects expired authentication for postal codes and uncached cities', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return new Response(null, { status: 401 });
+    });
+    await restoreSession();
+    await assert.rejects(findAddressByPostalCode('70000000'), /sessão expirou/);
+    await assert.rejects(listBrazilianCities('DF'), /sessão expirou/);
+    assert.equal(calls.filter((call) => call.path.startsWith('/api/address/')).length, 4);
+  });
+
+  it('rejects failed city lookup without populating the state cache', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return new Response(null, { status: 502 });
+    });
+    await restoreSession();
+    await assert.rejects(listBrazilianCities('SC'), /temporariamente indisponível/);
+    await assert.rejects(listBrazilianCities('SC'), /temporariamente indisponível/);
+    assert.equal(calls.filter((call) => call.path.includes('/SC/cities')).length, 2);
+  });
 });
