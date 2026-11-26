@@ -7,7 +7,13 @@ import { findPlanPrice } from './planChange.helper';
 const price: PlanPrice = { id: 'month', amountInCents: 1000, currency: 'brl', interval: 'MONTH', intervalCount: 1 };
 const yearly: PlanPrice = { ...price, id: 'year', interval: 'YEAR', amountInCents: 10000 };
 const first: Plan = {
-  id: 'first', code: 'FIRST', name: 'First', description: null, maxUsers: 1, teamManagementEnabled: false, prices: [price],
+  id: 'first',
+  code: 'FIRST',
+  name: 'First',
+  description: 'Fixture plan',
+  maxUsers: 1,
+  teamManagementEnabled: false,
+  prices: [price],
 };
 const second: Plan = {
   ...first, id: 'second', code: 'SECOND', name: 'Second', prices: [yearly],

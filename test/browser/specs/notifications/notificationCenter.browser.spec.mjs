@@ -16,8 +16,17 @@ test('opens and closes notifications and acknowledges all unread items through t
 
   const items = [notification(), notification({ id: secondId, title: 'Second notification' })];
 
-  api.respond('GET', route, () => success({ items, unreadCount: 2 }));
-  api.respond('POST', route + '/read-all', () => ({ status: 204 }));
+  let read = false;
+
+  api.respond('GET', route, () => success({
+    items: read ? items.map((item) => ({ ...item, readAt: date })) : items,
+    unreadCount: read ? 0 : 2,
+  }));
+  api.respond('POST', route + '/read-all', () => {
+    read = true;
+
+    return { status: 204 };
+  });
 
   await page.goto('/customers');
 
@@ -63,6 +72,13 @@ test('refreshes the list when an SSE notification arrives and reconnects using a
 
   expect(new URL(firstUrl).pathname).toBe(route + '/stream');
   expect(new URL(firstUrl).searchParams.get('ticket')).toBe(ticket);
+
+  // Wait for the initial list to finish before sending the simulated SSE event.
+  await page.getByRole('button', { name: 'Notificações', exact: true }).click();
+  const popover = page.getByRole('region', { name: 'Notificações' });
+  await expect(popover.getByText('Tudo tranquilo por aqui', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(popover).toHaveCount(0);
 
   unreadCount = 1;
 
