@@ -8,7 +8,7 @@ const input = {
   email: '',
   phone: '(34) 99999-1234',
   catalogServiceId: null,
-  message: ' Preciso de uma revisao '
+  message: ' Preciso de uma revisao ',
 };
 
 describe('public lead form', () => {
@@ -17,11 +17,7 @@ describe('public lead form', () => {
   });
 
   it('rejects missing contact, invalid optional email and short request', () => {
-    for (const patch of [
-      { phone: '' },
-      { phone: '123' },
-      { email: 'bad' },
-      { message: 'oi' }
-    ]) assert.equal(publicLeadFormSchema.safeParse({ ...input, ...patch }).success, false);
+    for (const patch of [{ phone: '' }, { phone: '123' }, { email: 'bad' }, { message: 'oi' }])
+      assert.equal(publicLeadFormSchema.safeParse({ ...input, ...patch }).success, false);
   });
 });

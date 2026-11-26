@@ -1,5 +1,5 @@
-import { date, organizationId, organizationRoute } from './authenticatedApp.fixture.mjs';
 import { success } from './api.fixture.mjs';
+import { date, organizationId, organizationRoute } from './authenticatedApp.fixture.mjs';
 
 export const settingsRoute = organizationRoute(organizationId, 'receiving-settings');
 export const connectionRoute = organizationRoute(organizationId, 'mercado-pago/connection');

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { publicProfileFormSchema, publicProfessionalReviewSchema } from './publicProfile.schema';
+import { publicProfessionalReviewSchema, publicProfileFormSchema } from './publicProfile.schema';
 
 describe('public profile and review privacy', () => {
   it('requires valid WhatsApp contact before publication and validates slugs', () => {
@@ -12,7 +12,7 @@ describe('public profile and review privacy', () => {
       whatsappPhone: '',
       whatsappEnabled: false,
       published: false,
-      serviceIds: []
+      serviceIds: [],
     };
 
     assert.equal(publicProfileFormSchema.safeParse(input).success, true);
@@ -28,7 +28,7 @@ describe('public profile and review privacy', () => {
       rating: 5,
       comment: null,
       createdAt: '2026-01-01T00:00:00Z',
-      verified: true
+      verified: true,
     };
     const result = publicProfessionalReviewSchema.parse({ ...input, customerId: 'private' });
 

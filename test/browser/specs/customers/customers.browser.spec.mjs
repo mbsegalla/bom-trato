@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import {
   customer,
   installAuthenticatedApp,
@@ -53,7 +53,10 @@ test('paginates customer results, trims search and resets the page when filters 
   ]);
 });
 
-test('validates a customer before submitting, saves normalized fields and refreshes the list', async ({ page, api }) => {
+test('validates a customer before submitting, saves normalized fields and refreshes the list', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
 
   let saved = null;
@@ -75,7 +78,9 @@ test('validates a customer before submitting, saves normalized fields and refres
   await dialog.getByLabel('Telefone *', { exact: true }).fill('34999991234');
   await dialog.getByRole('button', { name: 'Cadastrar cliente' }).click();
 
-  await expect(dialog.getByRole('alert').filter({ hasText: 'Informe um nome com pelo menos 2 caracteres.' })).toBeVisible();
+  await expect(
+    dialog.getByRole('alert').filter({ hasText: 'Informe um nome com pelo menos 2 caracteres.' }),
+  ).toBeVisible();
   expect(api.calls.filter((call) => call.path === route && call.method === 'POST')).toHaveLength(0);
 
   await dialog.getByLabel('Nome *', { exact: true }).fill('  Cliente Teste  ');
@@ -102,9 +107,9 @@ test('recovers an unavailable customer list only after an explicit retry', async
   await installAuthenticatedApp(page, api);
   let unavailable = true;
 
-  api.respond('GET', route, () => unavailable
-    ? { status: 503, json: { success: false } }
-    : success({ items: [customer()], page: 1, hasMore: false }));
+  api.respond('GET', route, () =>
+    unavailable ? { status: 503, json: { success: false } } : success({ items: [customer()], page: 1, hasMore: false }),
+  );
 
   await page.goto('/customers');
   await expect(page.getByRole('alert').filter({ hasText: 'Os clientes estão sendo atualizados.' })).toBeVisible();

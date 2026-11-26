@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import {
   date,
   installAuthenticatedApp,
@@ -24,17 +24,22 @@ async function expectClosed(bell, popover) {
   await expect(popover).toBeHidden();
 }
 
-test('opens and closes notifications and acknowledges all unread items through the scoped hook', async ({ page, api }) => {
+test('opens and closes notifications and acknowledges all unread items through the scoped hook', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
 
   const items = [notification(), notification({ id: secondId, title: 'Second notification' })];
 
   let read = false;
 
-  api.respond('GET', route, () => success({
-    items: read ? items.map((item) => ({ ...item, readAt: date })) : items,
-    unreadCount: read ? 0 : 2,
-  }));
+  api.respond('GET', route, () =>
+    success({
+      items: read ? items.map((item) => ({ ...item, readAt: date })) : items,
+      unreadCount: read ? 0 : 2,
+    }),
+  );
   api.respond('POST', route + '/read-all', () => {
     read = true;
 
@@ -64,21 +69,28 @@ test('opens and closes notifications and acknowledges all unread items through t
   expect(api.calls.filter((call) => call.path === route + '/read-all')).toHaveLength(1);
 });
 
-test('refreshes the list when an SSE notification arrives and reconnects using a fresh one-use ticket', async ({ page, api }) => {
+test('refreshes the list when an SSE notification arrives and reconnects using a fresh one-use ticket', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
 
   let unreadCount = 0;
   let issued = 0;
   const nextTicket = 'b'.repeat(43);
 
-  api.respond('GET', route, () => success({
-    items: unreadCount > 0 ? [notification()] : [],
-    unreadCount,
-  }));
-  api.respond('POST', route + '/stream-ticket', () => success({
-    ticket: ++issued === 1 ? ticket : nextTicket,
-    expiresAt: new Date(Date.now() + 30000).toISOString(),
-  }));
+  api.respond('GET', route, () =>
+    success({
+      items: unreadCount > 0 ? [notification()] : [],
+      unreadCount,
+    }),
+  );
+  api.respond('POST', route + '/stream-ticket', () =>
+    success({
+      ticket: ++issued === 1 ? ticket : nextTicket,
+      expiresAt: new Date(Date.now() + 30000).toISOString(),
+    }),
+  );
 
   await page.goto('/customers');
   await expect(page.getByRole('heading', { name: 'Ainda não há clientes por aqui' })).toBeVisible();
@@ -112,15 +124,20 @@ test('refreshes the list when an SSE notification arrives and reconnects using a
   expect(api.calls.filter((call) => call.path === route + '/stream-ticket')).toHaveLength(2);
 });
 
-test('shows an explicit retry for a failed notification read and acknowledges an individual notification', async ({ page, api }) => {
+test('shows an explicit retry for a failed notification read and acknowledges an individual notification', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
 
   let failed = true;
   let readAt = null;
 
-  api.respond('GET', route, () => failed
-    ? { status: 503, json: { success: false } }
-    : success({ items: [notification({ readAt })], unreadCount: readAt === null ? 1 : 0 }));
+  api.respond('GET', route, () =>
+    failed
+      ? { status: 503, json: { success: false } }
+      : success({ items: [notification({ readAt })], unreadCount: readAt === null ? 1 : 0 }),
+  );
   api.respond('POST', route + '/' + notification().id + '/read', () => {
     readAt = date;
 
@@ -134,7 +151,9 @@ test('shows an explicit retry for a failed notification read and acknowledges an
   await bell.click();
   await expect(bell).toHaveAttribute('aria-expanded', 'true');
 
-  await expect(popover.getByRole('alert').filter({ hasText: 'Não foi possível carregar suas notificações.' })).toBeVisible();
+  await expect(
+    popover.getByRole('alert').filter({ hasText: 'Não foi possível carregar suas notificações.' }),
+  ).toBeVisible();
 
   failed = false;
 
@@ -142,7 +161,9 @@ test('shows an explicit retry for a failed notification read and acknowledges an
   await expect(popover.getByText('Fixture notification', { exact: true })).toBeVisible();
   await popover.getByRole('button', { name: /Fixture notification/ }).click();
 
-  await expect.poll(() => api.calls.filter((call) => call.path === route + '/' + notification().id + '/read').length).toBe(1);
+  await expect
+    .poll(() => api.calls.filter((call) => call.path === route + '/' + notification().id + '/read').length)
+    .toBe(1);
   await expect(bell).toHaveAccessibleName('Notificações');
   await expectClosed(bell, popover);
 });

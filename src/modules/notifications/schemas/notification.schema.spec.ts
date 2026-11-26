@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { notificationStreamTicketResponseSchema, inAppNotificationsResponseSchema } from './notification.schema';
+import { inAppNotificationsResponseSchema, notificationStreamTicketResponseSchema } from './notification.schema';
 
 describe('notification response contracts', () => {
   it('requires a URL-safe ephemeral stream ticket', () => {
@@ -11,17 +11,17 @@ describe('notification response contracts', () => {
       notificationStreamTicketResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data
+        data,
       }).success,
-      true
+      true,
     );
     assert.equal(
       notificationStreamTicketResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { ...data, ticket: 'bad' }
+        data: { ...data, ticket: 'bad' },
       }).success,
-      false
+      false,
     );
   });
 
@@ -30,9 +30,9 @@ describe('notification response contracts', () => {
       inAppNotificationsResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { items: [], unreadCount: -1 }
+        data: { items: [], unreadCount: -1 },
       }).success,
-      false
+      false,
     );
   });
 });

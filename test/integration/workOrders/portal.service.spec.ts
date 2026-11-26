@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { resolvePublicWorkOrder, PublicWorkOrderError } from '@/modules/workOrders/services/workOrderPortal.service';
+import { PublicWorkOrderError, resolvePublicWorkOrder } from '@/modules/workOrders/services/workOrderPortal.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 describe('private work order portal service', () => {
@@ -11,17 +12,29 @@ describe('private work order portal service', () => {
     let status = 404;
     const calls = mockHttp(t, () => new Response(null, { status }));
 
-    await assert.rejects(resolvePublicWorkOrder('invalid'), (e: unknown) => e instanceof PublicWorkOrderError && !e.retryable);
+    await assert.rejects(
+      resolvePublicWorkOrder('invalid'),
+      (e: unknown) => e instanceof PublicWorkOrderError && !e.retryable,
+    );
     assert.equal(calls.length, 0);
-    await assert.rejects(resolvePublicWorkOrder(token), (e: unknown) => e instanceof PublicWorkOrderError && !e.retryable);
+    await assert.rejects(
+      resolvePublicWorkOrder(token),
+      (e: unknown) => e instanceof PublicWorkOrderError && !e.retryable,
+    );
 
     status = 429;
 
-    await assert.rejects(resolvePublicWorkOrder(token), (e: unknown) => e instanceof PublicWorkOrderError && e.retryable);
+    await assert.rejects(
+      resolvePublicWorkOrder(token),
+      (e: unknown) => e instanceof PublicWorkOrderError && e.retryable,
+    );
 
     status = 503;
 
-    await assert.rejects(resolvePublicWorkOrder(token), (e: unknown) => e instanceof PublicWorkOrderError && e.retryable);
+    await assert.rejects(
+      resolvePublicWorkOrder(token),
+      (e: unknown) => e instanceof PublicWorkOrderError && e.retryable,
+    );
     for (const call of calls) {
       assert.equal(call.path, '/api/public/work-orders/resolve');
       assert.deepEqual(JSON.parse(String(call.body)), { token });

@@ -1,5 +1,5 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
-import { date, installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
+import { installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
 import { automationEvent, automationRoute, businessProfile, profileRoute } from '../../support/settings.fixture.mjs';
 
 test('saves only automation flags and renders the status of each historical delivery', async ({ page, api }) => {
@@ -7,10 +7,19 @@ test('saves only automation flags and renders the status of each historical deli
   let current = businessProfile({ autoWorkOrderReminderEnabled: true });
 
   api.respond('GET', profileRoute, () => success(current));
-  api.respond('GET', automationRoute, () => success({ items: [
-    automationEvent(),
-    automationEvent({ id: 'ffffffff-ffff-4fff-8fff-ffffffffffff', description: 'Fixture failed reminder', status: 'FAILED', lastErrorCode: 'DELIVERY_FAILED' }),
-  ] }));
+  api.respond('GET', automationRoute, () =>
+    success({
+      items: [
+        automationEvent(),
+        automationEvent({
+          id: 'ffffffff-ffff-4fff-8fff-ffffffffffff',
+          description: 'Fixture failed reminder',
+          status: 'FAILED',
+          lastErrorCode: 'DELIVERY_FAILED',
+        }),
+      ],
+    }),
+  );
   api.respond('PATCH', profileRoute, ({ body }) => {
     current = { ...current, ...body };
 
@@ -101,7 +110,10 @@ test('renders automation configuration read-only for nonowners', async ({ page, 
   for (const toggle of await main.getByRole('switch').all()) {
     await expect(toggle).toBeDisabled();
   }
-  await expect(main.getByRole('switch', { name: 'Solicitar avaliação após o serviço' })).toHaveAttribute('aria-checked', 'true');
+  await expect(main.getByRole('switch', { name: 'Solicitar avaliação após o serviço' })).toHaveAttribute(
+    'aria-checked',
+    'true',
+  );
   await expect(main.getByRole('button', { name: 'Salvar automações', exact: true })).toHaveCount(0);
   expect(api.calls.filter((call) => call.path === profileRoute && call.method === 'PATCH')).toHaveLength(0);
 });

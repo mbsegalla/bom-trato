@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { requestPasswordReset, resetPassword } from '@/modules/auth/services/passwordReset.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 const token = 'a'.repeat(43);
@@ -13,9 +14,7 @@ describe('password recovery failure boundaries', () => {
     const calls = mockHttp(t, () => {
       attempt++;
 
-      return attempt === 1
-        ? new Response(null, { status: 429 })
-        : success({ csrfToken: '' });
+      return attempt === 1 ? new Response(null, { status: 429 }) : success({ csrfToken: '' });
     });
 
     const limited = await resetPassword(token, password);
@@ -27,7 +26,10 @@ describe('password recovery failure boundaries', () => {
     assert.equal(malformed.success, false);
     if (!malformed.success) assert.match(malformed.message, /iniciar a solicitação/);
 
-    assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf', '/api/auth/csrf']);
+    assert.deepEqual(
+      calls.map((call) => call.path),
+      ['/api/auth/csrf', '/api/auth/csrf'],
+    );
   });
 
   it('distinguishes a failed connection before and after sending a password recovery request', async (t) => {

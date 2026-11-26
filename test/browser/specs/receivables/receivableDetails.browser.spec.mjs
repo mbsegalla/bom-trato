@@ -1,16 +1,34 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { date, installAuthenticatedApp, organization, userId } from '../../support/authenticatedApp.fixture.mjs';
+import {
+  installReceivableDetails,
+  payment,
+  paymentId,
+  receivableRoute,
+  unpaidReceivable,
+} from '../../support/operationalDetails.fixture.mjs';
 import { receivableId } from '../../support/operationalRecords.fixture.mjs';
-import { installReceivableDetails, payment, paymentId, receivableRoute, unpaidReceivable } from '../../support/operationalDetails.fixture.mjs';
 
-test('validates the outstanding balance, records a partial payment and reverses it with preserved history', async ({ page, api }) => {
+test('validates the outstanding balance, records a partial payment and reverses it with preserved history', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = unpaidReceivable();
   let payments = [];
 
-  installReceivableDetails(api, () => current, () => payments);
+  installReceivableDetails(
+    api,
+    () => current,
+    () => payments,
+  );
   api.respond('POST', receivableRoute + '/payments', ({ body }) => {
-    const saved = payment({ requestId: body.requestId, receivedAt: body.receivedAt, notes: body.notes, amountInCents: body.amountInCents });
+    const saved = payment({
+      requestId: body.requestId,
+      receivedAt: body.receivedAt,
+      notes: body.notes,
+      amountInCents: body.amountInCents,
+    });
     payments = [saved];
     current = { ...current, receivedInCents: 3000, balanceInCents: 9550, status: 'PARTIALLY_PAID', version: 2 };
 
@@ -37,7 +55,9 @@ test('validates the outstanding balance, records a partial payment and reverses 
   await form.getByLabel('Valor recebido *', { exact: true }).fill('999,99');
   await submit.click();
   await expect(form.getByText('O pagamento não pode ser maior que o saldo restante.', { exact: true })).toBeVisible();
-  expect(api.calls.filter((call) => call.path === receivableRoute + '/payments' && call.method === 'POST')).toHaveLength(0);
+  expect(
+    api.calls.filter((call) => call.path === receivableRoute + '/payments' && call.method === 'POST'),
+  ).toHaveLength(0);
 
   await form.getByLabel('Valor recebido *', { exact: true }).fill('30,00');
   await form.getByLabel('Observações', { exact: true }).fill('  Fixture receipt  ');
@@ -74,7 +94,10 @@ test('validates the outstanding balance, records a partial payment and reverses 
   expect(reversed[0].body).toEqual({ version: 2, reason: 'Fixture reversal' });
 });
 
-test('preserves a payment idempotency key on unchanged retries and renews it after editing the amount', async ({ page, api }) => {
+test('preserves a payment idempotency key on unchanged retries and renews it after editing the amount', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   const current = unpaidReceivable();
 
@@ -90,7 +113,8 @@ test('preserves a payment idempotency key on unchanged retries and renews it aft
   const form = main.locator('form').filter({ has: page.locator('#payment-amount') });
   const submit = form.getByRole('button', { name: 'Registrar pagamento', exact: true });
   const error = form.getByText('Os recebíveis estão sendo atualizados. Tente novamente em instantes.', { exact: true });
-  const writes = () => api.calls.filter((call) => call.path === receivableRoute + '/payments' && call.method === 'POST');
+  const writes = () =>
+    api.calls.filter((call) => call.path === receivableRoute + '/payments' && call.method === 'POST');
 
   await submit.click();
   await expect(error).toBeVisible();
@@ -112,7 +136,10 @@ test('preserves a payment idempotency key on unchanged retries and renews it aft
   await expect(main.getByText('Nenhum pagamento registrado.', { exact: true })).toBeVisible();
 });
 
-test('saves edits with the current version and cancels an unpaid receivable using the next version', async ({ page, api }) => {
+test('saves edits with the current version and cancels an unpaid receivable using the next version', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = unpaidReceivable();
 
@@ -123,7 +150,15 @@ test('saves edits with the current version and cancels an unpaid receivable usin
     return success(current);
   });
   api.respond('POST', receivableRoute + '/cancel', ({ body }) => {
-    current = { ...current, status: 'CANCELED', version: 3, balanceInCents: 0, canceledAt: date, canceledById: userId, cancellationReason: body.reason };
+    current = {
+      ...current,
+      status: 'CANCELED',
+      version: 3,
+      balanceInCents: 0,
+      canceledAt: date,
+      canceledById: userId,
+      cancellationReason: body.reason,
+    };
 
     return success(current);
   });

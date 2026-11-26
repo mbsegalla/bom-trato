@@ -1,9 +1,12 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { date, installAuthenticatedApp } from '../../support/authenticatedApp.fixture.mjs';
-import { quoteId } from '../../support/operationalRecords.fixture.mjs';
 import { installQuoteDetails, quoteDetails, quoteRoute } from '../../support/operationalDetails.fixture.mjs';
+import { quoteId } from '../../support/operationalRecords.fixture.mjs';
 
-test('validates discounts, saves a versioned draft and displays the exact deposit and balance', async ({ page, api }) => {
+test('validates discounts, saves a versioned draft and displays the exact deposit and balance', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = quoteDetails();
 
@@ -39,7 +42,9 @@ test('validates discounts, saves a versioned draft and displays the exact deposi
   await expect(form).toBeHidden();
   await expect(main.getByRole('heading', { name: 'Updated quote', exact: true })).toBeVisible();
 
-  const summary = main.getByRole('complementary').filter({ has: page.getByRole('heading', { name: 'Resumo', exact: true }) });
+  const summary = main
+    .getByRole('complementary')
+    .filter({ has: page.getByRole('heading', { name: 'Resumo', exact: true }) });
 
   await expect(summary.getByText('Entrada (25%)', { exact: true })).toBeVisible();
   await expect(summary.getByText(/R\$\s*30,00/)).toBeVisible();
@@ -60,7 +65,10 @@ test('validates discounts, saves a versioned draft and displays the exact deposi
   expect(writes[0].headers['x-csrf-token']).toBe('fixture-csrf');
 });
 
-test('requires confirmation before approval and stops offering draft or decision actions after success', async ({ page, api }) => {
+test('requires confirmation before approval and stops offering draft or decision actions after success', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   let current = quoteDetails({ status: 'SENT', sentAt: date });
 

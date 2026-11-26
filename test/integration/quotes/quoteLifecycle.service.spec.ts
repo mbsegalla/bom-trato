@@ -86,18 +86,31 @@ describe('quote lifecycle contracts', () => {
 
     const mutations = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(mutations.map((call) => [call.path, call.method]), [
-      [route, 'POST'],
-      [route + '/' + quoteId, 'PATCH'],
-      [route + '/' + quoteId + '/items', 'POST'],
-      [route + '/' + quoteId + '/items/' + newId, 'PUT'],
-      [route + '/' + quoteId + '/items/' + newId, 'DELETE'],
-      ...['send', 'approve', 'decline', 'cancel'].map((action) => [route + '/' + quoteId + '/' + action, 'POST']),
-    ]);
-    assert.deepEqual(mutations.map((call) => JSON.parse(String(call.body))), [
-      input, { ...update, version: 2 }, item, item, { version: 4 },
-      { version: 5 }, { version: 6 }, { version: 7 }, { version: 8 },
-    ]);
+    assert.deepEqual(
+      mutations.map((call) => [call.path, call.method]),
+      [
+        [route, 'POST'],
+        [route + '/' + quoteId, 'PATCH'],
+        [route + '/' + quoteId + '/items', 'POST'],
+        [route + '/' + quoteId + '/items/' + newId, 'PUT'],
+        [route + '/' + quoteId + '/items/' + newId, 'DELETE'],
+        ...['send', 'approve', 'decline', 'cancel'].map((action) => [route + '/' + quoteId + '/' + action, 'POST']),
+      ],
+    );
+    assert.deepEqual(
+      mutations.map((call) => JSON.parse(String(call.body))),
+      [
+        input,
+        { ...update, version: 2 },
+        item,
+        item,
+        { version: 4 },
+        { version: 5 },
+        { version: 6 },
+        { version: 7 },
+        { version: 8 },
+      ],
+    );
   });
 
   it('refuses repeated services that return the same quote, wrong organization or non-draft status', async (t) => {

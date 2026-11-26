@@ -9,7 +9,15 @@ import {
   updateWorkOrderChecklistItem,
   WorkOrderChecklistError,
 } from '@/modules/workOrders/services/workOrderChecklist.service';
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/checklist';
 const date = '2026-01-01T00:00:00.000Z';
@@ -31,12 +39,14 @@ describe('checklist lifecycle and refresh contracts', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === route && call.method === 'GET') return success({ items: [item], progress: { total: 1, completed: 0 } });
+      if (call.path === route && call.method === 'GET')
+        return success({ items: [item], progress: { total: 1, completed: 0 } });
       if (call.path === route && call.method === 'POST') return success(item);
       if (call.path === route + '/' + issuanceId && call.method === 'PATCH') {
         return success({ ...item, completed: true, completedAt: date, completedById: organizationId, version: 2 });
       }
-      if (call.path === route + '/' + issuanceId && call.method === 'DELETE') return new Response(null, { status: 204 });
+      if (call.path === route + '/' + issuanceId && call.method === 'DELETE')
+        return new Response(null, { status: 204 });
       throw new Error('Unexpected request: ' + call.path);
     });
 
@@ -53,7 +63,10 @@ describe('checklist lifecycle and refresh contracts', () => {
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => call.method), ['POST', 'GET', 'PATCH', 'DELETE']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['POST', 'GET', 'PATCH', 'DELETE'],
+    );
     assert.deepEqual(JSON.parse(String(requests[2]?.body)), { version: 1, completed: true });
     assert.deepEqual(JSON.parse(String(requests[3]?.body)), { version: 2 });
   });
@@ -74,17 +87,21 @@ describe('checklist lifecycle and refresh contracts', () => {
 
     await restoreSession();
 
-    await assert.rejects(getWorkOrderChecklist(organizationId, receivableId), (error: unknown) =>
-      error instanceof WorkOrderChecklistError && error.refreshRequired,
+    await assert.rejects(
+      getWorkOrderChecklist(organizationId, receivableId),
+      (error: unknown) => error instanceof WorkOrderChecklistError && error.refreshRequired,
     );
 
     const current = { ...item, createdAt: new Date(date), updatedAt: new Date(date) };
 
-    await assert.rejects(deleteWorkOrderChecklistItem(organizationId, receivableId, current), (error: unknown) =>
-      error instanceof WorkOrderChecklistError && error.refreshRequired,
+    await assert.rejects(
+      deleteWorkOrderChecklistItem(organizationId, receivableId, current),
+      (error: unknown) => error instanceof WorkOrderChecklistError && error.refreshRequired,
     );
-    await assert.rejects(updateWorkOrderChecklistItem(organizationId, receivableId, current, { completed: true }), (error: unknown) =>
-      error instanceof WorkOrderChecklistError && error.refreshRequired && /outra sessão/.test(error.message),
+    await assert.rejects(
+      updateWorkOrderChecklistItem(organizationId, receivableId, current, { completed: true }),
+      (error: unknown) =>
+        error instanceof WorkOrderChecklistError && error.refreshRequired && /outra sessão/.test(error.message),
     );
 
     assert.equal(calls.filter((call) => call.path.startsWith(route)).length, 3);

@@ -14,29 +14,26 @@ const input = {
   city: ' Uberlandia ',
   state: ' mg ',
   postalCode: '38400-000',
-  defaultReceivableDueDays: '7'
+  defaultReceivableDueDays: '7',
 };
 
 describe('business profile form', () => {
   it('normalizes contact and address fields and converts due days to integer', () => {
     const parsed = businessProfileFormSchema.parse(input);
 
-    assert.deepEqual(
-      parsed,
-      {
-        ...input,
-        name: 'Fixture',
-        email: null,
-        phone: '34999991234',
-        document: '12345678901',
-        addressLine1: null,
-        addressLine2: null,
-        city: 'Uberlandia',
-        state: 'MG',
-        postalCode: '38400000',
-        defaultReceivableDueDays: 7
-      }
-    );
+    assert.deepEqual(parsed, {
+      ...input,
+      name: 'Fixture',
+      email: null,
+      phone: '34999991234',
+      document: '12345678901',
+      addressLine1: null,
+      addressLine2: null,
+      city: 'Uberlandia',
+      state: 'MG',
+      postalCode: '38400000',
+      defaultReceivableDueDays: 7,
+    });
   });
 
   it('requires consistent document type and length, valid contact and bounded due days', () => {
@@ -48,7 +45,7 @@ describe('business profile form', () => {
       { email: 'bad' },
       { postalCode: '123' },
       { defaultReceivableDueDays: '366' },
-      { defaultReceivableDueDays: '1.5' }
+      { defaultReceivableDueDays: '1.5' },
     ]) {
       assert.equal(businessProfileFormSchema.safeParse({ ...input, ...patch }).success, false);
     }

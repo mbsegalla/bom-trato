@@ -7,7 +7,15 @@ import {
   publishPortfolioPhoto,
   revokeManagementPortfolioConsent,
 } from '@/modules/workOrders/services/workOrderPortfolio.service';
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders/' + receivableId + '/portfolio';
 const photo = { id: issuanceId, stage: 'BEFORE', visibleInPortal: true, consented: true, published: false };
@@ -18,24 +26,35 @@ describe('private portfolio HTTP contracts', () => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
       if (call.path === route) return success({ photos: [photo] });
-      if (call.path === route + '/' + issuanceId + '/publish') return success({ photos: [{ ...photo, published: true }] });
-      if (call.path === route + '/' + issuanceId + '/revoke-consent') return success({ photos: [{ ...photo, consented: false }] });
+      if (call.path === route + '/' + issuanceId + '/publish')
+        return success({ photos: [{ ...photo, published: true }] });
+      if (call.path === route + '/' + issuanceId + '/revoke-consent')
+        return success({ photos: [{ ...photo, consented: false }] });
       throw new Error('Unexpected request: ' + call.path);
     });
 
     await restoreSession();
 
     assert.equal((await getManagementPortfolio(organizationId, receivableId)).photos[0]?.published, false);
-    assert.equal((await publishPortfolioPhoto(organizationId, receivableId, issuanceId, true)).photos[0]?.published, true);
-    assert.equal((await revokeManagementPortfolioConsent(organizationId, receivableId, issuanceId)).photos[0]?.consented, false);
+    assert.equal(
+      (await publishPortfolioPhoto(organizationId, receivableId, issuanceId, true)).photos[0]?.published,
+      true,
+    );
+    assert.equal(
+      (await revokeManagementPortfolioConsent(organizationId, receivableId, issuanceId)).photos[0]?.consented,
+      false,
+    );
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => [call.method, call.path]), [
-      ['GET', route],
-      ['POST', route + '/' + issuanceId + '/publish'],
-      ['POST', route + '/' + issuanceId + '/revoke-consent'],
-    ]);
+    assert.deepEqual(
+      requests.map((call) => [call.method, call.path]),
+      [
+        ['GET', route],
+        ['POST', route + '/' + issuanceId + '/publish'],
+        ['POST', route + '/' + issuanceId + '/revoke-consent'],
+      ],
+    );
     assert.deepEqual(JSON.parse(String(requests[1]?.body)), { publish: true });
   });
 

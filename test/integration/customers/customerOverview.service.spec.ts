@@ -68,7 +68,8 @@ describe('customer overview contracts', () => {
       if (call.path.endsWith('/overview')) {
         attempts++;
         if (attempts === 1) return new Response(null, { status: 503 });
-        if (attempts === 2) return success({ ...overview, summary: { ...overview.summary, receivedAmountInCents: -1 } });
+        if (attempts === 2)
+          return success({ ...overview, summary: { ...overview.summary, receivedAmountInCents: -1 } });
         return success(overview);
       }
       throw new Error('Unexpected request: ' + call.path);

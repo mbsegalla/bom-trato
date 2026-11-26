@@ -12,7 +12,7 @@ describe('receiving settings', () => {
       merchantName: 'Empresa',
       merchantCity: 'Uberlandia',
       confirmed: true,
-      version: 0
+      version: 0,
     };
 
     assert.equal(receivingSettingsFormSchema.safeParse(input).success, true);
@@ -28,7 +28,7 @@ describe('receiving settings', () => {
       merchantCity: null,
       version: 0,
       canConfigure: false,
-      encryptionAvailable: false
+      encryptionAvailable: false,
     };
 
     assert.equal(receivingSettingsSchema.safeParse(disabled).success, true);

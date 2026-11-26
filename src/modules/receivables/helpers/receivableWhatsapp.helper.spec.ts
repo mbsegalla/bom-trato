@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import type { Customer } from '@/modules/customers/types/customer.types';
+
 import type { Receivable } from '../types/receivable.types';
 import { canPrepareReceivableCharge, createReceivableChargeMessage } from './receivableWhatsapp.helper';
 
@@ -13,14 +14,14 @@ const receivable = {
   status: 'PARTIALLY_PAID',
   currency: 'brl',
   balanceInCents: 1001,
-  dueAt: new Date(2026, 0, 15)
+  dueAt: new Date(2026, 0, 15),
 } as Receivable;
 const customer = {
   id: 'customer',
   organizationId: 'org',
   name: 'Cliente Nome',
   archivedAt: null,
-  phone: '34999991234'
+  phone: '34999991234',
 } as Customer;
 
 describe('receivable reminder safeguards', () => {
@@ -41,17 +42,15 @@ describe('receivable reminder safeguards', () => {
       { balanceInCents: 0 },
       { balanceInCents: 1.5 },
       { currency: 'usd' },
-      { dueAt: new Date(NaN) }
+      { dueAt: new Date(NaN) },
     ]) {
       assert.equal(canPrepareReceivableCharge({ ...receivable, ...patch } as Receivable), false);
     }
-    for (const patch of [
-      { id: 'other' },
-      { organizationId: 'other' },
-      { archivedAt: new Date() },
-      { phone: '123' }
-    ]) {
-      assert.throws(() => createReceivableChargeMessage(receivable, { ...customer, ...patch }, 'Fixture'), /cadastro e o telefone/);
+    for (const patch of [{ id: 'other' }, { organizationId: 'other' }, { archivedAt: new Date() }, { phone: '123' }]) {
+      assert.throws(
+        () => createReceivableChargeMessage(receivable, { ...customer, ...patch }, 'Fixture'),
+        /cadastro e o telefone/,
+      );
     }
   });
 });

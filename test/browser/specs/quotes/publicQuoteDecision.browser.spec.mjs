@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 
 const token = 'a'.repeat(64);
 const route = '/api/public/quotes';
@@ -43,7 +43,10 @@ test('approves a shared quote once and removes the decision controls after confi
   expect(decisions[0].headers.authorization).toBeUndefined();
 });
 
-test('validates a change request locally and sends only the trimmed message and shared version', async ({ page, api }) => {
+test('validates a change request locally and sends only the trimmed message and shared version', async ({
+  page,
+  api,
+}) => {
   api.respond('POST', route + '/resolve', () => success(quote));
   api.respond('POST', route + '/change-request', () => success({ requestedAt: date }));
 
@@ -57,7 +60,9 @@ test('validates a change request locally and sends only the trimmed message and 
   ).toBeVisible();
   expect(api.calls.filter((call) => call.path === route + '/change-request')).toHaveLength(0);
 
-  await page.getByPlaceholder('Ex.: Gostaria de retirar o segundo item do orçamento.').fill('  Alterar prazo de entrega  ');
+  await page
+    .getByPlaceholder('Ex.: Gostaria de retirar o segundo item do orçamento.')
+    .fill('  Alterar prazo de entrega  ');
   await page.getByRole('button', { name: 'Enviar solicitação' }).click();
 
   await expect(page.getByText('Alteração solicitada', { exact: true })).toBeVisible();

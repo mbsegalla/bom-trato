@@ -4,16 +4,34 @@ import { describe, it } from 'node:test';
 import { businessProfileFormSchema } from '@/modules/settings/schemas/business.schema';
 
 const base = {
-  name: 'Fixture company', email: null, phone: null, documentType: null, document: null,
-  addressLine1: null, addressLine2: null, city: null, state: null, postalCode: null, defaultReceivableDueDays: 7,
+  name: 'Fixture company',
+  email: null,
+  phone: null,
+  documentType: null,
+  document: null,
+  addressLine1: null,
+  addressLine2: null,
+  city: null,
+  state: null,
+  postalCode: null,
+  defaultReceivableDueDays: 7,
 };
 
 describe('business profile form normalization', () => {
   it('normalizes whitespace, contact details, CPF and postal code before submission', () => {
     const result = businessProfileFormSchema.parse({
-      ...base, name: '  Fixture company ', email: ' fixture@example.com ', phone: ' (34) 99999-9999 ',
-      documentType: 'CPF', document: '191.191.191-00', addressLine1: ' Street ', addressLine2: ' ',
-      city: ' Uberlandia ', state: ' mg ', postalCode: '38400-000', defaultReceivableDueDays: '0',
+      ...base,
+      name: '  Fixture company ',
+      email: ' fixture@example.com ',
+      phone: ' (34) 99999-9999 ',
+      documentType: 'CPF',
+      document: '191.191.191-00',
+      addressLine1: ' Street ',
+      addressLine2: ' ',
+      city: ' Uberlandia ',
+      state: ' mg ',
+      postalCode: '38400-000',
+      defaultReceivableDueDays: '0',
     });
     assert.equal(result.name, 'Fixture company');
     assert.equal(result.email, 'fixture@example.com');
@@ -26,7 +44,14 @@ describe('business profile form normalization', () => {
 
   it('clears blank nullable fields and accepts the maximum due period', () => {
     const result = businessProfileFormSchema.parse({
-      ...base, email: ' ', phone: ' ', documentType: '', document: '', state: ' ', postalCode: '', defaultReceivableDueDays: '365',
+      ...base,
+      email: ' ',
+      phone: ' ',
+      documentType: '',
+      document: '',
+      state: ' ',
+      postalCode: '',
+      defaultReceivableDueDays: '365',
     });
     assert.deepEqual(result, { ...base, defaultReceivableDueDays: 365 });
   });
@@ -53,6 +78,9 @@ describe('business profile form normalization', () => {
   }
 
   it('accepts a formatted CNPJ and preserves the normalized digits', () => {
-    assert.equal(businessProfileFormSchema.parse({ ...base, documentType: 'CNPJ', document: '12.345.678/0001-99' }).document, '12345678000199');
+    assert.equal(
+      businessProfileFormSchema.parse({ ...base, documentType: 'CNPJ', document: '12.345.678/0001-99' }).document,
+      '12345678000199',
+    );
   });
 });

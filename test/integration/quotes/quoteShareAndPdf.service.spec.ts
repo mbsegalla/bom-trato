@@ -52,7 +52,10 @@ describe('private quote share and PDF contracts', () => {
     assert.equal(share.quoteVersion, 4);
     assert.deepEqual(share.expiresAt, new Date(expiresAt));
     const requests = calls.filter((call) => call.path === route + '/share');
-    assert.deepEqual(requests.map((call) => call.method), ['POST', 'DELETE']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['POST', 'DELETE'],
+    );
     assert.deepEqual(JSON.parse(String(requests[0].body)), { version: 4, expiresAt });
   });
 

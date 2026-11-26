@@ -12,15 +12,12 @@ describe('address lookup contract', () => {
       city: 'Sao Paulo',
       state: 'SP',
       cityIbgeCode: null,
-      stateIbgeCode: null
+      stateIbgeCode: null,
     };
 
     assert.deepEqual(addressLookupSchema.parse(input), input);
 
-    for (const patch of [
-      { postalCode: '01001-000' },
-      { city: '' },
-      { state: 'sp' }
-    ]) assert.equal(addressLookupSchema.safeParse({ ...input, ...patch }).success, false);
+    for (const patch of [{ postalCode: '01001-000' }, { city: '' }, { state: 'sp' }])
+      assert.equal(addressLookupSchema.safeParse({ ...input, ...patch }).success, false);
   });
 });

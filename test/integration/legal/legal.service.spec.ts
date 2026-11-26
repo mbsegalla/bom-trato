@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { getCurrentLegalDocuments } from '@/modules/legal/services/legal.service';
+
 import { mockHttp, success } from '../../support/http.fixture';
 
 describe('legal document retrieval', () => {
@@ -9,7 +10,7 @@ describe('legal document retrieval', () => {
     const terms = {
       version: 'fixture-terms',
       effectiveAt: '2026-01-01T00:00:00Z',
-      path: '/terms'
+      path: '/terms',
     };
     const privacy = { ...terms, version: 'fixture-privacy', path: '/privacy' };
     const calls = mockHttp(t, () => success({ terms, privacy }));
@@ -27,11 +28,13 @@ describe('legal document retrieval', () => {
     mockHttp(t, () => {
       if (fail) throw new Error('transport failure');
 
-      return success({ terms: {
-        version: 'fixture',
-        effectiveAt: '2026-01-01T00:00:00Z',
-        path: '/terms'
-      } });
+      return success({
+        terms: {
+          version: 'fixture',
+          effectiveAt: '2026-01-01T00:00:00Z',
+          path: '/terms',
+        },
+      });
     });
 
     assert.equal((await getCurrentLegalDocuments()).success, false);

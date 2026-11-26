@@ -7,15 +7,16 @@ import {
   listInAppNotifications,
   markAllInAppNotificationsRead,
   markInAppNotificationRead,
-  notificationStreamUrl
+  notificationStreamUrl,
 } from '@/modules/notifications/services/notification.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/notifications';
@@ -34,13 +35,10 @@ describe('notifications HTTP service', () => {
     const first = listInAppNotifications(organizationId);
 
     assert.strictEqual(first, listInAppNotifications(organizationId));
-    assert.deepEqual(
-      await Promise.all([first, listInAppNotifications(receivableId)]),
-      [
-        { items: [], unreadCount: 1 },
-        { items: [], unreadCount: 0 }
-      ]
-    );
+    assert.deepEqual(await Promise.all([first, listInAppNotifications(receivableId)]), [
+      { items: [], unreadCount: 1 },
+      { items: [], unreadCount: 0 },
+    ]);
 
     malformed = true;
 
@@ -68,10 +66,13 @@ describe('notifications HTTP service', () => {
     await markInAppNotificationRead(organizationId, issuanceId);
     await markAllInAppNotificationsRead(organizationId);
 
-    assert.deepEqual(calls.filter((call) => call.path.startsWith(route)).map((call) => [call.method, call.path]), [
-      ['POST', route + '/stream-ticket'],
-      ['POST', route + '/' + issuanceId + '/read'],
-      ['POST', route + '/read-all'],
-    ]);
+    assert.deepEqual(
+      calls.filter((call) => call.path.startsWith(route)).map((call) => [call.method, call.path]),
+      [
+        ['POST', route + '/stream-ticket'],
+        ['POST', route + '/' + issuanceId + '/read'],
+        ['POST', route + '/read-all'],
+      ],
+    );
   });
 });

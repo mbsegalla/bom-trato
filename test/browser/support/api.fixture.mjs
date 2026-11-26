@@ -1,10 +1,10 @@
-import { test as base, expect } from '@playwright/test';
+import { expect, test as base } from '@playwright/test';
 
 export const appOrigin = 'http://127.0.0.1:3100';
 const apiOrigin = 'http://127.0.0.1:5000';
 
 export const test = base.extend({
-  api: async ({ context }, use) => {
+  api: async ({ context }, provideApi) => {
     const handlers = new Map();
     const calls = [];
     const unexpected = [];
@@ -40,7 +40,7 @@ export const test = base.extend({
 
       return route.fulfill({ status: result.status ?? 200, headers, json: result.json });
     });
-    await use({
+    await provideApi({
       calls,
       respond(method, path, handler) {
         handlers.set(method + ' ' + path, handler);

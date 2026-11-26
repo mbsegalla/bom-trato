@@ -4,17 +4,18 @@ import { describe, it } from 'node:test';
 import { restoreSession } from '@/modules/auth/services/session.service';
 import {
   bootstrapOnboarding,
+  completeBusinessSetup,
   getOnboarding,
   selectOnboardingPlan,
-  completeBusinessSetup
 } from '@/modules/onboarding/services/onboarding.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const state = {
@@ -23,7 +24,7 @@ const state = {
   selectedPlanPriceId: null,
   accessSource: 'NONE',
   trialEligible: false,
-  trial: null
+  trial: null,
 };
 
 describe('onboarding HTTP service', () => {
@@ -60,11 +61,12 @@ describe('onboarding HTTP service', () => {
     const calls = mockHttp(t, (call) => {
       if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
       if (call.path === '/api/auth/refresh') return sessionResponse();
-      if (call.path === '/api/onboarding/plan') return success({
-        ...state,
-        step: 'PAYMENT_PENDING',
-        selectedPlanPriceId: issuanceId
-      });
+      if (call.path === '/api/onboarding/plan')
+        return success({
+          ...state,
+          step: 'PAYMENT_PENDING',
+          selectedPlanPriceId: issuanceId,
+        });
       if (call.path === '/api/onboarding/business') return success({ ...state, step: 'CONTACT_OWNER' });
       throw new Error('Unexpected request');
     });
@@ -76,9 +78,12 @@ describe('onboarding HTTP service', () => {
 
     const posts = calls.filter((call) => call.path.startsWith('/api/onboarding/'));
 
-    assert.deepEqual(posts.map((call) => JSON.parse(String(call.body))), [
-      { organizationId, planPriceId: issuanceId },
-      { organizationId, name: 'Fixture' },
-    ]);
+    assert.deepEqual(
+      posts.map((call) => JSON.parse(String(call.body))),
+      [
+        { organizationId, planPriceId: issuanceId },
+        { organizationId, name: 'Fixture' },
+      ],
+    );
   });
 });

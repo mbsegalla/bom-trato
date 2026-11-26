@@ -6,15 +6,20 @@ import {
   acceptOrganizationInvitation,
   inviteOrganizationMember,
   removeOrganizationMember,
-  TeamRequestError
+  TeamRequestError,
 } from '@/modules/settings/services/team.service';
+
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
-const failure = (code: string, status: number) => Response.json({
-  statusCode: status,
-  success: false,
-  error: { code, message: 'Fixture' }
-}, { status });
+const failure = (code: string, status: number) =>
+  Response.json(
+    {
+      statusCode: status,
+      success: false,
+      error: { code, message: 'Fixture' },
+    },
+    { status },
+  );
 
 describe('team HTTP safeguards', () => {
   it('preserves exact domain conflicts and never retries an invitation implicitly', async (t) => {
@@ -30,7 +35,10 @@ describe('team HTTP safeguards', () => {
     for (const expected of ['MEMBER_LIMIT_REACHED', 'INVITATION_ALREADY_PENDING']) {
       code = expected;
 
-      await assert.rejects(inviteOrganizationMember(organizationId, 'member@example.invalid'), (e: unknown) => e instanceof TeamRequestError && e.status === 409 && e.code === expected);
+      await assert.rejects(
+        inviteOrganizationMember(organizationId, 'member@example.invalid'),
+        (e: unknown) => e instanceof TeamRequestError && e.status === 409 && e.code === expected,
+      );
     }
     const posts = calls.filter((call) => call.path.endsWith('/invitations'));
 
@@ -51,7 +59,10 @@ describe('team HTTP safeguards', () => {
     await restoreSession();
 
     assert.deepEqual(await acceptOrganizationInvitation(token), { organizationId });
-    await assert.rejects(removeOrganizationMember(organizationId, receivableId), (e: unknown) => e instanceof TeamRequestError && e.code === 'OWNER_REMOVAL_FORBIDDEN');
+    await assert.rejects(
+      removeOrganizationMember(organizationId, receivableId),
+      (e: unknown) => e instanceof TeamRequestError && e.code === 'OWNER_REMOVAL_FORBIDDEN',
+    );
 
     const accepted = calls.find((call) => call.path === '/api/organization-invitations/accept');
 

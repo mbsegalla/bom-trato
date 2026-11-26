@@ -1,4 +1,4 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
 import { installAuthenticatedApp } from '../../support/authenticatedApp.fixture.mjs';
 import { businessProfile, profileRoute } from '../../support/settings.fixture.mjs';
 
@@ -13,27 +13,28 @@ test.beforeEach(async ({ page, api }) => {
   await installAuthenticatedApp(page, api);
 
   api.respond('GET', statesRoute, () => success(states));
-  api.respond('GET', statesRoute + '/MG/cities', () => success([
-    { code: '3106200', name: 'Belo Horizonte' },
-  ]));
-  api.respond('GET', statesRoute + '/SP/cities', () => success([
-    { code: '3550308', name: 'São Paulo' },
-  ]));
+  api.respond('GET', statesRoute + '/MG/cities', () => success([{ code: '3106200', name: 'Belo Horizonte' }]));
+  api.respond('GET', statesRoute + '/SP/cities', () => success([{ code: '3550308', name: 'São Paulo' }]));
 });
 
-test('looks up a complete postal code and saves the normalized address without changing other settings', async ({ page, api }) => {
+test('looks up a complete postal code and saves the normalized address without changing other settings', async ({
+  page,
+  api,
+}) => {
   let current = businessProfile({ autoQuoteFollowUpEnabled: true });
 
   api.respond('GET', profileRoute, () => success(current));
-  api.respond('GET', postalRoute, () => success({
-    postalCode: '30123456',
-    street: 'Fixture street',
-    neighborhood: 'Fixture neighborhood',
-    city: 'Belo Horizonte',
-    state: 'MG',
-    cityIbgeCode: '3106200',
-    stateIbgeCode: '31',
-  }));
+  api.respond('GET', postalRoute, () =>
+    success({
+      postalCode: '30123456',
+      street: 'Fixture street',
+      neighborhood: 'Fixture neighborhood',
+      city: 'Belo Horizonte',
+      state: 'MG',
+      cityIbgeCode: '3106200',
+      stateIbgeCode: '31',
+    }),
+  );
   api.respond('PATCH', profileRoute, ({ body }) => {
     current = { ...current, ...body };
 
@@ -57,7 +58,9 @@ test('looks up a complete postal code and saves the normalized address without c
   await expect(lookup).toBeEnabled();
   await lookup.click();
 
-  await expect(main.getByRole('status').filter({ hasText: 'Endereço encontrado: Fixture neighborhood, Belo Horizonte/MG.' })).toBeVisible();
+  await expect(
+    main.getByRole('status').filter({ hasText: 'Endereço encontrado: Fixture neighborhood, Belo Horizonte/MG.' }),
+  ).toBeVisible();
   await expect(postalCode).toHaveValue('30123-456');
   await expect(main.getByLabel('Endereço', { exact: true })).toHaveValue('Fixture street');
   await expect(state).toHaveValue('MG');
@@ -83,11 +86,18 @@ test('looks up a complete postal code and saves the normalized address without c
   expect(api.calls.filter((call) => call.path === postalRoute)).toHaveLength(1);
 });
 
-test('clears a previously selected city when switching states and loads only the corresponding city options', async ({ page, api }) => {
-  api.respond('GET', profileRoute, () => success(businessProfile({
-    city: 'Belo Horizonte',
-    state: 'MG',
-  })));
+test('clears a previously selected city when switching states and loads only the corresponding city options', async ({
+  page,
+  api,
+}) => {
+  api.respond('GET', profileRoute, () =>
+    success(
+      businessProfile({
+        city: 'Belo Horizonte',
+        state: 'MG',
+      }),
+    ),
+  );
 
   await page.goto('/settings?tab=business');
 
@@ -111,31 +121,42 @@ test('clears a previously selected city when switching states and loads only the
   expect(api.calls.filter((call) => call.path === profileRoute && call.method === 'PATCH')).toHaveLength(0);
 });
 
-test('keeps existing address fields after an unavailable postal lookup and supports a subsequent retry', async ({ page, api }) => {
-  api.respond('GET', profileRoute, () => success(businessProfile({
-    addressLine1: 'Existing fixture address',
-  })));
+test('keeps existing address fields after an unavailable postal lookup and supports a subsequent retry', async ({
+  page,
+  api,
+}) => {
+  api.respond('GET', profileRoute, () =>
+    success(
+      businessProfile({
+        addressLine1: 'Existing fixture address',
+      }),
+    ),
+  );
 
   let unavailable = true;
 
-  api.respond('GET', postalRoute, () => unavailable
-    ? { status: 503, json: { success: false } }
-    : success({
-        postalCode: '30123456',
-        street: null,
-        neighborhood: null,
-        city: 'Belo Horizonte',
-        state: 'MG',
-        cityIbgeCode: null,
-        stateIbgeCode: null,
-      }));
+  api.respond('GET', postalRoute, () =>
+    unavailable
+      ? { status: 503, json: { success: false } }
+      : success({
+          postalCode: '30123456',
+          street: null,
+          neighborhood: null,
+          city: 'Belo Horizonte',
+          state: 'MG',
+          cityIbgeCode: null,
+          stateIbgeCode: null,
+        }),
+  );
 
   await page.goto('/settings?tab=business');
 
   const main = page.getByRole('main');
   const lookup = main.getByRole('button', { name: 'Buscar CEP', exact: true });
   const address = main.getByLabel('Endereço', { exact: true });
-  const error = main.getByRole('alert').filter({ hasText: 'O serviço de endereços está temporariamente indisponível.' });
+  const error = main
+    .getByRole('alert')
+    .filter({ hasText: 'O serviço de endereços está temporariamente indisponível.' });
 
   await expect(address).toHaveValue('Existing fixture address');
   await main.getByLabel('CEP', { exact: true }).fill('30123456');

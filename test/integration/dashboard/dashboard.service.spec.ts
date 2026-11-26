@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { getDashboard } from '@/modules/dashboard/services/dashboard.service';
+
 import { mockHttp, organizationId, receivableId, sessionResponse, success } from '../../support/http.fixture';
 
 describe('dashboard HTTP aggregation', () => {
@@ -13,42 +14,45 @@ describe('dashboard HTTP aggregation', () => {
       const url = new URL(call.path, 'https://api.example.invalid');
       const generatedAt = '2026-01-01T00:00:00Z';
       const period = { from: url.searchParams.get('from'), to: url.searchParams.get('to') };
-      if (url.pathname.endsWith('/summary')) return success({
-        generatedAt,
-        period,
-        quotes: {
-          draft: 0,
-          awaitingApproval: 0,
-          expiredSent: 0
-        },
-        workOrders: {
-          open: 0,
-          scheduled: 0,
-          inProgress: 0,
-          completedInPeriod: 0
-        }
-      });
-      if (url.pathname.endsWith('/financial')) return success({
-        generatedAt,
-        period,
-        currency: 'brl',
-        currentReceivables: {
-          pendingCount: 0,
-          pendingAmountInCents: 0,
-          overdueCount: 0,
-          overdueAmountInCents: 0
-        },
-        periodReceipts: {
-          count: 1,
-          amountInCents: call.path.includes(organizationId) ? 1001 : 2002
-        }
-      });
-      if (url.pathname.endsWith('/financial-trend')) return success({
-        generatedAt,
-        period,
-        currency: 'brl',
-        items: []
-      });
+      if (url.pathname.endsWith('/summary'))
+        return success({
+          generatedAt,
+          period,
+          quotes: {
+            draft: 0,
+            awaitingApproval: 0,
+            expiredSent: 0,
+          },
+          workOrders: {
+            open: 0,
+            scheduled: 0,
+            inProgress: 0,
+            completedInPeriod: 0,
+          },
+        });
+      if (url.pathname.endsWith('/financial'))
+        return success({
+          generatedAt,
+          period,
+          currency: 'brl',
+          currentReceivables: {
+            pendingCount: 0,
+            pendingAmountInCents: 0,
+            overdueCount: 0,
+            overdueAmountInCents: 0,
+          },
+          periodReceipts: {
+            count: 1,
+            amountInCents: call.path.includes(organizationId) ? 1001 : 2002,
+          },
+        });
+      if (url.pathname.endsWith('/financial-trend'))
+        return success({
+          generatedAt,
+          period,
+          currency: 'brl',
+          items: [],
+        });
 
       return success({ generatedAt, items: [], hasMore: false });
     });

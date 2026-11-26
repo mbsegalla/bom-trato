@@ -9,7 +9,7 @@ describe('billing contracts', () => {
       brand: 'visa',
       last4: '1234',
       expMonth: 12,
-      expYear: 2028
+      expYear: 2028,
     };
 
     assert.deepEqual(billingCardSchema.parse({ ...data, fullNumber: 'private', cvc: 'private' }), data);
@@ -21,7 +21,7 @@ describe('billing contracts', () => {
     const data = {
       organizationId: '11111111-1111-4111-8111-111111111111',
       operationId: '22222222-2222-4222-8222-222222222222',
-      kind: 'plan-change'
+      kind: 'plan-change',
     };
 
     assert.equal(billingReturnParamsSchema.safeParse(data).success, true);

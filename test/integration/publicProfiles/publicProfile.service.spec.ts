@@ -3,7 +3,15 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { getPublicProfileSettings, updatePublicProfile } from '@/modules/publicProfiles/services/publicProfile.service';
-import { mockHttp, organizationId, receivableId, issuanceId, sessionResponse, success } from '../../support/http.fixture';
+
+import {
+  issuanceId,
+  mockHttp,
+  organizationId,
+  receivableId,
+  sessionResponse,
+  success,
+} from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/public-profile';
 const date = '2026-01-01T00:00:00Z';
@@ -50,7 +58,10 @@ describe('authenticated public profile HTTP contracts', () => {
 
     const requests = calls.filter((call) => call.path === route);
 
-    assert.deepEqual(requests.map((call) => call.method), ['GET', 'PATCH']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['GET', 'PATCH'],
+    );
     assert.equal(requests[1]?.headers.get('authorization'), 'Bearer fixture-access');
     assert.equal(requests[1]?.headers.get('x-csrf-token'), 'fixture-csrf');
     assert.deepEqual(JSON.parse(String(requests[1]?.body)), input);
@@ -85,11 +96,7 @@ describe('authenticated public profile HTTP contracts', () => {
   });
 
   it('rejects malformed service identifiers and missing visibility information before rendering settings', async (t) => {
-    const responses = [
-      { ...state, selectedServiceIds: ['invalid'] },
-      { ...state, published: undefined },
-      state,
-    ];
+    const responses = [{ ...state, selectedServiceIds: ['invalid'] }, { ...state, published: undefined }, state];
     let attempt = 0;
 
     mockHttp(t, (call) => {

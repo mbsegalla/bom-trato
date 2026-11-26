@@ -8,7 +8,7 @@ describe('legal document contract', () => {
     const terms = {
       version: '2026-01',
       effectiveAt: '2026-01-01T00:00:00Z',
-      path: '/terms'
+      path: '/terms',
     };
     const privacy = { ...terms, path: '/privacy' };
 
@@ -16,17 +16,17 @@ describe('legal document contract', () => {
       currentLegalDocumentsResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { terms, privacy }
+        data: { terms, privacy },
       }).success,
-      true
+      true,
     );
     assert.equal(
       currentLegalDocumentsResponseSchema.safeParse({
         statusCode: 200,
         success: true,
-        data: { terms }
+        data: { terms },
       }).success,
-      false
+      false,
     );
     assert.equal(
       currentLegalDocumentsResponseSchema.safeParse({
@@ -34,10 +34,10 @@ describe('legal document contract', () => {
         success: true,
         data: {
           terms: { ...terms, version: '' },
-          privacy
-        }
+          privacy,
+        },
       }).success,
-      false
+      false,
     );
   });
 });

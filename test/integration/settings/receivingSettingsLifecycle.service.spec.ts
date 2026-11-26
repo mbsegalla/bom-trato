@@ -3,6 +3,7 @@ import { describe, it } from 'node:test';
 
 import { restoreSession } from '@/modules/auth/services/session.service';
 import { getReceivingSettings, saveReceivingSettings } from '@/modules/settings/services/receivingSettings.service';
+
 import { mockHttp, organizationId, sessionResponse, success } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/receiving-settings';
@@ -47,7 +48,10 @@ describe('receiving settings lifecycle', () => {
 
     const requests = calls.filter((call) => call.path === route);
 
-    assert.deepEqual(requests.map((call) => call.method), ['GET', 'PUT', 'PUT']);
+    assert.deepEqual(
+      requests.map((call) => call.method),
+      ['GET', 'PUT', 'PUT'],
+    );
     assert.deepEqual(JSON.parse(String(requests[1]?.body)), { ...enabled, confirmed: true });
     assert.deepEqual(JSON.parse(String(requests[2]?.body)), { ...disabled, confirmed: false });
     assert.ok(requests.every((call) => call.headers.has('Authorization') && call.cache === 'no-store'));
@@ -64,7 +68,10 @@ describe('receiving settings lifecycle', () => {
 
     await restoreSession();
 
-    await assert.rejects(saveReceivingSettings(organizationId, { ...enabled, confirmed: true }), /formato da chave Pix/);
+    await assert.rejects(
+      saveReceivingSettings(organizationId, { ...enabled, confirmed: true }),
+      /formato da chave Pix/,
+    );
     await assert.rejects(getReceivingSettings(organizationId), /proprietário autorizado/);
     await assert.rejects(getReceivingSettings(organizationId), /indisponíveis/);
     await assert.rejects(getReceivingSettings(organizationId), /consultar ou salvar/);

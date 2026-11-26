@@ -7,7 +7,7 @@ import {
   getMonthlyEquivalentAmount,
   getPlanPriceByInterval,
   getPricePeriodLabel,
-  getRecurringBillingLabel
+  getRecurringBillingLabel,
 } from './planPrice.helper';
 
 const monthly: PlanPrice = {
@@ -15,13 +15,13 @@ const monthly: PlanPrice = {
   interval: 'MONTH',
   intervalCount: 1,
   amountInCents: 1000,
-  currency: 'brl'
+  currency: 'brl',
 };
 const yearly: PlanPrice = {
   ...monthly,
   id: 'yearly',
   interval: 'YEAR',
-  amountInCents: 9999
+  amountInCents: 9999,
 };
 const plan: Plan = {
   id: 'plan',
@@ -34,11 +34,11 @@ const plan: Plan = {
     {
       ...monthly,
       id: 'quarter',
-      intervalCount: 3
+      intervalCount: 3,
     },
     monthly,
-    yearly
-  ]
+    yearly,
+  ],
 };
 
 describe('plan price presentation', () => {

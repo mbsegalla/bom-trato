@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { listPlans } from '@/modules/plans/services/plan.service';
+
 import { mockHttp, organizationId, receivableId, success } from '../../support/http.fixture';
 
 const plan = {
@@ -11,19 +12,21 @@ const plan = {
   description: 'Fixture',
   maxUsers: 1,
   teamManagementEnabled: false,
-  prices: [{
-    id: receivableId,
-    amountInCents: 1000,
-    currency: 'brl',
-    interval: 'MONTH',
-    intervalCount: 1
-  }]
+  prices: [
+    {
+      id: receivableId,
+      amountInCents: 1000,
+      currency: 'brl',
+      interval: 'MONTH',
+      intervalCount: 1,
+    },
+  ],
 };
 
 describe('plan catalogue HTTP service', () => {
   it('shares a concurrent fetch and clears the flight after success or failure', async (t) => {
     let fail = true;
-    const calls = mockHttp(t, () => fail ? new Response(null, { status: 503 }) : success([plan]));
+    const calls = mockHttp(t, () => (fail ? new Response(null, { status: 503 }) : success([plan])));
     const first = listPlans();
 
     assert.strictEqual(first, listPlans());

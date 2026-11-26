@@ -1,6 +1,14 @@
 import { success } from './api.fixture.mjs';
 import { date, organizationId, organizationRoute, userId } from './authenticatedApp.fixture.mjs';
-import { pageResult, quote, quoteId, receivable, receivableId, workOrder, workOrderId } from './operationalRecords.fixture.mjs';
+import {
+  pageResult,
+  quote,
+  quoteId,
+  receivable,
+  receivableId,
+  workOrder,
+  workOrderId,
+} from './operationalRecords.fixture.mjs';
 
 export const quoteRoute = organizationRoute(organizationId, 'quotes/' + quoteId);
 export const workOrderRoute = organizationRoute(organizationId, 'work-orders/' + workOrderId);
@@ -83,36 +91,40 @@ export function installQuoteDetails(api, read) {
   api.respond('GET', quoteRoute + '/status-history', () => {
     const quote = read();
 
-    return success([{
-      id: historyId,
-      quoteId,
-      fromStatus: quote.version === 1 ? null : 'SENT',
-      toStatus: quote.status,
-      actorId: userId,
-      version: quote.version,
-      createdAt: date,
-    }]);
+    return success([
+      {
+        id: historyId,
+        quoteId,
+        fromStatus: quote.version === 1 ? null : 'SENT',
+        toStatus: quote.status,
+        actorId: userId,
+        version: quote.version,
+        createdAt: date,
+      },
+    ]);
   });
 }
 
 export function installWorkOrderDetails(api, read) {
   api.respond('GET', workOrderRoute, () => success(read()));
-  api.respond('GET', organizationRoute(organizationId, 'members'), () => success(pageResult([
-    { id: memberId, userId, role: 'OWNER', createdAt: date, user: { name: 'Fixture owner' } },
-  ])));
+  api.respond('GET', organizationRoute(organizationId, 'members'), () =>
+    success(pageResult([{ id: memberId, userId, role: 'OWNER', createdAt: date, user: { name: 'Fixture owner' } }])),
+  );
   api.respond('GET', workOrderRoute + '/share', () => success(null));
   api.respond('GET', workOrderRoute + '/checklist', () => success({ items: [], progress: { total: 0, completed: 0 } }));
   api.respond('GET', workOrderRoute + '/photos', () => success([]));
   api.respond('GET', workOrderRoute + '/portfolio', () => success({ photos: [] }));
   api.respond('GET', workOrderRoute + '/acceptance', () => success({ receipt: null }));
   api.respond('GET', workOrderRoute + '/warranty', () => success({ warranty: null, locked: false }));
-  api.respond('GET', workOrderRoute + '/recurrence', () => success({
-    recurrence: null,
-    canConfigure: true,
-    customerArchived: false,
-    today: '2026-01-01',
-    completedOn: '2026-01-01',
-  }));
+  api.respond('GET', workOrderRoute + '/recurrence', () =>
+    success({
+      recurrence: null,
+      canConfigure: true,
+      customerArchived: false,
+      today: '2026-01-01',
+      completedOn: '2026-01-01',
+    }),
+  );
   api.respond('GET', workOrderRoute + '/status-history', () => success([]));
   api.respond('GET', workOrderRoute + '/schedule-history', () => success(pageResult()));
 }
@@ -138,15 +150,17 @@ export function installReceivableDetails(api, read, readPayments = () => []) {
   }
 
   api.respond('GET', receivableRoute + '/mercado-pago/sandbox-pix', () => success({ ...pixView(), liveMode: false }));
-  api.respond('GET', receivableRoute + '/mercado-pago/live-pix', () => success({
-    ...pixView(),
-    liveMode: true,
-    canRecover: false,
-    reviewCode: null,
-    lastRecoveryCode: null,
-    nextRecoveryAt: null,
-    lastWebhookCode: null,
-  }));
+  api.respond('GET', receivableRoute + '/mercado-pago/live-pix', () =>
+    success({
+      ...pixView(),
+      liveMode: true,
+      canRecover: false,
+      reviewCode: null,
+      lastRecoveryCode: null,
+      nextRecoveryAt: null,
+      lastWebhookCode: null,
+    }),
+  );
   api.respond('GET', receivableRoute + '/payment-link', () => success(null));
 }
 

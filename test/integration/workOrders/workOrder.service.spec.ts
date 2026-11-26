@@ -6,15 +6,16 @@ import {
   assignWorkOrder,
   completeWorkOrder,
   listWorkOrders,
-  scheduleWorkOrder
+  scheduleWorkOrder,
 } from '@/modules/workOrders/services/workOrder.service';
+
 import {
+  issuanceId,
   mockHttp,
   organizationId,
   receivableId,
-  issuanceId,
   sessionResponse,
-  success
+  success,
 } from '../../support/http.fixture';
 
 const route = '/api/organizations/' + organizationId + '/work-orders';
@@ -39,8 +40,8 @@ describe('work order HTTP service', () => {
       listWorkOrders(receivableId, input),
       listWorkOrders(organizationId, {
         ...input,
-        assignedToId: issuanceId
-      })
+        assignedToId: issuanceId,
+      }),
     ]);
     const requests = calls.filter((call) => call.path.includes('/work-orders?'));
 
@@ -65,15 +66,17 @@ describe('work order HTTP service', () => {
 
     const requests = calls.filter((call) => call.path.startsWith(route));
 
-    assert.deepEqual(requests.map((call) => call.path), [
-      route + '/' + receivableId + '/schedule',
-      route + '/' + receivableId + '/assign',
-      route + '/' + receivableId + '/complete',
-    ]);
-    assert.deepEqual(requests.map((call) => JSON.parse(String(call.body))), [
-      { version: 3, ...input },
-      { version: 3, assignedToId: issuanceId },
-      { version: 3 },
-    ]);
+    assert.deepEqual(
+      requests.map((call) => call.path),
+      [
+        route + '/' + receivableId + '/schedule',
+        route + '/' + receivableId + '/assign',
+        route + '/' + receivableId + '/complete',
+      ],
+    );
+    assert.deepEqual(
+      requests.map((call) => JSON.parse(String(call.body))),
+      [{ version: 3, ...input }, { version: 3, assignedToId: issuanceId }, { version: 3 }],
+    );
   });
 });

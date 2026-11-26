@@ -1,6 +1,10 @@
-import { test, expect, success } from '../../support/api.fixture.mjs';
-import { date, installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
-import { onboarding, organizationId } from '../../support/authenticatedApp.fixture.mjs';
+import { expect, success, test } from '../../support/api.fixture.mjs';
+import {
+  installAuthenticatedApp,
+  onboarding,
+  organization,
+  organizationId,
+} from '../../support/authenticatedApp.fixture.mjs';
 import { billingRoute, installBilling, invoice, subscription } from '../../support/settings.fixture.mjs';
 
 test('requires confirmation before disabling renewal and allows the owner to resume it', async ({ page, api }) => {
@@ -49,19 +53,25 @@ test('requires confirmation before disabling renewal and allows the owner to res
   await expect(cancel).toBeEnabled();
   await expect(change).toBeEnabled();
 
-  expect(api.calls.filter((call) => call.method === 'POST' && call.path.startsWith(billingRoute)).map((call) => call.path)).toEqual([
-    billingRoute + '/cancel', billingRoute + '/resume',
-  ]);
+  expect(
+    api.calls.filter((call) => call.method === 'POST' && call.path.startsWith(billingRoute)).map((call) => call.path),
+  ).toEqual([billingRoute + '/cancel', billingRoute + '/resume']);
 });
 
-test('deduplicates overlapping invoice pages and preserves already loaded invoices when pagination finishes', async ({ page, api }) => {
+test('deduplicates overlapping invoice pages and preserves already loaded invoices when pagination finishes', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api);
   const first = invoice();
   const second = invoice({ id: 'ffffffff-ffff-4fff-8fff-ffffffffffff', number: 'FIX-002' });
 
-  installBilling(api, () => subscription(), (query) => query.cursor
-    ? { items: [first, second], nextCursor: null }
-    : { items: [first], nextCursor: 'fixture-next' });
+  installBilling(
+    api,
+    () => subscription(),
+    (query) =>
+      query.cursor ? { items: [first, second], nextCursor: null } : { items: [first], nextCursor: 'fixture-next' },
+  );
 
   await page.goto('/settings?tab=billing');
 
@@ -93,31 +103,44 @@ test('exposes the subscription summary but never reads card or invoice data for 
   await expect(main.getByRole('heading', { name: 'Método de pagamento', exact: true })).toHaveCount(0);
   await expect(main.getByRole('heading', { name: 'Faturas', exact: true })).toHaveCount(0);
   await expect(main.getByRole('button', { name: 'Alterar plano', exact: true })).toHaveCount(0);
-  expect(api.calls.filter((call) => call.path === billingRoute + '/payment-method' || call.path === billingRoute + '/invoices')).toHaveLength(0);
+  expect(
+    api.calls.filter(
+      (call) => call.path === billingRoute + '/payment-method' || call.path === billingRoute + '/invoices',
+    ),
+  ).toHaveLength(0);
 });
 
-test('shows the free trial without requesting Stripe billing data or implying automatic charges', async ({ page, api }) => {
+test('shows the free trial without requesting Stripe billing data or implying automatic charges', async ({
+  page,
+  api,
+}) => {
   await installAuthenticatedApp(page, api, {
-    onboarding: (id) => onboarding(id, {
-      accessSource: 'TRIAL',
-      trial: {
-        startsAt: new Date(Date.now() - 86400000).toISOString(),
-        expiresAt: new Date(Date.now() + 3 * 86400000).toISOString(),
-        convertedAt: null,
-        revokedAt: null,
-        remainingDays: 3,
-        active: true,
-      },
-    }),
+    onboarding: (id) =>
+      onboarding(id, {
+        accessSource: 'TRIAL',
+        trial: {
+          startsAt: new Date(Date.now() - 86400000).toISOString(),
+          expiresAt: new Date(Date.now() + 3 * 86400000).toISOString(),
+          convertedAt: null,
+          revokedAt: null,
+          remainingDays: 3,
+          active: true,
+        },
+      }),
   });
 
   await page.goto('/settings?tab=billing');
 
   const main = page.getByRole('main');
-  const trial = main.locator('section').filter({ has: page.getByRole('heading', { name: 'Avaliação gratuita', exact: true }) });
+  const trial = main
+    .locator('section')
+    .filter({ has: page.getByRole('heading', { name: 'Avaliação gratuita', exact: true }) });
 
   await expect(trial.getByText('3 dias restantes', { exact: true })).toBeVisible();
   await expect(trial.getByText('Sem compromisso financeiro', { exact: true })).toBeVisible();
-  await expect(trial.getByRole('link', { name: 'Escolher meu plano', exact: true })).toHaveAttribute('href', '/onboarding?organizationId=' + organizationId + '&subscribe=1');
+  await expect(trial.getByRole('link', { name: 'Escolher meu plano', exact: true })).toHaveAttribute(
+    'href',
+    '/onboarding?organizationId=' + organizationId + '&subscribe=1',
+  );
   expect(api.calls.filter((call) => call.path.startsWith(billingRoute))).toHaveLength(0);
 });

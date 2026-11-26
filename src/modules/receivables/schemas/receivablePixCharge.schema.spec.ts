@@ -12,7 +12,7 @@ const data = {
   currency: 'brl',
   merchantName: 'TEST',
   txid: 'A'.repeat(25),
-  copyAndPaste: '000201FIXTURE6304ABCD'
+  copyAndPaste: '000201FIXTURE6304ABCD',
 };
 
 describe('static Pix charge contract', () => {
@@ -26,7 +26,7 @@ describe('static Pix charge contract', () => {
       { receivingSettingsVersion: 0 },
       { txid: 'a'.repeat(25) },
       { copyAndPaste: 'invalid' },
-      { copyAndPaste: '000201\n6304ABCD' }
+      { copyAndPaste: '000201\n6304ABCD' },
     ]) {
       assert.equal(receivablePixChargeSchema.safeParse({ ...data, ...patch }).success, false);
     }

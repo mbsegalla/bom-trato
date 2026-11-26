@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { restoreSession } from '@/modules/auth/services/session.service';
 import { getAuthIdentityProviders, linkGoogleIdentity } from '@/modules/auth/services/authIdentity.service';
+import { restoreSession } from '@/modules/auth/services/session.service';
+
 import { mockHttp, sessionResponse, success } from '../../support/http.fixture';
 
 describe('auth identity HTTP boundary', () => {
@@ -45,7 +46,10 @@ describe('auth identity HTTP boundary', () => {
     assert.equal(calls.filter((call) => call.path === '/api/auth/identities').length, 2);
   });
 
-  for (const [status, message] of [[401, /sessão expirou/], [503, /conectar sua conta Google/]] as const) {
+  for (const [status, message] of [
+    [401, /sessão expirou/],
+    [503, /conectar sua conta Google/],
+  ] as const) {
     it('reports linking failure ' + status + ' and limits unauthorized replay', async (t) => {
       const calls = mockHttp(t, (call) => {
         if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });

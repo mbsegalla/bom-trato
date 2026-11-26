@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { createQuoteWhatsAppMessage, createQuoteWhatsAppUrl } from './quoteWhatsapp.helper';
 import type { Quote } from '../types/quote.types';
+import { createQuoteWhatsAppMessage, createQuoteWhatsAppUrl } from './quoteWhatsapp.helper';
 
 describe('quote WhatsApp sharing', () => {
   it('encodes the exact amount and private link, without changing the recipient', () => {
     const quote = {
       customerName: 'Cliente Teste',
       title: 'Revisao',
-      totalInCents: 123456
+      totalInCents: 123456,
     } as Quote;
     const link = 'https://web.example.invalid/quote-share#token=' + 'a'.repeat(64);
     const message = createQuoteWhatsAppMessage(quote, link);
