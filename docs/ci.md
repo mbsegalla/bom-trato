@@ -1,10 +1,10 @@
 # Continuous integration
 
-CI runs on pushes to `ci/preflight`, `develop` and `main`, and pull requests targeting `main`. It uses Node.js 24, the pnpm version declared in `package.json`, and the committed lockfile. The workflows are read-only, pin their actions to commit SHAs, and do not deploy or use production secrets.
+CI runs on pushes to `develop` and `main`, and pull requests targeting `main`. It uses Node.js 24, the pnpm version declared in `package.json`, and the committed lockfile. The workflows are read-only, pin their actions to commit SHAs, and do not deploy or use production secrets.
 
 ## Development workflow
 
-Keep one permanent `ci/preflight` branch for candidate validation. All release pull requests still use `develop -> main`. Before committing locally, run:
+Implement directly on `develop`, without intermediate branches. All release pull requests use `develop -> main`. Before committing locally, run:
 
 ```bash
 pnpm lint:fix
@@ -13,19 +13,16 @@ pnpm check
 pnpm build
 ```
 
-Run formatting **after** ESLint autofixes. Fix all failures instead of disabling Husky, lint rules, or required checks.
+Run formatting **after** ESLint autofixes. The repository owner validates and corrects lint/formatting locally before merging. ESLint, Prettier, `pnpm check` and Husky remain unchanged. CI deliberately does not run `pnpm check`, ESLint or Prettier; it runs `pnpm typecheck` and the functional checks below. A green CI is not evidence of a clean lint/format check.
 
-### Preflight and promotion
+### Development and release
 
-1. Inspect the current `develop`, `main` and `ci/preflight` heads and any open pull request. Start from the current `develop` and include any missing `main` changes when necessary. Never discard pending work on the preflight branch; resolve divergences deliberately.
-2. Run lint autofixes, formatting, checks, tests and build locally when dependencies are available. Publish the candidate to `ci/preflight`, not `develop`. The same read-only CI job runs with the same lockfile and configuration on all three branches.
-3. Verify a completed, successful push workflow for the exact candidate SHA on `ci/preflight`. If it fails, use the actual lint/formatting diff in the job logs and fix the candidate there. Revalidate every changed SHA. Do not promote a pending, skipped, canceled or failed candidate.
-4. Verify `develop` has not moved since the candidate was prepared and the candidate includes its head in its ancestry. Fast-forward `develop` to the exact approved commit using a non-force update with an expected-head guard. If `develop` or `main` changed in the meantime, review the new changes, integrate as needed and revalidate before promotion.
-5. Confirm the successful `develop` push workflow for the promoted SHA before opening or updating the release pull request. The PR's merge check must also pass. Do not merge to `main` automatically.
+1. Inspect the current `develop` and `main` heads and any open release pull request. Start from the current `develop`; integrate missing `main` changes when necessary without discarding work.
+2. Follow the repository's coding conventions. Run local lint and formatting checks when dependencies are available. Publish changes directly to `develop` using non-force updates with an expected-head guard.
+3. Verify the functional CI push run for the exact published commit. Fix any functional failures on `develop` and revalidate. Do not treat pending, skipped, canceled or failed checks as approval.
+4. Open a release pull request from `develop` to `main` only after successful functional CI. If one is already open, keep it and verify the checks on its latest head. The owner handles local lint and formatting before merging. Do not merge automatically.
 
-The preflight branch is reusable. Keep it in sync with the approved `develop` baseline between deliveries, preserving history and avoiding force pushes. A failed preflight run is useful feedback, not approval. If validation results are unavailable, stop before promotion.
-
-This is a promotion procedure, not a new GitHub branch restriction. It does not prevent someone with write access from pushing directly to `develop`. Keep production deployments restricted to their existing approved branch; review any external deployment provider's preview-branch settings separately.
+The `main` branch remains protected by its existing ruleset. No intermediate branch is required.
 
 PR checks validate the proposed merge into `main`. A successful push check does not replace this merge check. Repository administrators should require the validation job as a status check for `main`, without requiring PRs for pushes to `develop`. This workflow alone does not enforce branch protection.
 
@@ -33,6 +30,6 @@ See the repository Actions tab for run results and logs. No automatic deployment
 
 ## Frontend validation
 
-The `Frontend validation` job runs `pnpm check` and builds Next.js. It uses a loopback API address and nonfunctional public configuration placeholders. The build may download the project's existing Google Fonts through Next.js; it does not need a live Bom Trato API or real Stripe or Google credentials.
+The `Frontend validation` job runs `pnpm typecheck` and builds Next.js. It uses a loopback API address and nonfunctional public configuration placeholders. The build may download the project's existing Google Fonts through Next.js; it does not need a live Bom Trato API or real Stripe or Google credentials.
 
-The frontend currently has no automated test script or test suite configured. Add a real test suite separately before making automated frontend tests a mandatory check. Successful lint, formatting, typecheck and build do not replace browser or payment integration testing.
+The frontend currently has no automated test script or test suite configured. Add a real test suite separately before making automated frontend tests a mandatory check. Successful typecheck and build do not replace local lint/formatting, browser or payment integration testing.

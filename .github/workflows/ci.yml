@@ -3,7 +3,6 @@ name: Frontend CI
 on:
   push:
     branches:
-      - ci/preflight
       - develop
       - main
   pull_request:
@@ -53,16 +52,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Check code quality
-        id: quality
-        run: pnpm check
-
-      - name: Show lint and formatting fixes
-        if: failure() && steps.quality.outcome == 'failure'
-        run: |
-          pnpm lint:fix || true
-          pnpm format
-          git --no-pager diff --no-ext-diff
+      - name: Typecheck
+        run: pnpm typecheck
 
       - name: Build frontend
         run: pnpm build
