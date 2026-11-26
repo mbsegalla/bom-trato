@@ -1,5 +1,10 @@
 import { expect, success, test } from '../../support/api.fixture.mjs';
-import { installAuthenticatedApp, onboarding, organization, organizationId } from '../../support/authenticatedApp.fixture.mjs';
+import {
+  installAuthenticatedApp,
+  onboarding,
+  organization,
+  organizationId,
+} from '../../support/authenticatedApp.fixture.mjs';
 import { billingRoute, installBilling, invoice, subscription } from '../../support/settings.fixture.mjs';
 
 test('requires confirmation before disabling renewal and allows the owner to resume it', async ({ page, api }) => {
