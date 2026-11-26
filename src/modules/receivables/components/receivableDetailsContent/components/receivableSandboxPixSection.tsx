@@ -18,8 +18,10 @@ import { formatDateTime } from '@/shared/formatters/date.formatter';
 import { createReceivablePixQrCode } from '../../../helpers/receivablePixQrCode.helper';
 import { createReceivableSandboxPixSchema } from '../../../schemas/receivableSandboxPix.schema';
 import { getReceivableSandboxPix, issueReceivableSandboxPix } from '../../../services/receivableSandboxPix.service';
+import { getReceivableSandboxPixRecovery, recoverReceivableSandboxPix } from '../../../services/receivableSandboxPixRecovery.service';
 import type { Receivable } from '../../../types/receivable.types';
 import type { ReceivableSandboxPix } from '../../../types/receivableSandboxPix.types';
+import type { ReceivableSandboxPixRecovery, SandboxPixRecoveryStatus } from '../../../types/receivableSandboxPixRecovery.types';
 
 interface Props {
   receivable: Receivable;
@@ -30,7 +32,7 @@ export function ReceivableSandboxPixSection(props: Props) {
   const { activeOrganization, switchingOrganization } = useApp();
   if (activeOrganization.id !== props.receivable.organizationId || activeOrganization.role !== 'OWNER') return null;
 
-  return <SandboxPixPanel {...props} switchingOrganization={switchingOrganization} />;
+  return <SandboxPixPanel key={`${props.receivable.organizationId}:${props.receivable.id}`} {...props} switchingOrganization={switchingOrganization} />;
 }
 
 const labels: Record<ReceivableSandboxPix['status'], string> = {
@@ -42,6 +44,22 @@ const labels: Record<ReceivableSandboxPix['status'], string> = {
   STALE: 'Cobrança desatualizada',
 };
 
+const recoveryLabels: Record<SandboxPixRecoveryStatus, string> = {
+  IN_PROGRESS: 'Consulta em andamento',
+  ABANDONED: 'Consulta interrompida; tente novamente',
+  NOT_FOUND: 'Nenhum pagamento localizado pela referência',
+  AMBIGUOUS: 'Mais de um resultado encontrado; revisão necessária',
+  INVALID_PROVIDER_PAYMENT: 'Dados do pagamento divergentes',
+  PROVIDER_UNAVAILABLE: 'Consulta ao Mercado Pago indisponível',
+  CONNECTION_CHANGED: 'Conta ou autorização alterada durante a consulta',
+  BINDING_CONFLICT: 'Identificador já vinculado; revisão necessária',
+  VERIFIED_PENDING: 'Pagamento de teste pendente',
+  VERIFIED_APPROVED: 'Pagamento de teste aprovado',
+  VERIFIED_CLOSED: 'Pagamento de teste cancelado ou rejeitado',
+  VERIFIED_REFUNDED: 'Estorno ou contestação de teste',
+  VERIFIED_REVIEW_REQUIRED: 'Status do provedor exige revisão',
+};
+
 function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganization }: Props & { switchingOrganization: boolean }) {
   const router = useRouter();
   const mounted = useRef(false);
@@ -49,6 +67,8 @@ function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganizatio
   const [requestKey, setRequestKey] = useState(0);
   const [loaded, setLoaded] = useState<{ key: number; data: ReceivableSandboxPix } | null>(null);
   const [failure, setFailure] = useState<{ key: number; message: string } | null>(null);
+  const [reviewLoaded, setReviewLoaded] = useState<{ key: number; data: ReceivableSandboxPixRecovery } | null>(null);
+  const [reviewFailure, setReviewFailure] = useState<{ key: number; issuanceId: string; message: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -84,6 +104,33 @@ function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganizatio
   const readError = failure?.key === requestKey ? failure.message : null;
   const expiresAt = data?.expiresAt ?? null;
   const issuanceId = data?.issuanceId ?? null;
+  const review = reviewLoaded?.key === requestKey && reviewLoaded.data.issuanceId === issuanceId
+    ? reviewLoaded.data : null;
+  const reviewError = reviewFailure?.key === requestKey && reviewFailure.issuanceId === issuanceId
+    ? reviewFailure.message : null;
+
+  useEffect(() => {
+    if (issuanceId === null) return;
+    let active = true;
+
+    void getReceivableSandboxPixRecovery(receivable.organizationId, receivable.id)
+      .then((result) => {
+        if (active && result.issuanceId === issuanceId) setReviewLoaded({ key: requestKey, data: result });
+      })
+      .catch((cause: unknown) => {
+        if (!active) return;
+        if (cause instanceof SessionError && cause.status === 401) {
+          router.replace('/login');
+          return;
+        }
+        setReviewFailure({
+          key: requestKey, issuanceId,
+          message: cause instanceof Error ? cause.message : 'Não foi possível consultar a revisão.',
+        });
+      });
+
+    return () => { active = false; };
+  }, [issuanceId, receivable.organizationId, receivable.id, requestKey, router]);
 
   useEffect(() => {
     if (expiresAt === null || issuanceId === null) return;
@@ -154,6 +201,36 @@ function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganizatio
     }
   };
 
+  async function recover(): Promise<void> {
+    if (disabled || busyRef.current || !review?.canRecover || issuanceId === null) return;
+
+    busyRef.current = true;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await recoverReceivableSandboxPix(receivable.organizationId, receivable.id, issuanceId);
+      if (!mounted.current) return;
+      if (result.issuanceId !== issuanceId) {
+        setError('A referência da cobrança foi alterada. Consulte o status novamente.');
+      }
+    } catch (cause: unknown) {
+      if (!mounted.current) return;
+      if (cause instanceof SessionError && cause.status === 401) {
+        router.replace('/login');
+        return;
+      }
+      setError(cause instanceof Error ? cause.message : 'Consulta indisponível. Atualize o status.');
+    } finally {
+      busyRef.current = false;
+      if (mounted.current) {
+        // Fetch the authoritative issuance as well as the review; a QR may
+        // have been invalidated while the provider was consulted.
+        setRequestKey((value) => value + 1);
+        setBusy(false);
+      }
+    }
+  }
+
   async function copy(): Promise<void> {
     if (!code || !expiresAt || expiresAt.getTime() <= Date.now()) return;
     try {
@@ -192,7 +269,7 @@ function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganizatio
 
       {readError && <p role="alert" className="mt-3 text-sm text-destructive">{readError}</p>}
       {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
-      {busy && <p role="status" className="mt-3 flex items-center gap-2 text-sm"><LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> Emitindo cobrança de teste...</p>}
+      {busy && <p role="status" className="mt-3 flex items-center gap-2 text-sm"><LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> Processando cobrança de teste...</p>}
       {data && (
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-border bg-card p-4">
@@ -254,7 +331,51 @@ function SandboxPixPanel({ receivable, onReceivableChanged, switchingOrganizatio
           )}
           {status === 'PENDING' && code && !qr && <p role="alert" className="text-sm text-destructive">Não foi possível exibir o QR Code. Consulte a cobrança.</p>}
           {status && ['REVIEW_REQUIRED', 'EXPIRED', 'STALE', 'PROCESSING'].includes(status) && (
-            <p className="text-sm text-muted-foreground">A tentativa foi preservada. Nenhuma nova cobrança será emitida para este recebível até a conciliação.</p>
+            <p className="text-sm text-muted-foreground">A tentativa foi preservada. A consulta não libera uma nova cobrança nem gera outro QR Code.</p>
+          )}
+          {issuanceId && (review || reviewError) && (
+            <div className="space-y-3 rounded-xl border border-border bg-card p-4">
+              <div>
+                <h3 className="text-sm font-medium">Conciliação e revisão</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Consulte a cobrança existente na conta de teste, sem criar outro Pix ou alterar o saldo do recebível.
+                </p>
+              </div>
+              {reviewError && <p role="alert" className="text-sm text-destructive">{reviewError}</p>}
+              {review?.lastAttempt && (
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs font-medium text-muted-foreground">Última consulta ao Mercado Pago</p>
+                  <p className="mt-1 text-sm font-medium">{recoveryLabels[review.lastAttempt.status]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{formatDateTime(review.lastAttempt.completedAt ?? review.lastAttempt.startedAt)}</p>
+                  {review.lastAttempt.paymentId && (
+                    <p className="mt-1 break-all text-xs text-muted-foreground">Pagamento verificado: {review.lastAttempt.paymentId}</p>
+                  )}
+                </div>
+              )}
+              {review?.lastWebhook && (
+                <div className="rounded-lg border border-border p-3">
+                  <p className="text-xs font-medium text-muted-foreground">Última notificação vinculada e verificada</p>
+                  <p className="mt-1 text-sm font-medium">{recoveryLabels[review.lastWebhook.status]}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Recebida em {formatDateTime(review.lastWebhook.receivedAt)}</p>
+                </div>
+              )}
+              {review?.lastAttempt?.status === 'NOT_FOUND' && (
+                <p className="text-xs text-muted-foreground">A ausência de resultados não comprova que o Pix não existe. A referência permanece bloqueada.</p>
+              )}
+              {review && (
+                <>
+                  <Button type="button" variant="outline" disabled={disabled || !review.canRecover} onClick={() => void recover()} className="cursor-pointer">
+                    <RefreshCw aria-hidden="true" className="size-4" /> Consultar no Mercado Pago
+                  </Button>
+                  {!review.canRecover && review.nextRecoveryAt && (
+                    <p className="text-xs text-muted-foreground">Próxima consulta a partir de {formatDateTime(review.nextRecoveryAt)}. Atualize o status para tentar novamente.</p>
+                  )}
+                  {!review.canRecover && !review.nextRecoveryAt && (
+                    <p className="text-xs text-muted-foreground">Confira a conexão de teste e as permissões da organização.</p>
+                  )}
+                </>
+              )}
+            </div>
           )}
           <div className="flex items-start gap-2 text-xs text-muted-foreground">
             <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
