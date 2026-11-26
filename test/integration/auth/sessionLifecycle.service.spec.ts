@@ -204,4 +204,93 @@ describe('session lifecycle contracts', () => {
     assert.equal(refreshes, 3);
     assert.equal(calls.filter((call) => call.path === '/api/protected')[0]?.headers.get('Authorization'), 'Bearer token-3');
   });
+  for (const [code, message] of [
+    ['GOOGLE_ACCOUNT_LINK_REQUIRED', /conta já existe/],
+    ['GOOGLE_EMAIL_MISMATCH', /mesmo e-mail/],
+    ['GOOGLE_IDENTITY_IN_USE', /já está vinculada/],
+    ['GOOGLE_PROVIDER_ALREADY_LINKED', /já está vinculada/],
+    ['TERMS_ACCEPTANCE_REQUIRED', /aceite os Termos/],
+    ['LEGAL_DOCUMENT_VERSION_OUTDATED', /Termos de Uso foram atualizados/],
+  ] as const) {
+    it('preserves Google authentication restriction ' + code, async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        return Response.json({ error: { code } }, { status: 409 });
+      });
+      await assert.rejects(loginWithGoogle('fixture-credential'), (error: unknown) =>
+        error instanceof SessionError && error.status === 409 && error.code === code && message.test(error.message));
+      assert.equal(calls.filter((call) => call.path === '/api/auth/google').length, 1);
+      assert.deepEqual(JSON.parse(String(calls[1]?.body)), { credential: 'fixture-credential', selectedPlanPriceId: null });
+    });
+  }
+
+  for (const [status, message] of [[401, /validar sua conta Google/], [403, /validar sua conta Google/], [500, /entrar com Google/]] as const) {
+    it('maps generic Google failure ' + status + ' with correct uncertainty', async (t) => {
+      mockHttp(t, (call) => call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }));
+      await assert.rejects(loginWithGoogle('fixture-credential'), (error: unknown) =>
+        error instanceof SessionError && error.status === status && error.uncertain === (status >= 500) && message.test(error.message));
+    });
+  }
+
+  for (const [status, message] of [[403, /Confirme seu e-mail/], [500, /Não foi possível entrar/]] as const) {
+    it('reports login failure ' + status + ' without silently retrying', async (t) => {
+      const calls = mockHttp(t, (call) => call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : new Response(null, { status }));
+      await assert.rejects(login(user.email, 'fixture-password'), message);
+      assert.equal(calls.filter((call) => call.path === '/api/auth/login').length, 1);
+    });
+  }
+
+  it('does not start login while CSRF is rate limited', async (t) => {
+    const calls = mockHttp(t, () => new Response(null, { status: 429 }));
+    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
+      error instanceof SessionError && error.status === 429 && !error.uncertain);
+    assert.deepEqual(calls.map((call) => call.path), ['/api/auth/csrf']);
+  });
+
+  it('marks a malformed login success or interrupted submission as uncertain', async (t) => {
+    let interrupted = false;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (interrupted) throw new Error('fixture transport failure');
+      return success({ invalid: true });
+    });
+    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
+      error instanceof SessionError && error.uncertain && error.status === 0);
+    interrupted = true;
+    await assert.rejects(login(user.email, 'fixture-password'), (error: unknown) =>
+      error instanceof SessionError && error.uncertain && error.status === 0);
+    assert.equal(calls.filter((call) => call.path === '/api/auth/login').length, 2);
+  });
+
+  it('clears failed account and session read flights and rejects malformed payloads', async (t) => {
+    let malformed = false;
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return malformed ? success({ invalid: true }) : new Response(null, { status: 503 });
+    });
+    await restoreSession();
+    await assert.rejects(getCurrentUser(), /carregar sua conta/);
+    await assert.rejects(listSessions(), /carregar suas sessões/);
+    malformed = true;
+    await assert.rejects(getCurrentUser(), /ler sua conta/);
+    await assert.rejects(listSessions(), /interpretar suas sessões/);
+  });
+
+  it('does not discard the current session when logout or revocation fails transiently', async (t) => {
+    let refreshes = 0;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse('token-' + ++refreshes);
+      if (call.path === '/api/protected') return success({});
+      return new Response(null, { status: 503 });
+    });
+    await restoreSession();
+    await assert.rejects(logout(), /encerrar sua sessão/);
+    await assert.rejects(logoutAll(), /encerrar todas as sessões/);
+    await assert.rejects(revokeSession(receivableId, true), /encerrar esta sessão/);
+    await authenticatedFetch('/api/protected');
+    assert.equal(refreshes, 1);
+    assert.equal(calls.at(-1)?.headers.get('Authorization'), 'Bearer token-1');
+  });
 });
