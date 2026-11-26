@@ -16,7 +16,8 @@
     "test": "node test/run.mjs",
     "test:unit": "node test/run.mjs src",
     "test:integration": "node test/run.mjs test/integration",
-    "test:coverage": "node test/run.mjs --coverage"
+    "test:coverage": "node test/coverageInventory.mjs",
+    "test:browser": "npm --prefix test/browser test"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
