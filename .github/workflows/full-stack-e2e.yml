@@ -1,0 +1,132 @@
+name: Full-stack E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    paths:
+      - .github/full-stack-check.json
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-stack-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full-stack:
+    name: Real frontend and backend journeys
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      HUSKY: '0'
+      NEXT_TELEMETRY_DISABLED: '1'
+      BOM_TRATO_E2E: '1'
+      DATABASE_URL: postgresql://bom_trato_e2e:e2e_only_password@127.0.0.1:5432/bom_trato_e2e?schema=public
+      E2E_API_ROOT: ${{ github.workspace }}/backend
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: bom_trato_e2e
+          POSTGRES_PASSWORD: e2e_only_password
+          POSTGRES_DB: bom_trato_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bom_trato_e2e -d bom_trato_e2e"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout frontend
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          path: frontend
+          persist-credentials: false
+
+      - name: Resolve pinned backend revision
+        id: revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          backend_ref="$(jq -r '.backendRef' frontend/.github/full-stack-check.json)"
+          [[ "$backend_ref" =~ ^[0-9a-f]{40}$ ]]
+          echo "backend_ref=$backend_ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout exact backend commit
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          repository: mbsegalla/bom-trato-api
+          ref: ${{ steps.revisions.outputs.backend_ref }}
+          path: backend
+          persist-credentials: false
+
+      - name: Record the tested revisions
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Frontend: $(git -C frontend rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Backend: $(git -C backend rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6
+        with:
+          package_json_file: frontend/package.json
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: |
+            backend/pnpm-lock.yaml
+            frontend/pnpm-lock.yaml
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare disposable database and build API
+        working-directory: backend
+        run: |
+          pnpm exec prisma validate
+          pnpm prisma:generate
+          pnpm exec prisma migrate deploy
+          pnpm build
+
+      - name: Install isolated full-stack browser tooling
+        working-directory: frontend
+        run: npm install --prefix test/e2e --package-lock=false --ignore-scripts --no-audit --no-fund
+
+      - name: Install Chromium
+        working-directory: frontend
+        run: npm --prefix test/e2e exec -- playwright install --with-deps chromium
+
+      - name: Run real full-stack journeys
+        working-directory: frontend
+        shell: bash
+        run: |
+          set -o pipefail
+          mkdir -p test/e2e/logs
+          pnpm test:e2e 2>&1 | tee test/e2e/logs/full-stack.log
+
+      - name: Upload full-stack report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: full-stack-e2e-report
+          path: |
+            frontend/test/e2e/playwright-report/
+            frontend/test/e2e/test-results/
+            frontend/test/e2e/logs/
+          if-no-files-found: ignore
+          retention-days: 14

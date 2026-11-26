@@ -45,3 +45,7 @@ next-env.d.ts
 /test/browser/node_modules/
 /test/browser/test-results/
 /test/browser/playwright-report/
+/test/e2e/node_modules/
+/test/e2e/test-results/
+/test/e2e/playwright-report/
+/test/e2e/logs/
