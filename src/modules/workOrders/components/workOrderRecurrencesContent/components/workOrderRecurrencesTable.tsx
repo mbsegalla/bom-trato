@@ -89,12 +89,23 @@ export function WorkOrderRecurrencesTable({
                       >
                         {item.title}
                       </Link>
+                      {recurrence.lastGeneratedQuoteId && (
+                        <Link
+                          href={`/quotes/${recurrence.lastGeneratedQuoteId}`}
+                          className="mt-1 block text-xs text-primary hover:underline"
+                        >
+                          Último orçamento gerado
+                        </Link>
+                      )}
                     </td>
 
                     <td className="px-5 py-3.5 align-middle text-sm">{item.customerName}</td>
 
                     <td className="px-5 py-3.5 text-center align-middle text-sm">
-                      {formatFrequency(recurrence)}
+                      <p>{formatFrequency(recurrence)}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {recurrence.autoGenerateEnabled ? 'Geração automática configurada' : 'Geração manual'}
+                      </p>
                     </td>
 
                     <td className="px-5 py-3.5 text-center align-middle text-sm">

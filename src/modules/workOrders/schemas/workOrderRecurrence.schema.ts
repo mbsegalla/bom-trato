@@ -17,13 +17,20 @@ const recurrenceFieldsSchema = z.object({
   enabled: z.boolean(),
 });
 
-export const workOrderRecurrenceFormSchema = recurrenceFieldsSchema.refine(
-  ({ intervalUnit, intervalCount }) => intervalCount <= workOrderRecurrenceLimits[intervalUnit],
-  { path: ['intervalCount'], message: 'A frequência ultrapassa o limite da unidade escolhida.' },
-);
+export const workOrderRecurrenceFormSchema = recurrenceFieldsSchema
+  .extend({ autoGenerateEnabled: z.boolean().optional() })
+  .refine(({ intervalUnit, intervalCount }) => intervalCount <= workOrderRecurrenceLimits[intervalUnit], {
+    path: ['intervalCount'],
+    message: 'A frequência ultrapassa o limite da unidade escolhida.',
+  });
 
 export const workOrderRecurrenceSchema = recurrenceFieldsSchema
-  .extend({ version: z.number().int().min(1).max(2147483647) })
+  .extend({
+    version: z.number().int().min(1).max(2147483647),
+    autoGenerateEnabled: z.boolean(),
+    lastGeneratedQuoteId: z.uuid().nullable(),
+    lastGeneratedVisitOn: visitDateSchema.nullable(),
+  })
   .refine(({ intervalUnit, intervalCount }) => intervalCount <= workOrderRecurrenceLimits[intervalUnit]);
 
 export const workOrderRecurrenceViewSchema = z.object({
