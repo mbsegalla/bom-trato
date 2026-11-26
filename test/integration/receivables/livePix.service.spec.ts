@@ -109,4 +109,60 @@ describe('live Pix HTTP service', () => {
     assert.equal(requests[1].method, 'POST');
     assert.deepEqual(JSON.parse(String(requests[1].body)), issue);
   });
+  it('rejects a response belonging to a different receivable', async (t) => {
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path === route) return success({ ...view, receivableId: organizationId });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    await assert.rejects(getReceivableLivePix(organizationId, receivableId), /interpretar/);
+  });
+
+  it('reports invalid payer input without retrying the issuance', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path === route) return new Response(null, { status: 400 });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    await assert.rejects(issueReceivableLivePix(organizationId, receivableId, issue), /dados do pagador/);
+    assert.equal(calls.filter((call) => call.path === route).length, 1);
+  });
+
+  it('preserves ownership restrictions on the recovery endpoint', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path === route + '/recovery') return new Response(null, { status: 403 });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    await assert.rejects(recoverReceivableLivePix(organizationId, receivableId, issuanceId), /proprietário autorizado/);
+    assert.equal(calls.filter((call) => call.path === route + '/recovery').length, 1);
+    assert.equal(calls.filter((call) => call.path === route).length, 0);
+  });
+
+  it('does not turn an uncertain recovery into a new issuance', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      if (call.path === route + '/recovery') return new Response(null, { status: 503 });
+      throw new Error('Unexpected request: ' + call.path);
+    });
+
+    await restoreSession();
+
+    await assert.rejects(recoverReceivableLivePix(organizationId, receivableId, issuanceId), /não gere outra cobrança/);
+    assert.equal(calls.filter((call) => call.path === route + '/recovery').length, 1);
+    assert.equal(calls.filter((call) => call.path === route).length, 0);
+  });
 });
