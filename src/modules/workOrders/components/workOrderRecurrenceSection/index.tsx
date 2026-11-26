@@ -349,6 +349,11 @@ export function WorkOrderRecurrenceSection({ organizationId, workOrderId }: Work
             cobrança automática.
           </p>
 
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+            Quando os lembretes estiverem habilitados na plataforma, o administrador receberá avisos na central de
+            notificações. Nenhuma mensagem será enviada ao cliente.
+          </p>
+
           {data.recurrence?.lastGeneratedQuoteId && (
             <div className="mt-5 rounded-xl border border-border bg-muted/30 p-4 text-sm">
               <p className="font-medium">Último orçamento gerado automaticamente</p>
