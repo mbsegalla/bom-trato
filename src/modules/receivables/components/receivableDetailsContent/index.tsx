@@ -20,11 +20,11 @@ import type { Receivable } from '@/modules/receivables/types/receivable.types';
 import { ReceivableChargeSection } from './components/receivableChargeSection';
 import { ReceivableContextCards } from './components/receivableContextCards';
 import { ReceivableDetailsHeader } from './components/receivableDetailsHeader';
+import { ReceivableLivePixSection } from './components/receivableLivePixSection';
 import { ReceivableMetrics } from './components/receivableMetrics';
 import { ReceivablePaymentLinkSection } from './components/receivablePaymentLinkSection';
-import { ReceivableSandboxPixSection } from './components/receivableSandboxPixSection';
-import { ReceivableLivePixSection } from './components/receivableLivePixSection';
 import { ReceivablePixChargeSection } from './components/receivablePixChargeSection';
+import { ReceivableSandboxPixSection } from './components/receivableSandboxPixSection';
 
 interface OrganizationReceivableDetailsProps {
   organizationId: string;

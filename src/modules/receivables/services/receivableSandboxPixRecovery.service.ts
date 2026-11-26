@@ -9,11 +9,16 @@ async function request(
   issuanceId?: string,
 ): Promise<ReceivableSandboxPixRecovery> {
   const path = `/api/organizations/${encodeURIComponent(organizationId)}/receivables/${encodeURIComponent(receivableId)}/mercado-pago/sandbox-pix/recovery`;
-  const response = await authenticatedFetch(path, issuanceId === undefined ? {} : {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ issuanceId }),
-  });
+  const response = await authenticatedFetch(
+    path,
+    issuanceId === undefined
+      ? {}
+      : {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ issuanceId }),
+        },
+  );
 
   if (response.status === 401) {
     throw new SessionError('Sua sessão expirou. Entre novamente.', 401);

@@ -3,8 +3,8 @@
 import { Clipboard, LoaderCircle, QrCode, RefreshCw, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ComponentProps } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,11 @@ import { formatDateTime } from '@/shared/formatters/date.formatter';
 
 import { createReceivablePixQrCode } from '../../../helpers/receivablePixQrCode.helper';
 import { createReceivableLivePixSchema } from '../../../schemas/receivableLivePix.schema';
-import { getReceivableLivePix, issueReceivableLivePix, recoverReceivableLivePix } from '../../../services/receivableLivePix.service';
+import {
+  getReceivableLivePix,
+  issueReceivableLivePix,
+  recoverReceivableLivePix,
+} from '../../../services/receivableLivePix.service';
 import type { Receivable } from '../../../types/receivable.types';
 import type { ReceivableLivePix } from '../../../types/receivableLivePix.types';
 
@@ -30,7 +34,13 @@ export function ReceivableLivePixSection(props: Props) {
   const { activeOrganization, switchingOrganization } = useApp();
   if (activeOrganization.id !== props.receivable.organizationId || activeOrganization.role !== 'OWNER') return null;
 
-  return <LivePixPanel key={`${props.receivable.organizationId}:${props.receivable.id}`} {...props} switchingOrganization={switchingOrganization} />;
+  return (
+    <LivePixPanel
+      key={`${props.receivable.organizationId}:${props.receivable.id}`}
+      {...props}
+      switchingOrganization={switchingOrganization}
+    />
+  );
 }
 
 const labels: Record<ReceivableLivePix['status'], string> = {
@@ -77,7 +87,11 @@ function reviewLabel(code: string): string {
   return reviewLabels[code] ?? 'Resultado requer acompanhamento';
 }
 
-function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }: Props & { switchingOrganization: boolean }) {
+function LivePixPanel({
+  receivable,
+  onReceivableChanged,
+  switchingOrganization,
+}: Props & { switchingOrganization: boolean }) {
   const router = useRouter();
   const mounted = useRef(false);
   const busyRef = useRef(false);
@@ -94,7 +108,9 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
 
   useEffect(() => {
     mounted.current = true;
-    return () => { mounted.current = false; };
+    return () => {
+      mounted.current = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -109,10 +125,15 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
           router.replace('/login');
           return;
         }
-        setFailure({ key: requestKey, message: cause instanceof Error ? cause.message : 'Não foi possível consultar o Pix integrado.' });
+        setFailure({
+          key: requestKey,
+          message: cause instanceof Error ? cause.message : 'Não foi possível consultar o Pix integrado.',
+        });
       });
 
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [receivable.organizationId, receivable.id, requestKey, router]);
 
   const data = loaded?.key === requestKey ? loaded.data : null;
@@ -131,18 +152,32 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
 
   useEffect(() => {
     if (expiresAt === null || issuanceId === null) return;
-    const timer = window.setTimeout(() => setExpiredIssuance(issuanceId), Math.max(0, expiresAt.getTime() - Date.now()));
+    const timer = window.setTimeout(
+      () => setExpiredIssuance(issuanceId),
+      Math.max(0, expiresAt.getTime() - Date.now()),
+    );
     return () => window.clearTimeout(timer);
   }, [expiresAt, issuanceId]);
 
   const currentVersion = data?.receivableVersion === receivable.version;
   const expired = issuanceId !== null && expiredIssuance === issuanceId;
-  const code = data?.status === 'PENDING' && data.available && currentVersion &&
-    data.amountInCents === receivable.balanceInCents && !expired && !switchingOrganization && !busy
-    ? data.copyAndPaste : null;
+  const code =
+    data?.status === 'PENDING' &&
+    data.available &&
+    currentVersion &&
+    data.amountInCents === receivable.balanceInCents &&
+    !expired &&
+    !switchingOrganization &&
+    !busy
+      ? data.copyAndPaste
+      : null;
   const qr = useMemo(() => {
     if (!code) return null;
-    try { return createReceivablePixQrCode(code); } catch { return null; }
+    try {
+      return createReceivablePixQrCode(code);
+    } catch {
+      return null;
+    }
   }, [code]);
 
   const disabled = switchingOrganization || busy || data === null;
@@ -239,8 +274,12 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
       const fresh = await getReceivableLivePix(receivable.organizationId, receivable.id);
       if (!mounted.current) return;
       if (
-        fresh.status !== 'PENDING' || !fresh.copyAndPaste || fresh.copyAndPaste !== code ||
-        fresh.receivableVersion !== receivable.version || !fresh.expiresAt || fresh.expiresAt.getTime() <= Date.now()
+        fresh.status !== 'PENDING' ||
+        !fresh.copyAndPaste ||
+        fresh.copyAndPaste !== code ||
+        fresh.receivableVersion !== receivable.version ||
+        !fresh.expiresAt ||
+        fresh.expiresAt.getTime() <= Date.now()
       ) {
         setRequestKey((value) => value + 1);
         onReceivableChanged();
@@ -272,34 +311,69 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
             <span className="rounded-full border border-border px-2 py-0.5 text-xs font-medium">Produção</span>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Cobrança real na conta conectada. Emita apenas com autorização do pagador. A baixa depende da confirmação do Mercado Pago.
+            Cobrança real na conta conectada. Emita apenas com autorização do pagador. A baixa depende da confirmação do
+            Mercado Pago.
           </p>
-          <Link href="/settings?tab=receiving" className="mt-2 inline-block text-sm font-medium text-primary hover:underline">
+          <Link
+            href="/settings?tab=receiving"
+            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          >
             Configurar Mercado Pago
           </Link>
         </div>
-        <Button type="button" variant="outline" disabled={switchingOrganization || busy} onClick={reload} className="cursor-pointer">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={switchingOrganization || busy}
+          onClick={reload}
+          className="cursor-pointer"
+        >
           <RefreshCw aria-hidden="true" className="size-4" />
           Atualizar status
         </Button>
       </div>
 
-      {readError && <p role="alert" className="mt-3 text-sm text-destructive">{readError}</p>}
-      {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
-      {busy && <p role="status" className="mt-3 flex items-center gap-2 text-sm"><LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> Consultando cobrança...</p>}
+      {readError && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          {readError}
+        </p>
+      )}
+      {error && (
+        <p role="alert" className="mt-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+      {busy && (
+        <p role="status" className="mt-3 flex items-center gap-2 text-sm">
+          <LoaderCircle aria-hidden="true" className="size-4 animate-spin" /> Consultando cobrança...
+        </p>
+      )}
       {data && (
         <div className="mt-4 space-y-4">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-sm font-medium">{status ? labels[status] : ''}</p>
-            {data.amountInCents !== null && <p className="mt-1 font-heading text-xl font-semibold">{formatBrlCurrency(data.amountInCents)}</p>}
-            {data.issuanceId && <p className="mt-2 text-xs break-all text-muted-foreground">Referência: {data.issuanceId}</p>}
-            {data.paymentId && <p className="mt-1 text-xs text-muted-foreground">Pagamento no Mercado Pago: {data.paymentId}</p>}
+            {data.amountInCents !== null && (
+              <p className="mt-1 font-heading text-xl font-semibold">{formatBrlCurrency(data.amountInCents)}</p>
+            )}
+            {data.issuanceId && (
+              <p className="mt-2 text-xs break-all text-muted-foreground">Referência: {data.issuanceId}</p>
+            )}
+            {data.paymentId && (
+              <p className="mt-1 text-xs text-muted-foreground">Pagamento no Mercado Pago: {data.paymentId}</p>
+            )}
             {expiresAt && <p className="mt-1 text-xs text-muted-foreground">Validade: {formatDateTime(expiresAt)}</p>}
           </div>
 
-          {!currentVersion && <Button type="button" variant="outline" onClick={onReceivableChanged}>Atualizar recebível</Button>}
+          {!currentVersion && (
+            <Button type="button" variant="outline" onClick={onReceivableChanged}>
+              Atualizar recebível
+            </Button>
+          )}
           {data.status === 'NOT_ISSUED' && !data.canIssue && (
-            <p className="text-sm text-muted-foreground">Emissão ainda não liberada ou indisponível para esta conta e recebível. Confira as permissões, a conexão e a liberação do ambiente.</p>
+            <p className="text-sm text-muted-foreground">
+              Emissão ainda não liberada ou indisponível para esta conta e recebível. Confira as permissões, a conexão e
+              a liberação do ambiente.
+            </p>
           )}
           {canIssue && (
             <form onSubmit={submit} className="space-y-3 rounded-xl border border-border bg-card p-4">
@@ -307,22 +381,50 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="block space-y-1 text-sm">
                   E-mail do pagador
-                  <Input type="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="off" />
+                  <Input
+                    type="email"
+                    required
+                    maxLength={254}
+                    value={email}
+                    onChange={(event) => setEmail(event.target.value)}
+                    autoComplete="off"
+                  />
                 </label>
                 <label className="block space-y-1 text-sm">
                   Tipo de documento
-                  <select value={documentType} onChange={(event) => { setDocumentType(event.target.value === 'CNPJ' ? 'CNPJ' : 'CPF'); setDocument(''); }} className="block h-8 w-full rounded-lg border border-input bg-background px-2.5">
+                  <select
+                    value={documentType}
+                    onChange={(event) => {
+                      setDocumentType(event.target.value === 'CNPJ' ? 'CNPJ' : 'CPF');
+                      setDocument('');
+                    }}
+                    className="block h-8 w-full rounded-lg border border-input bg-background px-2.5"
+                  >
                     <option value="CPF">CPF</option>
                     <option value="CNPJ">CNPJ</option>
                   </select>
                 </label>
                 <label className="block space-y-1 text-sm sm:col-span-2">
                   Documento do pagador (somente números)
-                  <Input type="text" inputMode="numeric" required maxLength={documentType === 'CPF' ? 11 : 14} value={document} onChange={(event) => setDocument(event.target.value.replace(/\D/g, ''))} autoComplete="off" />
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    maxLength={documentType === 'CPF' ? 11 : 14}
+                    value={document}
+                    onChange={(event) => setDocument(event.target.value.replace(/\D/g, ''))}
+                    autoComplete="off"
+                  />
                 </label>
               </div>
               <label className="flex items-start gap-2 text-sm">
-                <input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} className="mt-1" required />
+                <input
+                  type="checkbox"
+                  checked={confirmed}
+                  onChange={(event) => setConfirmed(event.target.checked)}
+                  className="mt-1"
+                  required
+                />
                 Confirmo a emissão de uma cobrança real neste valor, com os dados autorizados do pagador.
               </label>
               <Button type="submit" disabled={!confirmed || !canIssue} className="cursor-pointer">
@@ -333,32 +435,57 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
 
           {code && qr && (
             <div className="grid items-start gap-5 rounded-xl border border-border bg-background p-4 sm:grid-cols-[auto_minmax(0,1fr)]">
-              <svg role="img" aria-label="QR Code Pix para pagamento" viewBox={`0 0 ${qr.size} ${qr.size}`} shapeRendering="crispEdges" className="mx-auto size-56 max-w-full bg-white sm:mx-0">
+              <svg
+                role="img"
+                aria-label="QR Code Pix para pagamento"
+                viewBox={`0 0 ${qr.size} ${qr.size}`}
+                shapeRendering="crispEdges"
+                className="mx-auto size-56 max-w-full bg-white sm:mx-0"
+              >
                 <rect width={qr.size} height={qr.size} fill="#fff" />
                 <path d={qr.path} fill="#000" />
               </svg>
               <div className="min-w-0">
-                <label htmlFor="live-pix-code" className="block text-sm font-medium">Pix Copia e Cola</label>
-                <Textarea id="live-pix-code" value={code} readOnly spellCheck={false} className="mt-2 min-h-24 font-mono text-xs break-all" />
+                <label htmlFor="live-pix-code" className="block text-sm font-medium">
+                  Pix Copia e Cola
+                </label>
+                <Textarea
+                  id="live-pix-code"
+                  value={code}
+                  readOnly
+                  spellCheck={false}
+                  className="mt-2 min-h-24 font-mono text-xs break-all"
+                />
                 <Button type="button" variant="outline" onClick={() => void copy()} className="mt-3 cursor-pointer">
                   <Clipboard aria-hidden="true" className="size-4" /> Copiar código Pix
                 </Button>
               </div>
             </div>
           )}
-          {status === 'PENDING' && code && !qr && <p role="alert" className="text-sm text-destructive">Não foi possível exibir o QR Code. Consulte a cobrança.</p>}
+          {status === 'PENDING' && code && !qr && (
+            <p role="alert" className="text-sm text-destructive">
+              Não foi possível exibir o QR Code. Consulte a cobrança.
+            </p>
+          )}
           {status && ['REVIEW_REQUIRED', 'EXPIRED', 'STALE', 'PROCESSING'].includes(status) && (
-            <p className="text-sm text-muted-foreground">A tentativa foi preservada. A consulta não libera uma nova cobrança nem gera outro QR Code.</p>
+            <p className="text-sm text-muted-foreground">
+              A tentativa foi preservada. A consulta não libera uma nova cobrança nem gera outro QR Code.
+            </p>
           )}
           {issuanceId && (
             <div className="space-y-3 rounded-xl border border-border bg-card p-4">
               <div>
                 <h3 className="text-sm font-medium">Conciliação e revisão</h3>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Consulte a cobrança existente. Uma confirmação válida pode registrar a baixa; a consulta nunca emite outro Pix.
+                  Consulte a cobrança existente. Uma confirmação válida pode registrar a baixa; a consulta nunca emite
+                  outro Pix.
                 </p>
               </div>
-              {data.reviewCode && <p role="status" className="text-sm font-medium">{reviewLabel(data.reviewCode)}</p>}
+              {data.reviewCode && (
+                <p role="status" className="text-sm font-medium">
+                  {reviewLabel(data.reviewCode)}
+                </p>
+              )}
               {data.lastRecoveryCode && (
                 <div className="rounded-lg border border-border p-3">
                   <p className="text-xs font-medium text-muted-foreground">Última consulta ao Mercado Pago</p>
@@ -372,13 +499,24 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
                 </div>
               )}
               {data.lastRecoveryCode === 'NOT_FOUND' && (
-                <p className="text-xs text-muted-foreground">A ausência de resultados não comprova que o Pix não existe. Não emita outra cobrança.</p>
+                <p className="text-xs text-muted-foreground">
+                  A ausência de resultados não comprova que o Pix não existe. Não emita outra cobrança.
+                </p>
               )}
-              <Button type="button" variant="outline" disabled={disabled || !data.canRecover} onClick={() => void recover()} className="cursor-pointer">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={disabled || !data.canRecover}
+                onClick={() => void recover()}
+                className="cursor-pointer"
+              >
                 <RefreshCw aria-hidden="true" className="size-4" /> Consultar no Mercado Pago
               </Button>
               {!data.canRecover && data.nextRecoveryAt && (
-                <p className="text-xs text-muted-foreground">Próxima consulta a partir de {formatDateTime(data.nextRecoveryAt)}. Atualize o status para tentar novamente.</p>
+                <p className="text-xs text-muted-foreground">
+                  Próxima consulta a partir de {formatDateTime(data.nextRecoveryAt)}. Atualize o status para tentar
+                  novamente.
+                </p>
               )}
               {!data.canRecover && !data.nextRecoveryAt && (
                 <p className="text-xs text-muted-foreground">Confira a conexão e as permissões de conciliação.</p>
@@ -387,7 +525,10 @@ function LivePixPanel({ receivable, onReceivableChanged, switchingOrganization }
           )}
           <div className="flex items-start gap-2 text-xs text-muted-foreground">
             <ShieldCheck aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
-            <p>O código não comprova pagamento. Aguarde a conciliação e não registre manualmente o mesmo pagamento. Divergências e estornos exigem revisão.</p>
+            <p>
+              O código não comprova pagamento. Aguarde a conciliação e não registre manualmente o mesmo pagamento.
+              Divergências e estornos exigem revisão.
+            </p>
           </div>
         </div>
       )}
