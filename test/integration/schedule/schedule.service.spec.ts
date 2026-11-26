@@ -72,4 +72,75 @@ describe('schedule pagination and range', () => {
     await assert.rejects(listSchedule(organizationId, { from: to, to: from }, filters), /período da agenda/);
     assert.equal(calls.length, 0);
   });
+  for (const [status, message] of [
+    [400, /período selecionado/], [403, /permissão/], [503, /agenda está sendo atualizada/], [500, /carregar os agendamentos/],
+  ] as const) {
+    it('surfaces schedule HTTP ' + status + ' without retrying or retaining a failed flight', async (t) => {
+      let failed = true;
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        if (failed) return new Response(null, { status });
+        const query = new URLSearchParams(call.path.split('?')[1]);
+        return success({ items: [], page: 1, hasMore: false, generatedAt: from.toISOString(), from: query.get('from'), to: query.get('to') });
+      });
+      await restoreSession();
+      const range = { from, to: new Date(from.getTime() + 86400000) };
+      await assert.rejects(listSchedule(organizationId, range, filters), message);
+      failed = false;
+      assert.deepEqual((await listSchedule(organizationId, range, filters)).items, []);
+      assert.equal(calls.filter((call) => call.path.includes('/schedule?')).length, 2);
+    });
+  }
+
+  for (const late of ['LATE', 'ON_TIME'] as const) {
+    it('encodes assigned user, status and ' + late + ' filter without changing range boundaries', async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        const query = new URLSearchParams(call.path.split('?')[1]);
+        return success({ items: [], page: 1, hasMore: false, generatedAt: from.toISOString(), from: query.get('from'), to: query.get('to') });
+      });
+      await restoreSession();
+      const range = { from, to: new Date(from.getTime() + 86400000) };
+      await listSchedule(organizationId, range, { assignedToId: issuanceId, status: 'SCHEDULED', late });
+      const request = calls.find((call) => call.path.includes('/schedule?'))!;
+      const query = new URLSearchParams(request.path.split('?')[1]);
+      assert.equal(query.get('assignedToId'), issuanceId);
+      assert.equal(query.get('status'), 'SCHEDULED');
+      assert.equal(query.get('late'), late === 'LATE' ? 'true' : 'false');
+      assert.equal(query.get('from'), range.from.toISOString());
+      assert.equal(query.get('to'), range.to.toISOString());
+    });
+  }
+
+  it('sorts merged results and selects the latest generation timestamp across chunks', async (t) => {
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      const query = new URLSearchParams(call.path.split('?')[1]);
+      const start = query.get('from')!;
+      const first = start === from.toISOString();
+      return success({
+        items: first ? [{ ...item, scheduledStartAt: '2026-01-04T12:00:00Z', scheduledEndAt: '2026-01-04T13:00:00Z' },
+          { ...item, id: issuanceId, scheduledStartAt: '2026-01-02T12:00:00Z', scheduledEndAt: '2026-01-02T13:00:00Z' }] : [],
+        page: 1, hasMore: false, generatedAt: first ? '2026-01-01T00:00:00Z' : '2026-01-02T00:00:00Z',
+        from: start, to: query.get('to'),
+      });
+    });
+    await restoreSession();
+    const result = await listSchedule(organizationId, { from, to }, filters);
+    assert.deepEqual(result.items.map((entry) => entry.id), [issuanceId, receivableId]);
+    assert.equal(result.generatedAt.toISOString(), '2026-01-02T00:00:00.000Z');
+  });
+
+  it('rejects malformed response data instead of displaying partial agenda results', async (t) => {
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return success({ items: 'invalid' });
+    });
+    await restoreSession();
+    await assert.rejects(listSchedule(organizationId, { from, to: new Date(from.getTime() + 86400000) }, filters), /interpretar/);
+  });
 });

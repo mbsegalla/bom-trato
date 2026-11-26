@@ -108,4 +108,56 @@ describe('work order recurrence HTTP contracts', () => {
     await assert.rejects(getWorkOrderRecurrence(organizationId, receivableId), /interpretar/);
     assert.equal(calls.filter((call) => call.path === route).length, 3);
   });
+  for (const [status, message] of [
+    [400, /frequência e a data/], [404, /não encontrada/], [503, /recorrência está indisponível/], [500, /consultar ou salvar/],
+  ] as const) {
+    it('preserves recurrence failure ' + status + ' without replaying the save', async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        return new Response(null, { status });
+      });
+      await restoreSession();
+      await assert.rejects(saveWorkOrderRecurrence(organizationId, receivableId, 1, input), message);
+      assert.equal(calls.filter((call) => call.path === route).length, 1);
+    });
+  }
+
+  it('omits unrestricted filters and defaults the pagination limit', async (t) => {
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return success({ items: [], page: 1, hasMore: false, today: view.today, canConfigure: false });
+    });
+    await restoreSession();
+    assert.equal((await listWorkOrderRecurrences(organizationId, { page: 1, status: 'ALL', visit: 'ALL', customerName: ' ' })).canConfigure, false);
+    const query = new URLSearchParams(calls.find((call) => call.path.startsWith(listRoute))!.path.split('?')[1]);
+    assert.deepEqual([...query.keys()].sort(), ['limit', 'page']);
+    assert.ok(Number(query.get('limit')) > 0);
+  });
+
+  for (const [status, message] of [[403, /permissão/], [503, /carregar os serviços recorrentes/]] as const) {
+    it('rejects recurrence listing HTTP ' + status, async (t) => {
+      mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        return new Response(null, { status });
+      });
+      await restoreSession();
+      await assert.rejects(listWorkOrderRecurrences(organizationId, { page: 1, status: 'ALL', visit: 'ALL', customerName: '' }), message);
+    });
+  }
+
+  it('rejects a malformed recurrence list and allows explicit recovery', async (t) => {
+    let attempt = 0;
+    mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return ++attempt === 1 ? success({ items: null }) : success({ items: [], page: 1, hasMore: false, today: view.today, canConfigure: true });
+    });
+    await restoreSession();
+    const params = { page: 1, status: 'ALL' as const, visit: 'ALL' as const, customerName: '' };
+    await assert.rejects(listWorkOrderRecurrences(organizationId, params), /interpretar/);
+    assert.deepEqual((await listWorkOrderRecurrences(organizationId, params)).items, []);
+  });
 });
