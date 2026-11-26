@@ -84,4 +84,33 @@ describe('catalog detail and mutation contracts', () => {
     assert.equal((await getCatalogService(organizationId, receivableId)).id, receivableId);
     assert.equal(attempt, 2);
   });
+  for (const [status, message] of [
+    [400, /Confira os dados/], [403, /permissão/], [409, /estado atual/],
+    [503, /catálogo está sendo atualizado/], [500, /atualizar o serviço/],
+  ] as const) {
+    it('rejects a service update with HTTP ' + status + ' without implicit retries', async (t) => {
+      const calls = mockHttp(t, (call) => {
+        if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+        if (call.path === '/api/auth/refresh') return sessionResponse();
+        return new Response(null, { status });
+      });
+      await restoreSession();
+      await assert.rejects(updateCatalogService(organizationId, receivableId, input), message);
+      assert.equal(calls.filter((call) => call.path === route).length, 1);
+    });
+  }
+
+  it('rejects malformed mutation responses and preserves session expiry', async (t) => {
+    let expired = false;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      if (call.path === '/api/auth/refresh') return sessionResponse();
+      return expired ? new Response(null, { status: 401 }) : success({ ...item, amountInCents: -1 });
+    });
+    await restoreSession();
+    await assert.rejects(archiveCatalogService(organizationId, receivableId), /interpretar/);
+    expired = true;
+    await assert.rejects(getCatalogService(organizationId, receivableId), /sessão expirou/);
+    assert.equal(calls.filter((call) => call.path === route).length, 2);
+  });
 });
