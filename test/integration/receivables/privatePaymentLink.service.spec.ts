@@ -76,7 +76,7 @@ describe('private receivable payment links', () => {
 
     await restoreSession();
 
-    for (const _url of unsafe) {
+    for (let index = 0; index < unsafe.length; index++) {
       await assert.rejects(createReceivablePaymentLink(organizationId, receivableId, 3), /confirmar o endereço/);
     }
 

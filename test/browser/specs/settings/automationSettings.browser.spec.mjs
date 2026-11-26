@@ -1,5 +1,5 @@
 import { expect, success, test } from '../../support/api.fixture.mjs';
-import { date, installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
+import { installAuthenticatedApp, organization } from '../../support/authenticatedApp.fixture.mjs';
 import { automationEvent, automationRoute, businessProfile, profileRoute } from '../../support/settings.fixture.mjs';
 
 test('saves only automation flags and renders the status of each historical delivery', async ({ page, api }) => {

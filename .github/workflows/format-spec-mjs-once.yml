@@ -1,4 +1,5 @@
 name: One-time test formatting
+# Recheck after removing remaining non-behavioral lint diagnostics.
 
 on:
   push:

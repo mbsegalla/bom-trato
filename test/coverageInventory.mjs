@@ -48,8 +48,8 @@ try {
     for (const file of sources(join(root, 'src')).sort()) {
       const path = relative(root, file).split(sep).join('/');
       if (isAbsolute(path) || path.startsWith('../')) continue;
-      const module = /^src\/modules\/([^/]+)\//.exec(path)?.[1];
-      const key = module ?? path.split('/')[1] ?? 'other';
+      const moduleName = /^src\/modules\/([^/]+)\//.exec(path)?.[1];
+      const key = moduleName ?? path.split('/')[1] ?? 'other';
       const count = groups.get(key) ?? { total: 0, executed: 0 };
       count.total += 1;
       if (seen.has(file)) count.executed += 1;
