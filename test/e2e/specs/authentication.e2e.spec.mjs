@@ -118,4 +118,58 @@ test('registers, verifies, activates a trial and restores real authenticated acc
     });
     expect(Date.parse(state.trialExpiresAt) - Date.parse(state.trialStartsAt)).toBe(14 * 24 * 60 * 60 * 1000);
   });
+
+  await test.step('Recover the password using the real outbox and reject reused action tokens', async () => {
+    const client = page.context().request;
+    const newPassword = 'Fixture!UpdatedPassword456';
+
+    async function post(path, data = {}, accessToken) {
+      const csrf = await client.get(apiOrigin + '/api/auth/csrf', {
+        headers: { Origin: 'http://127.0.0.1:3100' },
+      });
+      expect(csrf.status()).toBe(200);
+      const { data: csrfData } = await csrf.json();
+
+      return client.post(apiOrigin + '/api/auth/' + path, {
+        data,
+        headers: {
+          Origin: 'http://127.0.0.1:3100',
+          'X-CSRF-Token': csrfData.csrfToken,
+          ...(accessToken ? { Authorization: 'Bearer ' + accessToken } : {}),
+        },
+      });
+    }
+
+    const unknownEmail = 'e2e-' + randomUUID() + '@example.com';
+    const unknown = await post('forgot-password', { email: unknownEmail });
+    const known = await post('forgot-password', { email });
+    expect(unknown.status()).toBe(202);
+    expect(known.status()).toBe(202);
+    expect(await known.json()).toEqual(await unknown.json());
+
+    const { link } = inspectAccount('reset-link', email);
+    const token = new URLSearchParams(new URL(link).hash.slice(1)).get('token');
+    expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/);
+
+    expect((await post('verify-email', { token })).status()).toBe(401);
+    expect((await post('reset-password', { token, password: 'weak' })).status()).toBe(400);
+    expect((await post('reset-password', { token, password: newPassword })).status()).toBe(204);
+    expect((await post('reset-password', { token, password })).status()).toBe(401);
+    expect((await post('login', { email, password })).status()).toBe(401);
+
+    const login = await post('login', { email, password: newPassword });
+    expect(login.status()).toBe(200);
+    const { data } = await login.json();
+    const headers = { Authorization: 'Bearer ' + data.accessToken };
+
+    expect((await client.get(apiOrigin + '/api/auth/me', { headers })).status()).toBe(200);
+    const sessions = await client.get(apiOrigin + '/api/auth/sessions', { headers });
+    expect(sessions.status()).toBe(200);
+    const { data: activeSessions } = await sessions.json();
+    expect(activeSessions.filter((session) => session.current)).toHaveLength(1);
+
+    expect((await post('logout-all', {}, data.accessToken)).status()).toBe(204);
+    expect((await post('refresh')).status()).toBe(401);
+    expect((await client.get(apiOrigin + '/api/auth/me')).status()).toBe(401);
+  });
 });
