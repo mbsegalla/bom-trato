@@ -9,6 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { getRequestCooldownSeconds } from '../helpers/requestCooldown';
+import { useRequestCooldown } from '../hooks/useRequestCooldown';
 import { passwordResetTokenSchema } from '../schemas/auth.schema';
 import { resetPassword } from '../services/passwordReset.service';
 import { getPasswordRequirements, isPasswordValid } from '../utils/passwordPolicy';
@@ -35,6 +37,7 @@ export function ResetPasswordForm() {
   const hash = useSyncExternalStore(subscribeToHash, getHashSnapshot, getServerHashSnapshot);
 
   const submittingRef = useRef(false);
+  const remainingSeconds = useRequestCooldown('reset-password');
 
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -60,7 +63,7 @@ export function ResetPasswordForm() {
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (!token || submittingRef.current) {
+    if (!token || submittingRef.current || getRequestCooldownSeconds('reset-password') > 0) {
       return;
     }
 
@@ -263,12 +266,18 @@ export function ResetPasswordForm() {
             </p>
           )}
 
-          <Button type="submit" disabled={isSubmitting} className="mt-2 min-h-12 w-full cursor-pointer rounded-xl">
+          <Button
+            type="submit"
+            disabled={isSubmitting || remainingSeconds > 0}
+            className="mt-2 min-h-12 w-full cursor-pointer rounded-xl"
+          >
             {isSubmitting ? (
               <>
                 <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
                 Alterando senha...
               </>
+            ) : remainingSeconds > 0 ? (
+              `Tentar novamente em ${remainingSeconds}s`
             ) : (
               'Criar nova senha'
             )}
