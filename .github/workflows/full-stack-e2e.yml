@@ -121,7 +121,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p test/e2e/logs
-          pnpm test:e2e --project=${{ matrix.project }} 2>&1 | tee test/e2e/logs/full-stack.log
+          npm --prefix test/e2e test -- --project=${{ matrix.project }} 2>&1 | tee test/e2e/logs/full-stack.log
 
       - name: Upload full-stack report
         if: always()
