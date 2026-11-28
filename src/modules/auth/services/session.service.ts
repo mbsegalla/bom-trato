@@ -1,5 +1,6 @@
 import { getApiConfig } from '@/config/api.config';
 
+import { readRetryAfterSeconds } from '../helpers/requestCooldown';
 import {
   authSessionsResponseSchema,
   currentUserResponseSchema,
@@ -45,6 +46,7 @@ export class SessionError extends Error {
     readonly status = 0,
     readonly uncertain = false,
     readonly code?: string,
+    readonly retryAfterSeconds?: number,
   ) {
     super(message);
 
@@ -76,6 +78,18 @@ function serialized<T>(operation: () => Promise<T>): Promise<T> {
   mutationQueue = pending.catch(() => undefined);
 
   return pending;
+}
+
+function rateLimitError(response: Response | null): SessionError {
+  const seconds = response ? readRetryAfterSeconds(response) : 60;
+
+  return new SessionError(
+    `Muitas tentativas. Aguarde ${seconds}s antes de tentar novamente.`,
+    429,
+    false,
+    undefined,
+    seconds,
+  );
 }
 
 function sessionErrorMessage(status: number, operation: SessionOperation, code?: string): string {
@@ -147,12 +161,11 @@ async function requestSession(path: string, operation: SessionOperation, body?: 
     csrfToken = await requestCsrfToken();
   } catch (error: unknown) {
     if (error instanceof CsrfRequestError) {
-      throw new SessionError(
-        error.status === 429
-          ? 'Muitas tentativas. Aguarde antes de tentar novamente.'
-          : 'Não foi possível iniciar a autenticação. Tente novamente.',
-        error.status,
-      );
+      if (error.status === 429) {
+        throw rateLimitError(error.response);
+      }
+
+      throw new SessionError('Não foi possível iniciar a autenticação. Tente novamente.', error.status);
     }
 
     throw error;
@@ -178,6 +191,10 @@ async function requestSession(path: string, operation: SessionOperation, body?: 
   }
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     const code = await readErrorCode(response);
 
     throw new SessionError(
@@ -281,6 +298,10 @@ async function requestCurrentUser(): Promise<AuthUser> {
   const response = await authenticatedFetch('/api/auth/me');
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     throw new SessionError('Não foi possível carregar sua conta.', response.status);
   }
 
@@ -319,6 +340,10 @@ async function requestSessions(): Promise<AuthSession[]> {
   const response = await authenticatedFetch('/api/auth/sessions');
 
   if (!response.ok) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     throw new SessionError('Não foi possível carregar suas sessões.', response.status);
   }
 
@@ -366,6 +391,10 @@ export async function revokeSession(sessionId: string, current: boolean): Promis
   });
 
   if (!response.ok && response.status !== 401) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     throw new SessionError('Não foi possível encerrar esta sessão.', response.status);
   }
 
@@ -382,6 +411,10 @@ export async function logoutAll(): Promise<void> {
   });
 
   if (!response.ok && response.status !== 401) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     throw new SessionError('Não foi possível encerrar todas as sessões.', response.status);
   }
 
@@ -394,6 +427,10 @@ export async function logout(): Promise<void> {
   });
 
   if (!response.ok && response.status !== 401) {
+    if (response.status === 429) {
+      throw rateLimitError(response);
+    }
+
     throw new SessionError('Não foi possível encerrar sua sessão.', response.status);
   }
 
