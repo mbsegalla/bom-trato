@@ -106,6 +106,16 @@ export const marketingFaqs = [
       'Você pode acompanhar valores totais, recebidos, pendentes e em atraso, além de registrar pagamentos conforme eles acontecem.',
   },
   {
+    question: 'Posso organizar serviços recorrentes?',
+    answer:
+      'Sim. A recorrência ajuda a planejar atendimentos periódicos e a manter a rotina de execução organizada, conforme os recursos disponíveis no seu plano.',
+  },
+  {
+    question: 'Posso registrar fotos dos serviços?',
+    answer:
+      'As ordens de serviço oferecem recursos para registros fotográficos quando habilitados, permitindo documentar o atendimento e controlar o compartilhamento com o cliente.',
+  },
+  {
     question: 'Como funcionam as avaliações dos profissionais?',
     answer:
       'Depois de um serviço concluído, você pode solicitar uma avaliação manualmente ou deixar o Bom Trato fazer isso automaticamente. Avaliações vinculadas a serviços realizados ajudam a construir uma reputação mais confiável na vitrine pública.',
