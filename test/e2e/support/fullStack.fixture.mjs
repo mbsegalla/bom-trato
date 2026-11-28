@@ -25,19 +25,27 @@ export const test = base.extend({
   },
 });
 
-export function inspectAccount(operation, email) {
+function runAccountFixture(script, operation, email) {
   if (process.env.BOM_TRATO_E2E !== '1' || !process.env.E2E_API_ROOT) {
     throw new Error('Full-stack E2E inspection requires the isolated environment');
   }
 
   const backendRoot = resolve(process.env.E2E_API_ROOT);
-  const result = execFileSync(process.execPath, ['test/e2e/support/inspect.mjs', operation, email], {
+  const result = execFileSync(process.execPath, ['test/e2e/support/' + script, operation, email], {
     cwd: backendRoot,
     encoding: 'utf8',
     timeout: 15_000,
   });
 
   return JSON.parse(result);
+}
+
+export function inspectAccount(operation, email) {
+  return runAccountFixture('inspect.mjs', operation, email);
+}
+
+export function expireAccount(operation, email) {
+  return runAccountFixture('expire.mjs', operation, email);
 }
 
 export function apiResponse(page, method, path) {

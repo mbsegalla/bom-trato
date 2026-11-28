@@ -17,7 +17,11 @@ concurrency:
 
 jobs:
   full-stack:
-    name: Real frontend and backend journeys
+    name: Real frontend and backend journeys (${{ matrix.project }})
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [desktop, mobile]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -117,13 +121,13 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p test/e2e/logs
-          pnpm test:e2e 2>&1 | tee test/e2e/logs/full-stack.log
+          npm --prefix test/e2e test -- --project=${{ matrix.project }} 2>&1 | tee test/e2e/logs/full-stack.log
 
       - name: Upload full-stack report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: full-stack-e2e-report
+          name: full-stack-e2e-report-${{ matrix.project }}
           path: |
             frontend/test/e2e/playwright-report/
             frontend/test/e2e/test-results/
