@@ -4,7 +4,7 @@ import { ArrowRight, Eye, EyeOff, Info, LoaderCircle, LockKeyhole, Mail } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,7 +30,23 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<LoginNotice | null>(null);
 
+  const [blockedUntil, setBlockedUntil] = useState(0);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
   const busy = isSubmitting || googleSubmitting;
+  const blocked = remainingSeconds > 0;
+
+  useEffect(() => {
+    if (!blockedUntil) return;
+
+    const timer = window.setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((blockedUntil - Date.now()) / 1000));
+      setRemainingSeconds(remaining);
+      if (remaining === 0) window.clearInterval(timer);
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [blockedUntil]);
 
   function clearFeedback(): void {
     setError(null);
@@ -49,7 +65,7 @@ export function LoginForm() {
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (submittingRef.current || busy) {
+    if (submittingRef.current || busy || blocked) {
       return;
     }
 
@@ -76,6 +92,13 @@ export function LoginForm() {
 
       router.replace('/dashboard');
     } catch (cause: unknown) {
+      if (cause instanceof SessionError && cause.status === 429) {
+        const seconds = cause.retryAfterSeconds ?? 60;
+        setBlockedUntil(Date.now() + seconds * 1000);
+        setRemainingSeconds(seconds);
+        return;
+      }
+
       setError(cause instanceof SessionError ? cause.message : 'Não foi possível entrar. Tente novamente.');
     } finally {
       submittingRef.current = false;
@@ -128,7 +151,7 @@ export function LoginForm() {
       <form
         onSubmit={handleSubmit}
         aria-busy={busy}
-        aria-describedby={error ? 'login-error' : notice ? 'login-notice' : undefined}
+        aria-describedby={blocked ? 'login-blocked' : error ? 'login-error' : notice ? 'login-notice' : undefined}
         className="space-y-6"
       >
         <fieldset disabled={busy} className="space-y-5">
@@ -215,6 +238,21 @@ export function LoginForm() {
             </div>
           )}
 
+          {blocked && (
+            <div id="login-blocked" role="alert" className="space-y-3 rounded-xl border border-border bg-muted/40 p-4">
+              <p className="text-sm font-semibold">Limite de tentativas atingido</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Por segurança, aguarde para tentar entrar novamente ou redefina sua senha.
+              </p>
+              <Link
+                href="/forgot-password"
+                className="inline-flex min-h-11 items-center font-medium text-primary underline underline-offset-4"
+              >
+                Redefinir minha senha
+              </Link>
+            </div>
+          )}
+
           {error && (
             <p
               id="login-error"
@@ -225,12 +263,14 @@ export function LoginForm() {
             </p>
           )}
 
-          <Button type="submit" disabled={busy} className="min-h-12 w-full cursor-pointer rounded-xl">
+          <Button type="submit" disabled={busy || blocked} className="min-h-12 w-full cursor-pointer rounded-xl">
             {isSubmitting ? (
               <>
                 <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
                 Entrando...
               </>
+            ) : blocked ? (
+              `Tentar novamente em ${remainingSeconds}s`
             ) : (
               <>
                 Entrar
