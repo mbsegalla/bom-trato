@@ -1,6 +1,6 @@
 import { getApiConfig } from '@/config/api.config';
 
-import { readRetryAfterSeconds } from '../helpers/requestCooldown';
+import { readRetryAfterSeconds, startRequestCooldown } from '../helpers/requestCooldown';
 import { startVerificationCooldown } from '../helpers/verificationCooldown';
 import type { RegisterInput, RegisterResult } from '../types/auth.types';
 import { CsrfRequestError, requestCsrfToken } from './csrf.service';
@@ -72,7 +72,7 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
 
     if (!response.ok) {
       if (response.status === 429) {
-        startVerificationCooldown(readRetryAfterSeconds(response));
+        startRequestCooldown('register', readRetryAfterSeconds(response));
       }
 
       const code = await readErrorCode(response);
@@ -91,7 +91,7 @@ export async function registerUser(input: RegisterInput): Promise<RegisterResult
   } catch (error: unknown) {
     if (error instanceof CsrfRequestError) {
       if (error.status === 429 && error.response) {
-        startVerificationCooldown(readRetryAfterSeconds(error.response));
+        startRequestCooldown('register', readRetryAfterSeconds(error.response));
       }
 
       return {

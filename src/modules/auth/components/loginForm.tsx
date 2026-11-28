@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 
 import { getRequestCooldownSeconds, startRequestCooldown } from '../helpers/requestCooldown';
 import { useLoginCooldown } from '../hooks/useLoginCooldown';
+import { useRequestCooldown } from '../hooks/useRequestCooldown';
 import { login, loginWithGoogle, SessionError } from '../services/session.service';
 import { AuthMethodDivider } from './authMethodDivider';
 import { GoogleSignInButton } from './googleSignInButton';
@@ -33,6 +34,7 @@ export function LoginForm() {
   const [notice, setNotice] = useState<LoginNotice | null>(null);
 
   const remainingSeconds = useLoginCooldown();
+  const googleRemainingSeconds = useRequestCooldown('google');
   const busy = isSubmitting || googleSubmitting;
   const blocked = remainingSeconds > 0;
 
@@ -94,7 +96,7 @@ export function LoginForm() {
   };
 
   async function handleGoogleCredential(credential: string): Promise<void> {
-    if (busy) {
+    if (busy || getRequestCooldownSeconds('google') > 0) {
       return;
     }
 
@@ -117,6 +119,10 @@ export function LoginForm() {
         return;
       }
 
+      if (cause instanceof SessionError && cause.status === 429) {
+        startRequestCooldown('google', cause.retryAfterSeconds);
+      }
+
       setError(cause instanceof SessionError ? cause.message : 'Não foi possível entrar com Google.');
     } finally {
       setGoogleSubmitting(false);
@@ -127,10 +133,16 @@ export function LoginForm() {
     <div className="space-y-6">
       <GoogleSignInButton
         text="continue_with"
-        disabled={busy}
+        disabled={busy || googleRemainingSeconds > 0}
         onCredential={(credential) => void handleGoogleCredential(credential)}
         onError={handleGoogleError}
       />
+
+      {googleRemainingSeconds > 0 && (
+        <p role="status" className="text-center text-sm text-muted-foreground">
+          Google disponível em {googleRemainingSeconds}s.
+        </p>
+      )}
 
       <AuthMethodDivider />
 

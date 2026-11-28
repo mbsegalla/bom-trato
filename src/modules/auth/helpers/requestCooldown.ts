@@ -1,11 +1,14 @@
 const STORAGE_PREFIX = 'bom-trato';
 const DEFAULT_COOLDOWN_SECONDS = 60;
 
-export type CooldownScope = 'verification' | 'password-reset' | 'login';
+export type CooldownScope = 'verification' | 'password-reset' | 'login' | 'register' | 'reset-password' | 'google';
 
 const memoryUntil: Record<CooldownScope, number> = {
   verification: 0,
   login: 0,
+  register: 0,
+  'reset-password': 0,
+  google: 0,
   'password-reset': 0,
 };
 

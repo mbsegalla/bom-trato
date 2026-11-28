@@ -61,11 +61,13 @@ describe('authenticated HTTP session', () => {
   });
 
   it('preserves the retry-after duration when session refresh is rate limited', async (t) => {
-    const calls = mockHttp(t, (call) =>
-      call.path === '/api/auth/csrf'
-        ? success({ csrfToken: 'fixture-csrf' })
-        : new Response(null, { status: 429, headers: { 'Retry-After': '75' } }),
-    );
+    let now = Date.now();
+    t.mock.method(Date, 'now', () => now);
+    let blocked = true;
+    const calls = mockHttp(t, (call) => {
+      if (call.path === '/api/auth/csrf') return success({ csrfToken: 'fixture-csrf' });
+      return blocked ? new Response(null, { status: 429, headers: { 'Retry-After': '75' } }) : sessionResponse();
+    });
 
     await assert.rejects(
       restoreSession(),
@@ -73,16 +75,36 @@ describe('authenticated HTTP session', () => {
         error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 75 && !error.uncertain,
     );
     assert.equal(calls.length, 2);
+
+    now += 10000;
+    await assert.rejects(
+      restoreSession(),
+      (error: unknown) => error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 65,
+    );
+    assert.equal(calls.length, 2);
+
+    now += 65000;
+    blocked = false;
+    assert.equal((await restoreSession()).accessToken, 'fixture-access');
+    assert.equal(calls.length, 4);
   });
 
   it('preserves rate limits from CSRF without attempting refresh', async (t) => {
-    const calls = mockHttp(t, () => new Response(null, { status: 429, headers: { 'Retry-After': '120' } }));
+    let now = Date.now();
+    t.mock.method(Date, 'now', () => now);
+    const calls = mockHttp(t, (call) => {
+      if (calls.length === 1) return new Response(null, { status: 429, headers: { 'Retry-After': '120' } });
+      return call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : sessionResponse();
+    });
 
     await assert.rejects(
       restoreSession(),
       (error: unknown) => error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 120,
     );
     assert.equal(calls.length, 1);
+    now += 120000;
+    await restoreSession();
+    assert.equal(calls.length, 3);
   });
 
   it('does not accept malformed session data', async (t) => {

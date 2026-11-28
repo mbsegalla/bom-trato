@@ -1,7 +1,7 @@
 import { getApiConfig } from '@/config/api.config';
 
 import { startPasswordResetCooldown } from '../helpers/passwordResetCooldown';
-import { readRetryAfterSeconds } from '../helpers/requestCooldown';
+import { readRetryAfterSeconds, startRequestCooldown } from '../helpers/requestCooldown';
 import { csrfResponseSchema, emailSchema, passwordResetTokenSchema } from '../schemas/auth.schema';
 import type { ForgotPasswordResult, ResetPasswordResult } from '../types/auth.types';
 
@@ -189,6 +189,10 @@ export async function resetPassword(tokenInput: string, password: string): Promi
     const csrfResult = await getCsrfToken(new URL(baseUrl), timeoutMs);
 
     if (!csrfResult.success || !csrfResult.token) {
+      if (csrfResult.status === 429 && csrfResult.response) {
+        startRequestCooldown('reset-password', readRetryAfterSeconds(csrfResult.response));
+      }
+
       return {
         success: false,
         rateLimited: csrfResult.status === 429,
@@ -218,6 +222,10 @@ export async function resetPassword(tokenInput: string, password: string): Promi
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        startRequestCooldown('reset-password', readRetryAfterSeconds(response));
+      }
+
       return {
         success: false,
         ...getResetPasswordError(response.status),

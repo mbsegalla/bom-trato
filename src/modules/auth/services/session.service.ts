@@ -29,6 +29,8 @@ let session: Session | null = null;
 
 let refreshFlight: Promise<Session> | null = null;
 
+let refreshBlockedUntil = 0;
+
 let currentUserFlight: Promise<AuthUser> | null = null;
 
 let sessionsFlight: Promise<AuthSession[]> | null = null;
@@ -213,6 +215,7 @@ async function requestSession(path: string, operation: SessionOperation, body?: 
     throw new SessionError('Não conseguimos ler a sessão retornada.', 0, true);
   }
 
+  refreshBlockedUntil = 0;
   session = {
     ...parsed.data,
     expiresAt: Date.now() + parsed.data.expiresIn * 1000,
@@ -250,9 +253,29 @@ export function restoreSession(): Promise<Session> {
     return refreshFlight;
   }
 
-  refreshFlight = serialized(() => requestSession('/api/auth/refresh', 'refresh'))
+  refreshFlight = serialized(() => {
+    const remaining = Math.ceil((refreshBlockedUntil - Date.now()) / 1000);
+
+    if (remaining > 0) {
+      throw new SessionError(
+        `Muitas tentativas. Aguarde ${remaining}s antes de tentar novamente.`,
+        429,
+        false,
+        undefined,
+        remaining,
+      );
+    }
+
+    return requestSession('/api/auth/refresh', 'refresh');
+  })
     .catch((error: unknown) => {
-      session = null;
+      if (error instanceof SessionError && error.status === 429) {
+        if (refreshBlockedUntil <= Date.now()) {
+          refreshBlockedUntil = Date.now() + (error.retryAfterSeconds ?? 60) * 1000;
+        }
+      } else {
+        session = null;
+      }
 
       throw error;
     })
@@ -379,6 +402,7 @@ export function listSessions(): Promise<AuthSession[]> {
 }
 
 function clearLocalSession(): void {
+  refreshBlockedUntil = 0;
   session = null;
   refreshFlight = null;
   currentUserFlight = null;

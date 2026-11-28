@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { getRequestCooldownSeconds, startRequestCooldown } from '../helpers/requestCooldown';
+import { useRequestCooldown } from '../hooks/useRequestCooldown';
 import { registerUser } from '../services/auth.service';
 import { loginWithGoogle, SessionError } from '../services/session.service';
 import type { RegisterFormProps } from '../types/auth.types';
@@ -30,6 +32,8 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
   const [error, setError] = useState<string | null>(null);
   const [googleSubmitting, setGoogleSubmitting] = useState(false);
 
+  const remainingSeconds = useRequestCooldown('register');
+  const googleRemainingSeconds = useRequestCooldown('google');
   const busy = isSubmitting || googleSubmitting;
 
   const loginHref = '/login';
@@ -43,7 +47,7 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
   }
 
   async function handleGoogleCredential(credential: string): Promise<void> {
-    if (busy) {
+    if (busy || getRequestCooldownSeconds('google') > 0) {
       return;
     }
 
@@ -64,6 +68,10 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
 
       router.replace('/dashboard');
     } catch (cause: unknown) {
+      if (cause instanceof SessionError && cause.status === 429) {
+        startRequestCooldown('google', cause.retryAfterSeconds);
+      }
+
       setError(cause instanceof SessionError ? cause.message : 'Não foi possível continuar com Google.');
     } finally {
       setGoogleSubmitting(false);
@@ -73,7 +81,7 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (submittingRef.current) {
+    if (submittingRef.current || busy || getRequestCooldownSeconds('register') > 0) {
       return;
     }
 
@@ -215,10 +223,16 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
       <div className="mt-7 space-y-5">
         <GoogleSignInButton
           text="continue_with"
-          disabled={busy}
+          disabled={busy || googleRemainingSeconds > 0}
           onCredential={(credential) => void handleGoogleCredential(credential)}
           onError={() => setError('Não foi possível abrir o cadastro com Google.')}
         />
+
+        {googleRemainingSeconds > 0 && (
+          <p role="status" className="text-center text-sm text-muted-foreground">
+            Google disponível em {googleRemainingSeconds}s.
+          </p>
+        )}
 
         <AuthMethodDivider />
       </div>
@@ -339,12 +353,18 @@ export function RegisterForm({ selectedPlan, legalDocuments }: RegisterFormProps
             </p>
           )}
 
-          <Button type="submit" disabled={isSubmitting} className="mt-2 min-h-12 w-full cursor-pointer rounded-xl">
+          <Button
+            type="submit"
+            disabled={busy || remainingSeconds > 0}
+            className="mt-2 min-h-12 w-full cursor-pointer rounded-xl"
+          >
             {isSubmitting ? (
               <>
                 <LoaderCircle aria-hidden="true" className="size-4 motion-safe:animate-spin" />
                 Criando conta...
               </>
+            ) : remainingSeconds > 0 ? (
+              `Tentar novamente em ${remainingSeconds}s`
             ) : (
               <>
                 Criar conta
