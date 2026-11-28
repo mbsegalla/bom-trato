@@ -1,5 +1,5 @@
 const STORAGE_PREFIX = 'bom-trato';
-const DEFAULT_COOLDOWN_SECONDS = 180;
+const DEFAULT_COOLDOWN_SECONDS = 60;
 
 export type CooldownScope = 'verification' | 'password-reset';
 

@@ -1,6 +1,6 @@
 import { getRequestCooldownSeconds, startRequestCooldown, subscribeToRequestCooldown } from './requestCooldown';
 
-export const PASSWORD_RESET_COOLDOWN_SECONDS = 180;
+export const PASSWORD_RESET_COOLDOWN_SECONDS = 60;
 
 export function getPasswordResetCooldownSeconds(): number {
   return getRequestCooldownSeconds('password-reset');

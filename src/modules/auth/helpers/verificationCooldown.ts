@@ -1,6 +1,6 @@
 import { getRequestCooldownSeconds, startRequestCooldown, subscribeToRequestCooldown } from './requestCooldown';
 
-export const VERIFICATION_COOLDOWN_SECONDS = 180;
+export const VERIFICATION_COOLDOWN_SECONDS = 60;
 
 export function getVerificationCooldownSeconds(): number {
   return getRequestCooldownSeconds('verification');
