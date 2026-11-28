@@ -26,8 +26,8 @@ export function MarketingHero() {
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            Organize clientes, propostas, ordens de serviço e recebimentos em um só lugar. Planeje atendimentos recorrentes
-            e automatize lembretes para dedicar mais tempo ao seu trabalho.
+            Organize clientes, propostas, ordens de serviço e recebimentos em um só lugar. Planeje atendimentos
+            recorrentes e automatize lembretes para dedicar mais tempo ao seu trabalho.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
