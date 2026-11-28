@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight, Check } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 
 import { ProductTourShell } from './components/productTourShell';
 import { type ProductTourId, productTourItems } from './data/productTour.data';
@@ -73,6 +73,35 @@ export function ProductTour() {
     };
   }, []);
 
+  function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, id: ProductTourId): void {
+    const index = productTourItems.findIndex((item) => item.id === id);
+    const count = productTourItems.length;
+    let nextIndex: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        nextIndex = (index + 1) % count;
+        break;
+      case 'ArrowLeft':
+        nextIndex = (index - 1 + count) % count;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = count - 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const nextId = productTourItems[nextIndex].id;
+
+    setActiveId(nextId);
+    document.getElementById(`product-tour-tab-${nextId}`)?.focus();
+  }
+
   function selectDesktopStep(id: ProductTourId): void {
     setActiveId(id);
 
@@ -117,8 +146,12 @@ export function ProductTour() {
               <button
                 key={id}
                 type="button"
+                id={`product-tour-tab-${id}`}
                 role="tab"
+                aria-controls="product-tour-mobile-panel"
                 aria-selected={activeId === id}
+                tabIndex={activeId === id ? 0 : -1}
+                onKeyDown={(event) => handleTabKeyDown(event, id)}
                 onClick={() => setActiveId(id)}
                 className={
                   activeId === id
@@ -131,7 +164,13 @@ export function ProductTour() {
             ))}
           </div>
 
-          <div className="mt-5">
+          <div
+            id="product-tour-mobile-panel"
+            role="tabpanel"
+            aria-labelledby={`product-tour-tab-${activeId}`}
+            tabIndex={0}
+            className="mt-5"
+          >
             <ProductTourShell activeId={activeId} onSelect={setActiveId} />
           </div>
         </div>
@@ -155,6 +194,7 @@ export function ProductTour() {
                   >
                     <button
                       type="button"
+                      aria-pressed={active}
                       onClick={() => selectDesktopStep(id)}
                       className="grid w-full cursor-pointer grid-cols-[3rem_minmax(0,1fr)] items-start gap-5 py-6 text-left"
                     >
