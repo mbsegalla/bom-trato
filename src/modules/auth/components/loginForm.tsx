@@ -4,12 +4,14 @@ import { ArrowRight, Eye, EyeOff, Info, LoaderCircle, LockKeyhole, Mail } from '
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { ComponentProps } from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+import { getRequestCooldownSeconds, startRequestCooldown } from '../helpers/requestCooldown';
+import { useLoginCooldown } from '../hooks/useLoginCooldown';
 import { login, loginWithGoogle, SessionError } from '../services/session.service';
 import { AuthMethodDivider } from './authMethodDivider';
 import { GoogleSignInButton } from './googleSignInButton';
@@ -30,23 +32,9 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<LoginNotice | null>(null);
 
-  const [blockedUntil, setBlockedUntil] = useState(0);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
-
+  const remainingSeconds = useLoginCooldown();
   const busy = isSubmitting || googleSubmitting;
   const blocked = remainingSeconds > 0;
-
-  useEffect(() => {
-    if (!blockedUntil) return;
-
-    const timer = window.setInterval(() => {
-      const remaining = Math.max(0, Math.ceil((blockedUntil - Date.now()) / 1000));
-      setRemainingSeconds(remaining);
-      if (remaining === 0) window.clearInterval(timer);
-    }, 1000);
-
-    return () => window.clearInterval(timer);
-  }, [blockedUntil]);
 
   function clearFeedback(): void {
     setError(null);
@@ -65,7 +53,7 @@ export function LoginForm() {
   const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
     event.preventDefault();
 
-    if (submittingRef.current || busy || blocked) {
+    if (submittingRef.current || busy || getRequestCooldownSeconds('login') > 0) {
       return;
     }
 
@@ -93,9 +81,7 @@ export function LoginForm() {
       router.replace('/dashboard');
     } catch (cause: unknown) {
       if (cause instanceof SessionError && cause.status === 429) {
-        const seconds = cause.retryAfterSeconds ?? 60;
-        setBlockedUntil(Date.now() + seconds * 1000);
-        setRemainingSeconds(seconds);
+        startRequestCooldown('login', cause.retryAfterSeconds);
         return;
       }
 

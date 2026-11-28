@@ -18,6 +18,7 @@ export const test = base.extend({
       const headers = {
         'access-control-allow-origin': appOrigin,
         'access-control-allow-credentials': 'true',
+        'access-control-expose-headers': 'Retry-After',
         'access-control-allow-methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
         'access-control-allow-headers': 'content-type, authorization, x-csrf-token, accept',
       };
@@ -38,7 +39,7 @@ export const test = base.extend({
       }
       const result = await handler(call);
 
-      return route.fulfill({ status: result.status ?? 200, headers, json: result.json });
+      return route.fulfill({ status: result.status ?? 200, headers: { ...headers, ...result.headers }, json: result.json });
     });
     await provideApi({
       calls,
