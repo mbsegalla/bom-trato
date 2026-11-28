@@ -90,7 +90,8 @@ export const productTourItems: ProductTourItem[] = [
     label: 'Ordens de serviço',
     eyebrow: 'Execução do trabalho',
     title: 'O orçamento aprovado vira trabalho organizado.',
-    description: 'Cliente, serviços, responsável, endereço e andamento ficam juntos, com registros fotográficos quando disponíveis.',
+    description:
+      'Cliente, serviços, responsável, endereço e andamento ficam juntos, com registros fotográficos quando disponíveis.',
     icon: ClipboardList,
   },
   {
