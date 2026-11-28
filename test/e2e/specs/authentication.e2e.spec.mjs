@@ -201,6 +201,37 @@ test('registers, verifies, activates a trial and restores real authenticated acc
       await secondClient.dispose();
     }
 
+    const rotatingClient = await playwright.request.newContext();
+
+    try {
+      const rotatingLogin = await mutate('login', { email, password: newPassword }, undefined, rotatingClient);
+      expect(rotatingLogin.status()).toBe(200);
+
+      const beforeRotation = await rotatingClient.storageState();
+      const previousRefresh = beforeRotation.cookies.find((cookie) => cookie.name === 'bomTratoRefresh');
+      expect(previousRefresh?.value).toMatch(/^[A-Za-z0-9_-]{43}$/);
+
+      const replayClient = await playwright.request.newContext({ storageState: beforeRotation });
+
+      try {
+        const rotated = await mutate('refresh', {}, undefined, rotatingClient);
+        expect(rotated.status()).toBe(200);
+
+        const afterRotation = await rotatingClient.storageState();
+        const nextRefresh = afterRotation.cookies.find((cookie) => cookie.name === 'bomTratoRefresh');
+        expect(nextRefresh?.value).toMatch(/^[A-Za-z0-9_-]{43}$/);
+        expect(nextRefresh.value).not.toBe(previousRefresh.value);
+
+        expect((await mutate('refresh', {}, undefined, replayClient)).status()).toBe(401);
+        expect((await mutate('refresh', {}, undefined, rotatingClient)).status()).toBe(401);
+        expect((await client.get(apiOrigin + '/api/auth/me', { headers })).status()).toBe(200);
+      } finally {
+        await replayClient.dispose();
+      }
+    } finally {
+      await rotatingClient.dispose();
+    }
+
     expect((await mutate('logout-all', {}, data.accessToken)).status()).toBe(204);
     expect((await mutate('refresh')).status()).toBe(401);
     expect((await client.get(apiOrigin + '/api/auth/me')).status()).toBe(401);
