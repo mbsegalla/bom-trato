@@ -90,7 +90,7 @@ export const productTourItems: ProductTourItem[] = [
     label: 'Ordens de serviço',
     eyebrow: 'Execução do trabalho',
     title: 'O orçamento aprovado vira trabalho organizado.',
-    description: 'Cliente, serviços, responsável, endereço, valor e andamento continuam juntos durante a execução.',
+    description: 'Cliente, serviços, responsável, endereço e andamento ficam juntos, com registros fotográficos quando disponíveis.',
     icon: ClipboardList,
   },
   {
@@ -99,7 +99,7 @@ export const productTourItems: ProductTourItem[] = [
     eyebrow: 'Rotina visível',
     title: 'Veja quando cada serviço precisa acontecer.',
     description:
-      'Acompanhe os atendimentos programados, organize a rotina do profissional ou da equipe e deixe lembretes ajudarem o cliente a não esquecer.',
+      'Organize a rotina individual ou da equipe, planeje atendimentos recorrentes e utilize lembretes de agendamento.',
     icon: CalendarDays,
   },
   {
