@@ -21,13 +21,13 @@ export function MarketingHero() {
             id="marketing-hero-title"
             className="mt-6 font-heading text-4xl leading-[1.12] font-semibold tracking-tight text-balance sm:text-5xl xl:text-6xl"
           >
-            Seu serviço é bom.
-            <span className="mt-2 block text-primary">Sua gestão também pode ser.</span>
+            Seu negócio, do primeiro contato
+            <span className="mt-2 block text-primary">ao último pagamento.</span>
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground">
-            Organize clientes, orçamentos, agenda, serviços e recebimentos em um só lugar. Enquanto você trabalha, o Bom
-            Trato cuida das tarefas repetitivas por você.
+            Organize clientes, propostas, ordens de serviço e recebimentos em um só lugar. Planeje atendimentos recorrentes
+            e automatize lembretes para dedicar mais tempo ao seu trabalho.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -54,8 +54,7 @@ export function MarketingHero() {
 
           <div className="mt-7 border-t border-border pt-5">
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Feito para autônomos e empresas de serviços. Acesse pelo computador ou celular, sem precisar instalar
-              nada.
+              Feito para autônomos e pequenas empresas de serviços, no computador ou celular, sem instalação.
             </p>
           </div>
         </div>
