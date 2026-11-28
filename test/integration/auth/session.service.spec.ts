@@ -60,6 +60,35 @@ describe('authenticated HTTP session', () => {
     }
   });
 
+  it('preserves the retry-after duration when session refresh is rate limited', async (t) => {
+    const calls = mockHttp(t, (call) =>
+      call.path === '/api/auth/csrf'
+        ? success({ csrfToken: 'fixture-csrf' })
+        : new Response(null, { status: 429, headers: { 'Retry-After': '75' } }),
+    );
+
+    await assert.rejects(
+      restoreSession(),
+      (error: unknown) =>
+        error instanceof SessionError &&
+        error.status === 429 &&
+        error.retryAfterSeconds === 75 &&
+        !error.uncertain,
+    );
+    assert.equal(calls.length, 2);
+  });
+
+  it('preserves rate limits from CSRF without attempting refresh', async (t) => {
+    const calls = mockHttp(t, () => new Response(null, { status: 429, headers: { 'Retry-After': '120' } }));
+
+    await assert.rejects(
+      restoreSession(),
+      (error: unknown) =>
+        error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 120,
+    );
+    assert.equal(calls.length, 1);
+  });
+
   it('does not accept malformed session data', async (t) => {
     mockHttp(t, (call) =>
       call.path === '/api/auth/csrf' ? success({ csrfToken: 'fixture-csrf' }) : success({ accessToken: 'incomplete' }),
