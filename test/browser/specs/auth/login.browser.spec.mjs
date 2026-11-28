@@ -46,3 +46,36 @@ test('shows invalid credentials, preserves the login page and submits CSRF-prote
   expect(calls[0].body).toEqual({ email: 'fixture@example.invalid', password: 'Fixture!password123' });
   expect(calls[0].headers['x-csrf-token']).toBe('fixture-csrf');
 });
+
+test('preserves login throttling across reload and tabs while allowing password recovery', async ({ page, api }) => {
+  api.respond('GET', '/api/auth/csrf', () => success({ csrfToken: 'fixture-csrf' }));
+  api.respond('POST', '/api/auth/login', () => ({
+    status: 429,
+    headers: { 'Retry-After': '120' },
+    json: { success: false },
+  }));
+
+  await page.goto('/login');
+  await page.getByLabel('E-mail', { exact: true }).fill('fixture@example.invalid');
+  await page.getByLabel('Senha', { exact: true }).fill('Fixture!password123');
+  await page.getByRole('button', { name: 'Entrar', exact: true }).click();
+
+  const blocked = page.getByRole('button', { name: /Tentar novamente em/ });
+  await expect(blocked).toBeDisabled();
+  await expect(page.getByText('Limite de tentativas atingido')).toBeVisible();
+  await page.reload();
+  await expect(blocked).toBeDisabled();
+
+  const other = await page.context().newPage();
+  try {
+    await other.goto('/login');
+    await expect(other.getByRole('button', { name: /Tentar novamente em/ })).toBeDisabled();
+  } finally {
+    await other.close();
+  }
+
+  await page.getByRole('link', { name: 'Redefinir minha senha' }).click();
+  await expect(page).toHaveURL(/\/forgot-password$/);
+  await expect(page.getByRole('button', { name: 'Enviar link de recuperação' })).toBeEnabled();
+  expect(api.calls.filter((call) => call.path === '/api/auth/login')).toHaveLength(1);
+});
