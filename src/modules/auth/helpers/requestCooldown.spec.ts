@@ -19,9 +19,9 @@ describe('Retry-After handling', () => {
       assert.equal(
         readRetryAfterSeconds(
           new Response(null, { headers: header === undefined ? {} : { 'Retry-After': header } }),
-          180,
+          60,
         ),
-        180,
+        60,
       );
     }
   });
