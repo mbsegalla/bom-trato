@@ -1,10 +1,11 @@
-import { CalendarCheck2, ClipboardCheck, FileCheck2, ReceiptText, Users, Wallet } from 'lucide-react';
+import { CalendarCheck2, ClipboardCheck, FileCheck2, ReceiptText, Users, Wallet, Wrench } from 'lucide-react';
 
-const benefits = [
+const features = [
   {
     icon: Users,
     title: 'Clientes e histórico',
-    description: 'Centralize contatos, endereços e histórico de atendimentos para continuar cada serviço de onde parou.',
+    description:
+      'Centralize contatos, endereços e histórico de atendimentos para continuar cada serviço de onde parou.',
   },
   {
     icon: FileCheck2,
@@ -25,6 +26,16 @@ const benefits = [
     icon: Wallet,
     title: 'Controle financeiro',
     description: 'Acompanhe entradas, saldos, vencimentos e pagamentos recebidos em um só lugar.',
+  },
+  {
+    icon: Wrench,
+    title: 'Catálogo de serviços',
+    description: 'Reutilize seus serviços, preços e duração estimada em propostas e atendimentos.',
+  },
+  {
+    icon: Users,
+    title: 'Gestão de equipes',
+    description: 'Convide colaboradores e distribua responsabilidades conforme os recursos do plano contratado.',
   },
   {
     icon: ReceiptText,
@@ -49,9 +60,11 @@ export function MarketingFeatures() {
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {benefits.map(({ icon: Icon, title, description }) => (
+          {features.map(({ icon: Icon, title, description }) => (
             <article key={title} className="rounded-2xl border border-border bg-card p-6">
-              <Icon aria-hidden="true" className="size-7 text-primary" strokeWidth={1.5} />
+              <div className="flex size-12 items-center justify-center rounded-xl bg-secondary text-primary">
+                <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
+              </div>
 
               <h3 className="mt-5 text-xl font-semibold tracking-tight">{title}</h3>
 
