@@ -70,10 +70,7 @@ describe('authenticated HTTP session', () => {
     await assert.rejects(
       restoreSession(),
       (error: unknown) =>
-        error instanceof SessionError &&
-        error.status === 429 &&
-        error.retryAfterSeconds === 75 &&
-        !error.uncertain,
+        error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 75 && !error.uncertain,
     );
     assert.equal(calls.length, 2);
   });
@@ -83,8 +80,7 @@ describe('authenticated HTTP session', () => {
 
     await assert.rejects(
       restoreSession(),
-      (error: unknown) =>
-        error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 120,
+      (error: unknown) => error instanceof SessionError && error.status === 429 && error.retryAfterSeconds === 120,
     );
     assert.equal(calls.length, 1);
   });
