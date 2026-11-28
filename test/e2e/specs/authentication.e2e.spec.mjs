@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import { apiOrigin, apiResponse, expect, inspectAccount, test } from '../support/fullStack.fixture.mjs';
 
-test('registers, verifies, activates a trial and restores real authenticated access', async ({ page }) => {
+test('registers, verifies, activates a trial and restores real authenticated access', async ({ page, playwright }) => {
   const email = 'e2e-' + randomUUID() + '@example.com';
   const password = 'Fixture!Password123';
   const name = 'E2E Account';
@@ -120,18 +120,21 @@ test('registers, verifies, activates a trial and restores real authenticated acc
   });
 
   await test.step('Recover the password using the real outbox and reject reused action tokens', async () => {
+    await page.goto('about:blank');
+
     const client = page.context().request;
     const newPassword = 'Fixture!UpdatedPassword456';
 
-    async function post(path, data = {}, accessToken) {
-      const csrf = await client.get(apiOrigin + '/api/auth/csrf', {
+    async function mutate(path, data = {}, accessToken, sessionClient = client, method = 'POST') {
+      const csrf = await sessionClient.get(apiOrigin + '/api/auth/csrf', {
         headers: { Origin: 'http://127.0.0.1:3100' },
       });
       expect(csrf.status()).toBe(200);
       const { data: csrfData } = await csrf.json();
 
-      return client.post(apiOrigin + '/api/auth/' + path, {
-        data,
+      return sessionClient.fetch(apiOrigin + '/api/auth/' + path, {
+        method,
+        ...(method === 'POST' ? { data } : {}),
         headers: {
           Origin: 'http://127.0.0.1:3100',
           'X-CSRF-Token': csrfData.csrfToken,
@@ -141,23 +144,25 @@ test('registers, verifies, activates a trial and restores real authenticated acc
     }
 
     const unknownEmail = 'e2e-' + randomUUID() + '@example.com';
-    const unknown = await post('forgot-password', { email: unknownEmail });
-    const known = await post('forgot-password', { email });
+    const unknown = await mutate('forgot-password', { email: unknownEmail });
+    const known = await mutate('forgot-password', { email });
     expect(unknown.status()).toBe(202);
     expect(known.status()).toBe(202);
-    expect(await known.json()).toEqual(await unknown.json());
+    const { data: knownMessage } = await known.json();
+    const { data: unknownMessage } = await unknown.json();
+    expect(knownMessage).toEqual(unknownMessage);
 
     const { link } = inspectAccount('reset-link', email);
     const token = new URLSearchParams(new URL(link).hash.slice(1)).get('token');
     expect(token).toMatch(/^[A-Za-z0-9_-]{43}$/);
 
-    expect((await post('verify-email', { token })).status()).toBe(401);
-    expect((await post('reset-password', { token, password: 'weak' })).status()).toBe(400);
-    expect((await post('reset-password', { token, password: newPassword })).status()).toBe(204);
-    expect((await post('reset-password', { token, password })).status()).toBe(401);
-    expect((await post('login', { email, password })).status()).toBe(401);
+    expect((await mutate('verify-email', { token })).status()).toBe(401);
+    expect((await mutate('reset-password', { token, password: 'weak' })).status()).toBe(400);
+    expect((await mutate('reset-password', { token, password: newPassword })).status()).toBe(204);
+    expect((await mutate('reset-password', { token, password })).status()).toBe(401);
+    expect((await mutate('login', { email, password })).status()).toBe(401);
 
-    const login = await post('login', { email, password: newPassword });
+    const login = await mutate('login', { email, password: newPassword });
     expect(login.status()).toBe(200);
     const { data } = await login.json();
     const headers = { Authorization: 'Bearer ' + data.accessToken };
@@ -168,8 +173,36 @@ test('registers, verifies, activates a trial and restores real authenticated acc
     const { data: activeSessions } = await sessions.json();
     expect(activeSessions.filter((session) => session.current)).toHaveLength(1);
 
-    expect((await post('logout-all', {}, data.accessToken)).status()).toBe(204);
-    expect((await post('refresh')).status()).toBe(401);
+    const secondClient = await playwright.request.newContext();
+
+    try {
+      const secondLogin = await mutate('login', { email, password: newPassword }, undefined, secondClient);
+      expect(secondLogin.status()).toBe(200);
+      const { data: secondSession } = await secondLogin.json();
+      const secondHeaders = { Authorization: 'Bearer ' + secondSession.accessToken };
+
+      const secondSessions = await secondClient.get(apiOrigin + '/api/auth/sessions', { headers: secondHeaders });
+      expect(secondSessions.status()).toBe(200);
+      const { data: secondActiveSessions } = await secondSessions.json();
+      const currentSecondSession = secondActiveSessions.find((session) => session.current);
+      expect(currentSecondSession?.id).toMatch(/^[0-9a-f-]{36}$/);
+
+      const revoke = await mutate('sessions/' + currentSecondSession.id, {}, data.accessToken, client, 'DELETE');
+      expect(revoke.status()).toBe(204);
+      expect((await mutate('refresh', {}, undefined, secondClient)).status()).toBe(401);
+
+      const remaining = await client.get(apiOrigin + '/api/auth/sessions', { headers });
+      expect(remaining.status()).toBe(200);
+      const { data: remainingSessions } = await remaining.json();
+      expect(remainingSessions.some((session) => session.id === currentSecondSession.id)).toBe(false);
+      expect(remainingSessions.filter((session) => session.current)).toHaveLength(1);
+      expect((await client.get(apiOrigin + '/api/auth/me', { headers })).status()).toBe(200);
+    } finally {
+      await secondClient.dispose();
+    }
+
+    expect((await mutate('logout-all', {}, data.accessToken)).status()).toBe(204);
+    expect((await mutate('refresh')).status()).toBe(401);
     expect((await client.get(apiOrigin + '/api/auth/me')).status()).toBe(401);
   });
 });
