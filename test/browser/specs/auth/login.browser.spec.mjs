@@ -79,3 +79,16 @@ test('preserves login throttling across reload and tabs while allowing password 
   await expect(page.getByRole('button', { name: 'Enviar link de recuperação' })).toBeEnabled();
   expect(api.calls.filter((call) => call.path === '/api/auth/login')).toHaveLength(1);
 });
+
+test('reenables password login when the stored cooldown expires', async ({ page, api }) => {
+  await page.goto('/login');
+  await page.evaluate(() => {
+    localStorage.setItem('bom-trato:login-cooldown-until', String(Date.now() + 5000));
+  });
+  await page.reload();
+
+  await expect(page.getByRole('button', { name: /Tentar novamente em/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Entrar', exact: true })).toBeEnabled({ timeout: 10000 });
+  await expect(page.getByText('Limite de tentativas atingido')).toHaveCount(0);
+  expect(api.calls).toHaveLength(0);
+});
