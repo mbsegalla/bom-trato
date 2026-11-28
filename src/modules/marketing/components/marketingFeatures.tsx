@@ -4,7 +4,8 @@ const benefits = [
   {
     icon: Users,
     title: 'Clientes e histórico',
-    description: 'Centralize contatos, endereços e histórico de atendimentos para continuar cada serviço de onde parou.',
+    description:
+      'Centralize contatos, endereços e histórico de atendimentos para continuar cada serviço de onde parou.',
   },
   {
     icon: FileCheck2,

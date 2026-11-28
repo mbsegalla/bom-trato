@@ -35,9 +35,7 @@ export function MarketingWorkflow() {
           <div className="px-6 py-10 sm:px-10 sm:py-14 lg:border-r lg:border-brand-foreground/15 lg:px-14">
             <ClipboardCheck aria-hidden="true" className="size-8 text-brand-muted" strokeWidth={1.5} />
 
-            <p className="mt-7 text-xs font-semibold tracking-widest text-brand-muted uppercase">
-              Um fluxo conectado
-            </p>
+            <p className="mt-7 text-xs font-semibold tracking-widest text-brand-muted uppercase">Um fluxo conectado</p>
 
             <h2 className="mt-4 font-heading text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
               Da proposta ao pagamento, sem perder o contexto.
@@ -55,11 +53,7 @@ export function MarketingWorkflow() {
                 <div className="flex items-center gap-3 sm:block">
                   <span className="text-xs font-medium text-brand-muted">{String(index + 1).padStart(2, '0')}</span>
 
-                  <Icon
-                    aria-hidden="true"
-                    className="mt-2 size-5 text-brand-foreground sm:mt-3"
-                    strokeWidth={1.5}
-                  />
+                  <Icon aria-hidden="true" className="mt-2 size-5 text-brand-foreground sm:mt-3" strokeWidth={1.5} />
                 </div>
 
                 <div>

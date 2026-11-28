@@ -37,16 +37,15 @@ export function MarketingAutomations() {
             </h2>
 
             <p className="mt-5 max-w-xl leading-relaxed text-muted-foreground">
-              Ative somente o que fizer sentido para sua rotina. O sistema acompanha momentos importantes sem tirar
-              de você o controle sobre o serviço.
+              Ative somente o que fizer sentido para sua rotina. O sistema acompanha momentos importantes sem tirar de
+              você o controle sobre o serviço.
             </p>
 
             <div className="mt-7 flex items-start gap-3 rounded-xl bg-secondary p-4 text-secondary-foreground">
               <Check aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
 
               <p className="text-sm leading-relaxed">
-                O histórico mostra o que foi programado e enviado para você continuar sabendo o que está
-                acontecendo.
+                O histórico mostra o que foi programado e enviado para você continuar sabendo o que está acontecendo.
               </p>
             </div>
           </div>
